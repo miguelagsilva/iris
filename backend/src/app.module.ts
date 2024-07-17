@@ -2,9 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TestModule } from './test/test.module';
 import { UsersModule } from './users/users.module';
-import { User } from './users/user.entity';
-import { CreateUserDto } from './users/dto/create-user.dto';
-import { UpdateUserDto } from './users/dto/update-user.dto';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler'
+import { APP_GUARD } from '@nestjs/core'
 
 @Module({
   imports: [
@@ -16,9 +15,20 @@ import { UpdateUserDto } from './users/dto/update-user.dto';
       password: 'postgres',
       database: 'testing',
       synchronize: true, // Automatically sync the database schem. Only use for development
-      autoLoadEntities: true, // Gets and loads all entities from the entities array in the TypeOrmModule.forRoot() method
+      autoLoadEntities: true,
     }),
-    TestModule, UsersModule,
+    ThrottlerModule.forRoot([{
+      ttl: 30000,
+      limit: 20,
+    }]),
+    TestModule,
+    UsersModule,
   ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    }
+  ]
 })
 export class AppModule {}

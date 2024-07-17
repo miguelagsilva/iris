@@ -9,6 +9,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @Module({
   imports: [TypeOrmModule.forFeature([User])],
   providers: [UsersService],
-  controllers: [UsersController]
+  controllers: [UsersController],
 })
 export class UsersModule {}

@@ -2,12 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import "reflect-metadata"
+import 'reflect-metadata';
+import { ThrottlerGuard } from '@nestjs/throttler'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
   app.setGlobalPrefix('api/v1');
+  app.useGlobalPipes(new ValidationPipe());
+
   const config = new DocumentBuilder()
     .setTitle('OpenAPI')
     .setVersion('1.0')
