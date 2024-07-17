@@ -1,7 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { SafeUserDto } from './dto/safe-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -10,31 +13,49 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  create(user: User): Promise<User> {
-    return this.usersRepository.save(user);
+  private toSafeUser(user: User): SafeUserDto {
+    const { password, id, createdAt, updatedAt, ...safeUser } = user;
+    return safeUser as SafeUserDto;
   }
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  async create(createUserDto: CreateUserDto): Promise<SafeUserDto> {
+    const existingUser = await this.usersRepository.findOneBy({ email: createUserDto.email });
+    if (existingUser) {
+      throw new ConflictException('User with this email or username already exists');
+    }
+
+    const savedUser = await this.usersRepository.save(createUserDto);
+    return this.toSafeUser(savedUser);
   }
 
-  findOne(id: string): Promise<User | null> {
-    return this.usersRepository.findOneBy({ id: id});
+  async findAll(): Promise<SafeUserDto[]> {
+    const users = await this.usersRepository.find();
+    return users.map(this.toSafeUser);
   }
 
-  async update(id: string, user: User): Promise<User> {
-    await this.usersRepository.update(id, user);
+  async findOne(id: string): Promise<SafeUserDto> {
+    const user = await this.usersRepository.findOneBy({ id: id });
+    if (!user) {
+      throw new NotFoundException(`User with ID "${id}" not found`);
+    }
+    return this.toSafeUser(user);
+  }
+
+  async update(id: string, updateUser: UpdateUserDto): Promise<SafeUserDto> {
+    const user = await this.usersRepository.findOneBy({ id: id });
+    if (!user) {
+      throw new NotFoundException(`User with ID "${id}" not found`);
+    }
+    await this.usersRepository.update(id, updateUser);
     return this.findOne(id);
   }
 
-  async partialUpdate(id: string, partialUser: Partial<User>): Promise<User> {
-    const user = await this.findOne(id);
-    const updatedUser = Object.assign(user, partialUser);
-    await this.usersRepository.save(updatedUser);
-    return this.findOne(id);
-  }
-
-  async remove(id: string): Promise<void> {
+  async remove(id: string): Promise<SafeUserDto> {
+    const user = await this.usersRepository.findOneBy({ id: id });
+    if (!user) {
+      throw new NotFoundException(`User with ID "${id}" not found`);
+    }
     await this.usersRepository.delete(id);
+    return this.toSafeUser(user);
   }
 }

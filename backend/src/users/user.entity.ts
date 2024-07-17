@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index, Unique } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsEnum, IsString, Length, IsUUID, Matches, IsNotEmpty, isStrongPassword } from "class-validator";
+import { IsEmail, IsEnum, IsString, Length, IsUUID, Matches, IsNotEmpty } from "class-validator";
 import { Exclude } from "class-transformer";
 
 export enum UserRole {
@@ -9,28 +9,18 @@ export enum UserRole {
 }
 
 @Entity()
+@Unique(["email"])
 export class User {
   @PrimaryGeneratedColumn("uuid")
   @IsUUID()
   id: string;
 
   @ApiProperty()
-  @Column({ unique: true })
-  @Index()
-  @IsString()
-  @IsNotEmpty()
-  @Length(3, 32)
-  @Matches(/^[a-zA-Z0-9_-]+$/, {
-    message: 'Username can only contain letters, numbers, underscores and hyphens'
-  })
-  username: string;
-
-  @ApiProperty()
-  @Column({ unique: true })
+  @Column()
   @Index()
   @IsEmail()
   @IsNotEmpty()
-  @Length(5, 64)
+  @Length(5, 48)
   email: string;
 
   @ApiProperty()
@@ -48,6 +38,9 @@ export class User {
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
+  @Matches(/^[\p{L}\p{M}'-]+$/u, {
+    message: 'Name can only contain letters, accents, apostrophes, and hyphens'
+  })
   firstName: string;
 
   @ApiProperty()
@@ -55,6 +48,9 @@ export class User {
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
+  @Matches(/^[\p{L}\p{M}'-]+$/u, {
+    message: 'Name can only contain letters, accents, apostrophes, and hyphens'
+  })
   lastName: string;
 
   @ApiProperty({ enum: UserRole, default: UserRole.USER })

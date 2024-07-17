@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TestModule } from './test/test.module';
 import { UsersModule } from './users/users.module';
+import { User } from './users/user.entity';
+import { CreateUserDto } from './users/dto/create-user.dto';
+import { UpdateUserDto } from './users/dto/update-user.dto';
 
 @Module({
   imports: [
