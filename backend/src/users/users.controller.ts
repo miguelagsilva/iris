@@ -7,6 +7,7 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';

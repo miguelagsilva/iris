@@ -23,8 +23,9 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<SafeUserDto> {
-    const existingUser = await this.usersRepository.findOneBy({
-      email: createUserDto.email,
+    const existingUser = await this.usersRepository.findOne({ 
+      where: { email: createUserDto.email },
+      withDeleted: true,
     });
     if (existingUser) {
       throw new ConflictException(
@@ -75,5 +76,11 @@ export class UsersService {
       );
     }
     return this.findOne(id);
+  }
+
+  // Auth
+  async AuthFindOneByEmail(email: string): Promise<User> {
+    const user = await this.usersRepository.findOneBy({ email: email });
+    return user;
   }
 }

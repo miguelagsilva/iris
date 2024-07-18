@@ -3,7 +3,6 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import 'reflect-metadata';
-import { ThrottlerGuard } from '@nestjs/throttler'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,11 +13,12 @@ async function bootstrap() {
     .setTitle('OpenAPI')
     .setVersion('1.0')
     .addTag('users')
+    .addTag('auth')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document, {
     jsonDocumentUrl: 'swagger/json',
   });
-  await app.listen(3000);
+  await app.listen(process.env.PORT);
 }
 bootstrap();
