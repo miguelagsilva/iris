@@ -19,11 +19,7 @@ import {
   IsNotEmpty,
 } from 'class-validator';
 import { Exclude } from 'class-transformer';
-
-export enum UserRole {
-  ADMIN = 'admin',
-  USER = 'user',
-}
+import { Role } from '../roles/roles.enum'
 
 @Entity()
 @Unique(['email'])
@@ -71,14 +67,14 @@ export class User {
   })
   lastName: string;
 
-  @ApiProperty({ enum: UserRole, default: UserRole.USER })
+  @ApiProperty({ enum: Role, default: Role.USER })
   @Column({
     type: 'enum',
-    enum: UserRole,
-    default: UserRole.USER,
+    enum: Role,
+    default: Role.USER,
   })
-  @IsEnum(UserRole)
-  role: UserRole;
+  @IsEnum(Role)
+  role: Role;
 
   @ApiProperty()
   @CreateDateColumn()

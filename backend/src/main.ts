@@ -12,6 +12,15 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('OpenAPI')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        in: 'header',
+      },
+      'bearer',
+    )
     .addTag('users')
     .addTag('auth')
     .build();
