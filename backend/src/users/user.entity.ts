@@ -90,6 +90,6 @@ export class User {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToOne(() => Organization, organization => organization.users) 
+  @ManyToOne(() => Organization, (organization) => organization.users)
   organization: Organization;
 }

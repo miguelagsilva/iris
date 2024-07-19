@@ -9,7 +9,7 @@ import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SafeUserDto } from './dto/safe-user.dto';
-import { AssignOrganizationDto } from './dto/assign-organization.dto'
+import { AssignOrganizationDto } from './dto/assign-organization.dto';
 import { OrganizationsService } from 'src/organizations/organizations.service';
 
 @Injectable()
@@ -87,9 +87,14 @@ export class UsersService {
 
   // Organization
 
-  async assignOrganization(id: string, assignOrganizationDto: AssignOrganizationDto): Promise<SafeUserDto> {
+  async assignOrganization(
+    id: string,
+    assignOrganizationDto: AssignOrganizationDto,
+  ): Promise<SafeUserDto> {
     const user = await this.getUser(id);
-    const organization = await this.organizationsService.getOrganization(assignOrganizationDto.organizationId);
+    const organization = await this.organizationsService.getOrganization(
+      assignOrganizationDto.organizationId,
+    );
     user.organization = organization;
     const savedUser = await this.usersRepository.save(user);
     return this.toSafeUser(savedUser);
@@ -98,7 +103,9 @@ export class UsersService {
   async removeFromOrganization(id: string): Promise<SafeUserDto> {
     const user = await this.getUser(id);
     if (!user.organization) {
-      throw new NotFoundException(`User with ID "${id}" is not assigned to any organization`);
+      throw new NotFoundException(
+        `User with ID "${id}" is not assigned to any organization`,
+      );
     }
     user.organization = null;
     const savedUser = await this.usersRepository.save(user);
