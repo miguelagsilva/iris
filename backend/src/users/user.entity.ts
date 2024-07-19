@@ -7,6 +7,7 @@ import {
   Index,
   Unique,
   DeleteDateColumn,
+  ManyToOne,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -19,7 +20,8 @@ import {
   IsNotEmpty,
 } from 'class-validator';
 import { Exclude } from 'class-transformer';
-import { Role } from '../roles/roles.enum'
+import { Role } from '../roles/roles.enum';
+import { Organization } from 'src/organizations/organization.entity';
 
 @Entity()
 @Unique(['email'])
@@ -87,4 +89,7 @@ export class User {
   @ApiProperty()
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @ManyToOne(() => Organization, organization => organization.users) 
+  organization: Organization;
 }

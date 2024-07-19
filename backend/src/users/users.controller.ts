@@ -11,13 +11,19 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SafeUserDto } from './dto/safe-user.dto';
-import { Role } from '../roles/roles.enum'
-import { Roles } from '../roles/roles.decorator'
-import { RolesGuard } from '../roles/roles.guard'
+import { AssignOrganizationDto } from './dto/assign-organization.dto'
+import { Role } from '../roles/roles.enum';
+import { Roles } from '../roles/roles.decorator';
+import { RolesGuard } from '../roles/roles.guard';
 import { Public } from 'src/auth/auth.decorators';
 
 @ApiBearerAuth('bearer')
@@ -26,6 +32,7 @@ import { Public } from 'src/auth/auth.decorators';
 @UseGuards(RolesGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+  // Todo ensure role auth
 
   @Post()
   @Roles(Role.ADMIN)
@@ -35,7 +42,6 @@ export class UsersController {
     description: 'User created successfully',
     type: SafeUserDto,
   })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
   create(@Body() createUserDto: CreateUserDto): Promise<SafeUserDto> {
     return this.usersService.create(createUserDto);
   }
@@ -59,8 +65,6 @@ export class UsersController {
     description: 'Retrieved user successfully',
     type: SafeUserDto,
   })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
   findOne(@Param('id', ParseUUIDPipe) id: string): Promise<SafeUserDto> {
     return this.usersService.findOne(id);
   }
@@ -72,8 +76,6 @@ export class UsersController {
     description: 'User updated successfully',
     type: SafeUserDto,
   })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -88,8 +90,6 @@ export class UsersController {
     description: 'User partially updated successfully',
     type: SafeUserDto,
   })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
   partialUpdate(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -104,8 +104,6 @@ export class UsersController {
     description: 'User soft deleted successfully',
     type: SafeUserDto,
   })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
   remove(@Param('id', ParseUUIDPipe) id: string): Promise<SafeUserDto> {
     return this.usersService.remove(id);
   }
@@ -113,7 +111,7 @@ export class UsersController {
   @Post(':id/restore')
   @ApiOperation({ summary: 'Restore a soft-deleted user' })
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: 'User restored successfully',
     type: SafeUserDto,
   })
@@ -123,5 +121,30 @@ export class UsersController {
   })
   restore(@Param('id', ParseUUIDPipe) id: string): Promise<SafeUserDto> {
     return this.usersService.restore(id);
+  }
+
+  @Patch(':id/organization')
+  @ApiOperation({ summary: 'Assign or change a users organization' })
+  @ApiResponse({
+    status: 200,
+    description: 'Users organization changed successfully',
+    type: SafeUserDto,
+  })
+  assignOrganization(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() assignOrganizationDto: AssignOrganizationDto,
+  ): Promise<SafeUserDto> {
+    return this.usersService.assignOrganization(id, assignOrganizationDto);
+  }
+
+  @Delete(':id/organization')
+  @ApiOperation({ summary: 'Remove a user from an organization' })
+  @ApiResponse({
+    status: 200,
+    description: 'User removed from organization successfully',
+    type: SafeUserDto,
+  })
+  removeFromOrganization(@Param('id', ParseUUIDPipe) id: string): Promise<SafeUserDto> {
+    return this.usersService.removeFromOrganization(id);
   }
 }

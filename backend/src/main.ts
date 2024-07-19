@@ -21,13 +21,26 @@ async function bootstrap() {
       },
       'bearer',
     )
-    .addTag('users')
-    .addTag('auth')
     .build();
   const document = SwaggerModule.createDocument(app, config);
+
+  Object.values(document.paths).forEach((path: any) => {
+    Object.values(path).forEach((method: any) => {
+      if (!method.responses) {
+        method.responses = {};
+      }
+      method.responses['400'] = { description: 'Bad Request' };
+      method.responses['401'] = { description: 'Unauthorized' };
+      method.responses['403'] = { description: 'Forbidden' };
+      method.responses['404'] = { description: 'Content not found' };
+      method.responses['500'] = { description: 'Internal Server Error' };
+    });
+  });
+
   SwaggerModule.setup('swagger', app, document, {
     jsonDocumentUrl: 'swagger/json',
   });
+
   await app.listen(process.env.PORT);
 }
 bootstrap();

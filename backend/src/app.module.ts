@@ -1,20 +1,21 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TestModule } from './test/test.module';
 import { UsersModule } from './users/users.module';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler'
-import { APP_GUARD } from '@nestjs/core'
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { validate } from './env.validation'
-import { AuthGuard } from './auth/auth.guard'
+import { validate } from './env.validation';
+import { AuthGuard } from './auth/auth.guard';
 import { JwtModule } from '@nestjs/jwt';
+import { RolesGuard } from './roles/roles.guard';
+import { OrganizationsModule } from './organizations/organizations.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      validate
+      validate,
     }),
     TypeOrmModule.forRootAsync({
       useFactory: async (configService: ConfigService) => ({
@@ -29,14 +30,16 @@ import { JwtModule } from '@nestjs/jwt';
       }),
       inject: [ConfigService],
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 30000,
-      limit: 20,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 30000,
+        limit: 20,
+      },
+    ]),
     JwtModule,
-    TestModule,
-    UsersModule,
     AuthModule,
+    UsersModule,
+    OrganizationsModule,
   ],
   providers: [
     {
@@ -47,6 +50,10 @@ import { JwtModule } from '@nestjs/jwt';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
-  ]
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}
