@@ -6,4 +6,9 @@ export class SafeUserDto extends OmitType(User, [
   'updatedAt',
   'password',
   'deletedAt',
-] as const) {}
+] as const) {
+  static fromUser(user: User): SafeUserDto {
+    const { createdAt, updatedAt, password, deletedAt, ...safeUser } = user;
+    return safeUser as SafeUserDto;
+  }
+}

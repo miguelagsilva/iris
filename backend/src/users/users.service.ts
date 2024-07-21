@@ -11,6 +11,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { SafeUserDto } from './dto/safe-user.dto';
 import { AssignOrganizationDto } from './dto/assign-organization.dto';
 import { OrganizationsService } from 'src/organizations/organizations.service';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class UsersService {
@@ -19,11 +20,6 @@ export class UsersService {
     private usersRepository: Repository<User>,
     private organizationsService: OrganizationsService,
   ) {}
-
-  private toSafeUser(user: User): SafeUserDto {
-    const { password, createdAt, updatedAt, deletedAt, ...safeUser } = user;
-    return safeUser as SafeUserDto;
-  }
 
   private async getUser(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({
@@ -45,22 +41,25 @@ export class UsersService {
     });
     if (existingUser) {
       throw new ConflictException(
-        'User with this email or username already exists',
+        'User with this email already exists',
       );
     }
 
+    const hashedPassword = await argon2.hash(createUserDto.password);
+    createUserDto.password = hashedPassword;
+
     const savedUser = await this.usersRepository.save(createUserDto);
-    return this.toSafeUser(savedUser);
+    return SafeUserDto.fromUser(savedUser);
   }
 
   async findAll(): Promise<SafeUserDto[]> {
     const users = await this.usersRepository.find();
-    return users.map(this.toSafeUser);
+    return users.map(SafeUserDto.fromUser);
   }
 
   async findOne(id: string): Promise<SafeUserDto> {
     const user = await this.getUser(id);
-    return this.toSafeUser(user);
+    return SafeUserDto.fromUser(user);
   }
 
   async update(id: string, updateUser: UpdateUserDto): Promise<SafeUserDto> {
@@ -72,7 +71,7 @@ export class UsersService {
   async remove(id: string): Promise<SafeUserDto> {
     const user = await this.getUser(id);
     await this.usersRepository.softDelete(id);
-    return this.toSafeUser(user);
+    return SafeUserDto.fromUser(user);
   }
 
   async restore(id: string): Promise<SafeUserDto> {
@@ -97,7 +96,7 @@ export class UsersService {
     );
     user.organization = organization;
     const savedUser = await this.usersRepository.save(user);
-    return this.toSafeUser(savedUser);
+    return SafeUserDto.fromUser(savedUser);
   }
 
   async removeFromOrganization(id: string): Promise<SafeUserDto> {
@@ -109,10 +108,11 @@ export class UsersService {
     }
     user.organization = null;
     const savedUser = await this.usersRepository.save(user);
-    return this.toSafeUser(savedUser);
+    return SafeUserDto.fromUser(savedUser);
   }
 
   // Auth
+  
   async AuthFindOneByEmail(email: string): Promise<User> {
     const user = await this.usersRepository.findOneBy({ email: email });
     return user;

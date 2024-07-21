@@ -5,10 +5,10 @@ import {
   Body,
   Put,
   Patch,
+  Request,
   Param,
   Delete,
   ParseUUIDPipe,
-  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -23,19 +23,18 @@ import { SafeUserDto } from './dto/safe-user.dto';
 import { AssignOrganizationDto } from './dto/assign-organization.dto';
 import { Role } from '../roles/roles.enum';
 import { Roles } from '../roles/roles.decorator';
-import { RolesGuard } from '../roles/roles.guard';
-import { Public } from 'src/auth/auth.decorators';
 
 @ApiBearerAuth('bearer')
 @ApiTags('users')
 @Controller('users')
-@UseGuards(RolesGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-  // Todo ensure role auth
+
+  // Admin
 
   @Post()
   @Roles(Role.ADMIN)
+  @ApiTags('Admin')
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({
     status: 201,
@@ -48,6 +47,7 @@ export class UsersController {
 
   @Get()
   @Roles(Role.ADMIN)
+  @ApiTags('Admin')
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({
     status: 200,
@@ -59,6 +59,8 @@ export class UsersController {
   }
 
   @Get(':id')
+  @Roles(Role.ADMIN)
+  @ApiTags('Admin')
   @ApiOperation({ summary: 'Get a user by ID' })
   @ApiResponse({
     status: 200,
@@ -70,6 +72,8 @@ export class UsersController {
   }
 
   @Put(':id')
+  @Roles(Role.ADMIN)
+  @ApiTags('Admin')
   @ApiOperation({ summary: 'Update a user' })
   @ApiResponse({
     status: 200,
@@ -84,6 +88,8 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @Roles(Role.ADMIN)
+  @ApiTags('Admin')
   @ApiOperation({ summary: 'Partially update a user' })
   @ApiResponse({
     status: 200,
@@ -98,6 +104,8 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @Roles(Role.ADMIN)
+  @ApiTags('Admin')
   @ApiOperation({ summary: 'Soft delete a user' })
   @ApiResponse({
     status: 200,
@@ -109,6 +117,8 @@ export class UsersController {
   }
 
   @Post(':id/restore')
+  @Roles(Role.ADMIN)
+  @ApiTags('Admin')
   @ApiOperation({ summary: 'Restore a soft-deleted user' })
   @ApiResponse({
     status: 201,
@@ -123,30 +133,31 @@ export class UsersController {
     return this.usersService.restore(id);
   }
 
-  @Patch(':id/organization')
-  @ApiOperation({ summary: 'Assign or change a users organization' })
+  // User
+
+  @Get('me')
+  @Roles(Role.USER)
+  @ApiTags('User')
+  @ApiOperation({ summary: 'Get own profile' })
   @ApiResponse({
     status: 200,
-    description: 'Users organization changed successfully',
+    description: 'Retrieved own user profile successfully',
     type: SafeUserDto,
   })
-  assignOrganization(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() assignOrganizationDto: AssignOrganizationDto,
-  ): Promise<SafeUserDto> {
-    return this.usersService.assignOrganization(id, assignOrganizationDto);
+  getCurrentUser(@Request() req: any) {
+    return this.usersService.findOne(req.user.id);
   }
 
-  @Delete(':id/organization')
-  @ApiOperation({ summary: 'Remove a user from an organization' })
+  @Patch('me')
+  @Roles(Role.USER)
+  @ApiTags('User')
+  @ApiOperation({ summary: 'Partially update own profile' })
   @ApiResponse({
     status: 200,
-    description: 'User removed from organization successfully',
+    description: 'Updated own user profile successfully',
     type: SafeUserDto,
   })
-  removeFromOrganization(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<SafeUserDto> {
-    return this.usersService.removeFromOrganization(id);
+  updateCurrentUser(@Request() req: any, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(req.user.id, updateUserDto);
   }
 }

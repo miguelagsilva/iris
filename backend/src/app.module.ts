@@ -10,6 +10,9 @@ import { AuthGuard } from './auth/auth.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { RolesGuard } from './roles/roles.guard';
 import { OrganizationsModule } from './organizations/organizations.module';
+import { OrganizationGuard } from './organizations/organization.guard';
+import { GroupsModule } from './groups/groups.module';
+import { EmployeesModule } from './employees/employees.module';
 
 @Module({
   imports: [
@@ -40,7 +43,10 @@ import { OrganizationsModule } from './organizations/organizations.module';
     AuthModule,
     UsersModule,
     OrganizationsModule,
+    GroupsModule,
+    EmployeesModule,
   ],
+  /*
   providers: [
     {
       provide: APP_GUARD,
@@ -54,6 +60,11 @@ import { OrganizationsModule } from './organizations/organizations.module';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
+    {
+      provide: APP_GUARD,
+      useClass: OrganizationGuard,
+    },
   ],
+  */
 })
 export class AppModule {}
