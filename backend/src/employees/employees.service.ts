@@ -11,9 +11,9 @@ import { Employee } from './employee.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { SafeEmployeeDto } from './dto/safe-employee.dto';
-import { SafeGroupDto } from 'src/groups/dto/safe-group.dto';
-import { OrganizationsService } from 'src/organizations/organizations.service';
-import { OrganizationsModule } from 'src/organizations/organizations.module';
+import { SafeGroupDto } from '../groups/dto/safe-group.dto';
+import { OrganizationsService } from '../organizations/organizations.service';
+import { OrganizationsModule } from '../organizations/organizations.module';
 
 @Injectable()
 export class EmployeesService {
@@ -27,7 +27,7 @@ export class EmployeesService {
   async getEmployee(id: string): Promise<Employee> {
     const employee = await this.employeesRepository.findOne({
       where: { id: id },
-      relations: ['organization']
+      relations: ['organization'],
     });
     if (!employee) {
       throw new NotFoundException(`Employee with id "${id}" not found`);
@@ -35,9 +35,7 @@ export class EmployeesService {
     return employee;
   }
 
-  async create(
-    createEmployeeDto: CreateEmployeeDto,
-  ): Promise<SafeEmployeeDto> {
+  async create(createEmployeeDto: CreateEmployeeDto): Promise<SafeEmployeeDto> {
     const existingEmployee = await this.employeesRepository.findOne({
       where: {
         phone_number: createEmployeeDto.phone_number,
@@ -51,26 +49,31 @@ export class EmployeesService {
       );
     }
 
-    const { organizationId, ...newEmployee } = createEmployeeDto; 
+    const { organizationId, ...newEmployee } = createEmployeeDto;
 
     const organization = await this.organizationService.findOne(organizationId);
     if (!organization) {
-      throw new NotFoundException(`Organization with id "${organizationId}" not found`);
+      throw new NotFoundException(
+        `Organization with id "${organizationId}" not found`,
+      );
     }
 
-    const savedEmployee = await this.employeesRepository.save({ ...newEmployee, organization });
+    const savedEmployee = await this.employeesRepository.save({
+      ...newEmployee,
+      organization,
+    });
 
-    return SafeEmployeeDto.fromEmployee(savedEmployee);
+    return savedEmployee.toSafeEmployee();
   }
 
   async findAll(): Promise<SafeEmployeeDto[]> {
     const employees = await this.employeesRepository.find();
-    return employees.map(SafeEmployeeDto.fromEmployee);
+    return employees.map((e) => e.toSafeEmployee());
   }
 
   async findOne(id: string): Promise<SafeEmployeeDto> {
     const employee = await this.getEmployee(id);
-    return SafeEmployeeDto.fromEmployee(employee);
+    return employee.toSafeEmployee();
   }
 
   async update(
@@ -97,7 +100,7 @@ export class EmployeesService {
   async remove(id: string): Promise<SafeEmployeeDto> {
     const employee = await this.getEmployee(id);
     await this.employeesRepository.softDelete(id);
-    return SafeEmployeeDto.fromEmployee(employee);
+    return employee.toSafeEmployee();
   }
 
   async restore(id: string): Promise<SafeEmployeeDto> {
@@ -114,7 +117,7 @@ export class EmployeesService {
 
   async getGroups(id: string): Promise<SafeGroupDto[]> {
     const employee = await this.getEmployee(id);
-    const groups = employee.groups; 
-    return groups.map(SafeGroupDto.fromGroup);
+    const groups = employee.groups;
+    return groups.map((g) => g.toSafeGroup());
   }
 }

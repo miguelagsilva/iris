@@ -19,9 +19,9 @@ import {
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { SafeEmployeeDto } from './dto/safe-employee.dto';
-import { RequireOrganizationManager } from 'src/auth/auth.decorators';
-import { GroupsService } from 'src/groups/groups.service';
-import { Inject, forwardRef } from '@nestjs/common'
+import { RequireOrganizationManager } from '../auth/auth.decorators';
+import { GroupsService } from '../groups/groups.service';
+import { Inject, forwardRef } from '@nestjs/common';
 
 @ApiBearerAuth('bearer')
 @ApiTags('employees', 'Organization')
@@ -54,9 +54,7 @@ export class EmployeesController {
     description: 'Retrieved employee successfully',
     type: SafeEmployeeDto,
   })
-  findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<SafeEmployeeDto> {
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<SafeEmployeeDto> {
     return this.employeesService.findOne(id);
   }
 
@@ -95,9 +93,7 @@ export class EmployeesController {
     description: 'Employee soft deleted successfully',
     type: SafeEmployeeDto,
   })
-  remove(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<SafeEmployeeDto> {
+  remove(@Param('id', ParseUUIDPipe) id: string): Promise<SafeEmployeeDto> {
     return this.employeesService.remove(id);
   }
 
@@ -108,9 +104,7 @@ export class EmployeesController {
     description: 'Employee restored successfully',
     type: SafeEmployeeDto,
   })
-  restore(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<SafeEmployeeDto> {
+  restore(@Param('id', ParseUUIDPipe) id: string): Promise<SafeEmployeeDto> {
     return this.employeesService.restore(id);
   }
 

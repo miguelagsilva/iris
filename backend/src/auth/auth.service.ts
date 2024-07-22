@@ -1,11 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-import { SignInUserDto } from 'src/users/dto/sign-in-user.dto';
+import { SignInUserDto } from '../users/dto/sign-in-user.dto';
 import { JwtService } from '@nestjs/jwt';
-import { SignUpUserDto } from 'src/users/dto/sign-up-user.dto';
+import { SignUpUserDto } from '../users/dto/sign-up-user.dto';
 import { AccessToken } from './auth.entity';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { Role } from 'src/roles/roles.enum';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { Role } from '../roles/roles.enum';
 import * as argon2 from 'argon2';
 import { forwardRef, Inject } from '@nestjs/common';
 

@@ -1,12 +1,27 @@
-import { OmitType, PartialType } from '@nestjs/swagger';
-import { Organization } from '../organization.entity';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, Length, IsUUID, Matches, IsNotEmpty } from 'class-validator';
 
-export class SafeOrganizationDto extends PartialType(
-  OmitType(Organization, ['createdAt', 'updatedAt', 'deletedAt'] as const),
-) {
-  static fromOrganization(organization: Organization): SafeOrganizationDto {
-    const { createdAt, updatedAt, deletedAt, ...safeOrganization } =
-      organization;
-    return safeOrganization as SafeOrganizationDto;
-  }
+export class SafeOrganizationDto {
+  @ApiProperty()
+  @IsUUID()
+  id: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 20)
+  @Matches(/^[a-zA-Z0-9-]$/u, {
+    message: 'Code can only contain letters, numbers and hyphens',
+  })
+  code: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 50)
+  @Matches(/^[\p{L}\p{M}'\- !]+$/u, {
+    message:
+      'Name can only contain letters, accents, apostrophes, hyphens, spaces and exclamation points',
+  })
+  name: string;
 }

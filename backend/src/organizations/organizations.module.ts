@@ -5,7 +5,7 @@ import { OrganizationsController } from './organizations.controller';
 import { Organization } from './organization.entity';
 import { GroupsModule } from '../groups/groups.module';
 import { forwardRef } from '@nestjs/common';
-import { UsersModule } from 'src/users/users.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [

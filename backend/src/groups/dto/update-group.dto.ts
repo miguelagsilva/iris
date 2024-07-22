@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, Length, IsUUID, Matches, IsNotEmpty, IsOptional } from 'class-validator';
+import {
+  IsString,
+  Length,
+  IsUUID,
+  Matches,
+  IsNotEmpty,
+  IsOptional,
+} from 'class-validator';
 
 export class UpdateGroupDto {
   @ApiProperty()

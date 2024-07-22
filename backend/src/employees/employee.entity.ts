@@ -9,13 +9,22 @@ import {
   Column,
   Timestamp,
   ManyToMany,
-  Unique,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, Length, IsUUID, Matches, IsNotEmpty, IsPhoneNumber, IsNumber, IsDate, IsOptional, IsNumberString } from 'class-validator';
-import { Type } from 'class-transformer'
+import {
+  IsString,
+  Length,
+  IsUUID,
+  Matches,
+  IsNotEmpty,
+  IsPhoneNumber,
+  IsDate,
+  IsNumberString,
+} from 'class-validator';
+import { Exclude, plainToClass } from 'class-transformer';
 import { Organization } from '../organizations/organization.entity';
-import { Group } from 'src/groups/group.entity';
+import { Group } from '../groups/group.entity';
+import { SafeEmployeeDto } from './dto/safe-employee.dto';
 
 @Entity()
 export class Employee {
@@ -44,23 +53,28 @@ export class Employee {
   @ApiProperty()
   @Column({ nullable: true })
   @IsNumberString()
+  @Exclude()
   otp: string;
 
   @ApiProperty()
   @Column({ nullable: true })
   @IsDate()
+  @Exclude()
   otp_expires: Date;
 
   @ApiProperty()
   @CreateDateColumn()
+  @Exclude()
   createdAt: Date;
 
   @ApiProperty()
   @UpdateDateColumn()
+  @Exclude()
   updatedAt: Date;
 
   @ApiProperty()
   @DeleteDateColumn()
+  @Exclude()
   deletedAt: Date;
 
   @ManyToOne(() => Organization, (organization) => organization.employees, {
@@ -71,4 +85,10 @@ export class Employee {
   @ManyToMany(() => Group, (group) => group.employees, { cascade: true })
   @JoinTable()
   groups: Group[];
+
+  toSafeEmployee(): SafeEmployeeDto {
+    return plainToClass(SafeEmployeeDto, this, {
+      excludeExtraneousValues: true,
+    });
+  }
 }

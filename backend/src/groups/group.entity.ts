@@ -11,7 +11,9 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, Length, IsUUID, Matches, IsNotEmpty } from 'class-validator';
 import { Organization } from '../organizations/organization.entity';
-import { Employee } from 'src/employees/employee.entity';
+import { Employee } from '../employees/employee.entity';
+import { SafeGroupDto } from './dto/safe-group.dto';
+import { Exclude, plainToClass } from 'class-transformer';
 
 @Entity()
 export class Group {
@@ -33,14 +35,17 @@ export class Group {
 
   @ApiProperty()
   @CreateDateColumn()
+  @Exclude()
   createdAt: Date;
 
   @ApiProperty()
   @UpdateDateColumn()
+  @Exclude()
   updatedAt: Date;
 
   @ApiProperty()
   @DeleteDateColumn()
+  @Exclude()
   deletedAt: Date;
 
   @ManyToOne(() => Organization, (organization) => organization.groups, {
@@ -50,4 +55,8 @@ export class Group {
 
   @ManyToMany(() => Employee, (employee) => employee.groups)
   employees: Employee[];
+
+  toSafeGroup(): SafeGroupDto {
+    return plainToClass(SafeGroupDto, this, { excludeExtraneousValues: true });
+  }
 }

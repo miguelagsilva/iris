@@ -11,8 +11,10 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, Length, IsUUID, Matches, IsNotEmpty } from 'class-validator';
 import { Group } from '../groups/group.entity';
-import { User } from 'src/users/user.entity';
-import { Employee } from 'src/employees/employee.entity';
+import { User } from '../users/user.entity';
+import { Employee } from '../employees/employee.entity';
+import { SafeOrganizationDto } from './dto/safe-organization.dto';
+import { Exclude, plainToClass } from 'class-transformer';
 
 @Entity()
 @Unique(['name', 'code'])
@@ -27,8 +29,7 @@ export class Organization {
   @IsNotEmpty()
   @Length(2, 20)
   @Matches(/^[a-zA-Z0-9-]$/u, {
-    message:
-      'Name can only contain letters, numbers and hyphens',
+    message: 'Name can only contain letters, numbers and hyphens',
   })
   code: string;
 
@@ -45,14 +46,17 @@ export class Organization {
 
   @ApiProperty()
   @CreateDateColumn()
+  @Exclude()
   createdAt: Date;
 
   @ApiProperty()
   @UpdateDateColumn()
+  @Exclude()
   updatedAt: Date;
 
   @ApiProperty()
   @DeleteDateColumn()
+  @Exclude()
   deletedAt: Date;
 
   @OneToMany(() => User, (user) => user.organization, {
@@ -69,4 +73,10 @@ export class Organization {
     cascade: true,
   })
   employees: Employee[];
+
+  toSafeOrganization(): SafeOrganizationDto {
+    return plainToClass(SafeOrganizationDto, this, {
+      excludeExtraneousValues: true,
+    });
+  }
 }

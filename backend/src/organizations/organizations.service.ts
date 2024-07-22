@@ -11,10 +11,11 @@ import { Organization } from './organization.entity';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { SafeOrganizationDto } from './dto/safe-organization.dto';
-import { SafeUserDto } from 'src/users/dto/safe-user.dto';
-import { SafeGroupDto } from 'src/groups/dto/safe-group.dto';
-import { SafeEmployeeDto } from 'src/employees/dto/safe-employee.dto';
-import { UsersService } from 'src/users/users.service';
+import { SafeUserDto } from '../users/dto/safe-user.dto';
+import { SafeGroupDto } from '../groups/dto/safe-group.dto';
+import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
+import { UsersService } from '../users/users.service';
+import { ClassConstructor, plainToClass } from 'class-transformer';
 
 @Injectable()
 export class OrganizationsService {
@@ -52,17 +53,17 @@ export class OrganizationsService {
     const savedOrganization = await this.organizationsRepository.save(
       createOrganizationDto,
     );
-    return SafeOrganizationDto.fromOrganization(savedOrganization);
+    return savedOrganization.toSafeOrganization();
   }
 
   async findAll(): Promise<SafeOrganizationDto[]> {
     const organizations = await this.organizationsRepository.find();
-    return organizations.map(SafeOrganizationDto.fromOrganization);
+    return organizations.map((o) => o.toSafeOrganization());
   }
 
   async findOne(id: string): Promise<SafeOrganizationDto> {
     const organization = await this.getOrganization(id);
-    return SafeOrganizationDto.fromOrganization(organization);
+    return organization.toSafeOrganization();
   }
 
   async update(
@@ -77,7 +78,7 @@ export class OrganizationsService {
   async remove(id: string): Promise<SafeOrganizationDto> {
     const organization = await this.getOrganization(id);
     await this.organizationsRepository.softDelete(id);
-    return SafeOrganizationDto.fromOrganization(organization);
+    return organization.toSafeOrganization();
   }
 
   async restore(id: string): Promise<SafeOrganizationDto> {
@@ -102,21 +103,32 @@ export class OrganizationsService {
     }
     const organization = await this.getOrganization(organizationId);
     if (!organization) {
-      throw new NotFoundException(`Organization with id ${organizationId} not found`);
+      throw new NotFoundException(
+        `Organization with id ${organizationId} not found`,
+      );
     }
     if (!organization.users) {
       organization.users = [];
-    } else if (organization.users.some(u => u.id === userId)) {
-      throw new ConflictException(`User with id ${userId} already belongs to organization with id ${organizationId}`);
+    } else if (organization.users.some((u) => u.id === userId)) {
+      throw new ConflictException(
+        `User with id ${userId} already belongs to organization with id ${organizationId}`,
+      );
     }
     organization.users.push(user);
 
     await this.organizationsRepository.save(organization);
 
-    return this.getOrganizationEntities<SafeUserDto>(organizationId, 'users');
+    return await this.getOrganizationEntities(
+      organizationId,
+      'users',
+      SafeUserDto,
+    );
   }
 
-  async removeUserFromOrganization(organizationId: string, userId: string): Promise<SafeUserDto[]> {
+  async removeUserFromOrganization(
+    organizationId: string,
+    userId: string,
+  ): Promise<SafeUserDto[]> {
     const user = await this.usersService.getUser(userId);
     if (!user.organization) {
       throw new NotFoundException(
@@ -125,39 +137,43 @@ export class OrganizationsService {
     }
     const organization = await this.getOrganization(organizationId);
     if (!organization) {
-      throw new NotFoundException(`Organization with id ${organizationId} not found`);
+      throw new NotFoundException(
+        `Organization with id ${organizationId} not found`,
+      );
     }
     if (!organization.users || organization.users.length == 0) {
       return [];
     }
 
-    organization.users = organization.users.filter(u => u.id !== userId)
+    organization.users = organization.users.filter((u) => u.id !== userId);
     await this.organizationsRepository.save(organization);
-    return this.getOrganizationEntities<SafeUserDto>(organizationId, 'users');
+    return await this.getOrganizationEntities(
+      organizationId,
+      'users',
+      SafeUserDto,
+    );
   }
 
   // Users, groups and employees
 
-  async getOrganizationEntities<T>(
-    id: string, 
-    entityType: 'users' | 'groups' | 'employees'
-  ): Promise<T[]> {
+  async getOrganizationEntities(
+    organizationId: string,
+    entitiesType: 'users' | 'groups' | 'employees',
+    DtoClass: ClassConstructor<any>,
+  ) {
     const organization = await this.organizationsRepository.findOne({
-      where: { id },
-      relations: [entityType],
+      where: { id: organizationId },
+      relations: [entitiesType],
     });
+
     if (!organization) {
-      throw new NotFoundException(`Organization with id "${id}" not found`);
+      throw new NotFoundException(
+        `Organization with id "${organizationId}" not found`,
+      );
     }
 
-    const entities = organization[entityType];
-
-    const transformMethod = {
-      users: SafeUserDto.fromUser,
-      groups: SafeGroupDto.fromGroup,
-      employees: SafeEmployeeDto.fromEmployee
-    }[entityType] as (entity: any) => T;
-
-    return entities.map(transformMethod);
+    return plainToClass(DtoClass, organization[entitiesType], {
+      excludeExtraneousValues: true,
+    });
   }
 }

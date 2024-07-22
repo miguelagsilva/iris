@@ -20,17 +20,15 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { SafeGroupDto } from './dto/safe-group.dto';
 import { OrganizationsService } from '../organizations/organizations.service';
-import { RequireOrganizationManager } from 'src/auth/auth.decorators';
-import { SafeEmployeeDto } from 'src/employees/dto/safe-employee.dto';
+import { RequireOrganizationManager } from '../auth/auth.decorators';
+import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 
 @ApiBearerAuth('bearer')
 @ApiTags('groups', 'Organization')
 @RequireOrganizationManager()
 @Controller('groups')
 export class GroupsController {
-  constructor(
-    private readonly groupsService: GroupsService,
-  ) {}
+  constructor(private readonly groupsService: GroupsService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new group' })
@@ -39,9 +37,7 @@ export class GroupsController {
     description: 'Group created successfully',
     type: SafeGroupDto,
   })
-  create(
-    @Body() createGroupDto: CreateGroupDto,
-  ): Promise<SafeGroupDto> {
+  create(@Body() createGroupDto: CreateGroupDto): Promise<SafeGroupDto> {
     return this.groupsService.create(createGroupDto);
   }
 
@@ -52,9 +48,7 @@ export class GroupsController {
     description: 'Retrieved group successfully',
     type: SafeGroupDto,
   })
-  findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<SafeGroupDto> {
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<SafeGroupDto> {
     return this.groupsService.findOne(id);
   }
 
@@ -93,9 +87,7 @@ export class GroupsController {
     description: 'Group soft deleted successfully',
     type: SafeGroupDto,
   })
-  remove(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<SafeGroupDto> {
+  remove(@Param('id', ParseUUIDPipe) id: string): Promise<SafeGroupDto> {
     return this.groupsService.remove(id);
   }
 
@@ -106,9 +98,7 @@ export class GroupsController {
     description: 'Group restored successfully',
     type: SafeGroupDto,
   })
-  restore(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<SafeGroupDto> {
+  restore(@Param('id', ParseUUIDPipe) id: string): Promise<SafeGroupDto> {
     return this.groupsService.restore(id);
   }
 

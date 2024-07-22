@@ -9,7 +9,7 @@ import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from './auth.decorators';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { forwardRef, Inject } from '@nestjs/common';
 
 @Injectable()
@@ -47,8 +47,8 @@ export class AuthGuard implements CanActivate {
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
-      
-      request['user'] = user; 
+
+      request['user'] = user;
       return true;
     } catch {
       throw new UnauthorizedException('Invalid token');

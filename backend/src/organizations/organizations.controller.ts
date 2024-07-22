@@ -22,10 +22,10 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { SafeOrganizationDto } from './dto/safe-organization.dto';
 import { Role } from '../roles/roles.enum';
 import { Roles } from '../roles/roles.decorator';
-import { SafeUserDto } from 'src/users/dto/safe-user.dto';
-import { RequireOrganizationManager } from 'src/auth/auth.decorators';
-import { SafeGroupDto } from 'src/groups/dto/safe-group.dto';
-import { SafeEmployeeDto } from 'src/employees/dto/safe-employee.dto';
+import { SafeUserDto } from '../users/dto/safe-user.dto';
+import { RequireOrganizationManager } from '../auth/auth.decorators';
+import { SafeGroupDto } from '../groups/dto/safe-group.dto';
+import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 
 @ApiBearerAuth('bearer')
 @ApiTags('organizations')
@@ -148,7 +148,11 @@ export class OrganizationsController {
   getOrganizationUsers(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<SafeUserDto[]> {
-    return this.organizationsService.getOrganizationEntities<SafeUserDto>(id, 'users');
+    return this.organizationsService.getOrganizationEntities(
+      id,
+      'users',
+      SafeUserDto,
+    );
   }
 
   @Post(':id/users/:userId')
@@ -199,7 +203,11 @@ export class OrganizationsController {
   getOrganizationGroups(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<SafeGroupDto[]> {
-    return this.organizationsService.getOrganizationEntities<SafeGroupDto>(id, 'groups');
+    return this.organizationsService.getOrganizationEntities(
+      id,
+      'groups',
+      SafeGroupDto,
+    );
   }
 
   @Get(':id/employees')
@@ -214,6 +222,10 @@ export class OrganizationsController {
   getOrganizationEmployees(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<SafeEmployeeDto[]> {
-    return this.organizationsService.getOrganizationEntities<SafeEmployeeDto>(id, 'employees');
+    return this.organizationsService.getOrganizationEntities(
+      id,
+      'employees',
+      SafeEmployeeDto,
+    );
   }
 }

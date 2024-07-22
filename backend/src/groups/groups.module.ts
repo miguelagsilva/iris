@@ -5,7 +5,7 @@ import { GroupsController } from './groups.controller';
 import { Group } from './group.entity';
 import { forwardRef } from '@nestjs/common';
 import { OrganizationsModule } from '../organizations/organizations.module';
-import { EmployeesModule } from 'src/employees/employees.module';
+import { EmployeesModule } from '../employees/employees.module';
 
 @Module({
   imports: [

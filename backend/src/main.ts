@@ -11,7 +11,8 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('OpenAPI')
-    .setDescription(`
+    .setDescription(
+      `
       # Authentication and Permissions
 
       This API uses the following authentication and permission levels:
@@ -22,7 +23,8 @@ async function bootstrap() {
       - **Organization Member**: Requires a valid JWT token and membership in the specific organization
 
       Each endpoint in this documentation specifies its required permission level in the description.
-    `)
+    `,
+    )
     .addTag('Public', 'Endpoints that do not require authentication')
     .addTag('User', 'Endpoints that require user authentication')
     .addTag('Admin', 'Endpoints that require admin privileges')
