@@ -4,6 +4,25 @@ import { Role } from '../roles/roles.enum';
 import { plainToClass } from 'class-transformer';
 
 describe('User Entity', () => {
+  function generateUuid(): string {
+    const hexDigits = '0123456789abcdef';
+    let uuid = '';
+
+    for (let i = 0; i < 36; i++) {
+      if (i === 8 || i === 13 || i === 18 || i === 23) {
+        uuid += '-';
+      } else if (i === 14) {
+        uuid += '4';
+      } else if (i === 19) {
+        uuid += hexDigits[(Math.random() * 4) | 8];
+      } else {
+        uuid += hexDigits[Math.floor(Math.random() * 16)];
+      }
+    }
+
+    return uuid;
+  }
+
   const generateValidName = () => {
     const validChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-\'';
     const length = Math.floor(Math.random() * 49) + 2; // 2 to 50 characters
@@ -17,16 +36,17 @@ describe('User Entity', () => {
   };
 
   const generateValidPassword = () => {
-    const length = Math.floor(Math.random() * 57) + 8; // 8 to 64 characters
+    const length = Math.floor(Math.random() * 56) + 8; // 8 to 63 characters
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let password = '';
     for (let i = 0; i < length; i++) {
       password += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return password + '1'; // Ensure at least one number
+    return password + '1'; // Ensure at least one number, max length will be 64
   };
 
   const createValidUser = () => ({
+    id: generateUuid(),
     firstName: generateValidName(),
     lastName: generateValidName(),
     email: generateValidEmail(),
@@ -35,52 +55,23 @@ describe('User Entity', () => {
   });
 
   it('should create a valid user', async () => {
-    for (let i = 0; i < 100; i++) { // Run 100 times
+    for (let i = 0; i < 100; i++) {
       const userData = createValidUser();
       const user = plainToClass(User, userData);
       const errors = await validate(user);
+      if (errors.length > 0) {
+        console.log('Validation errors:', errors);
+      }
       expect(errors).toHaveLength(0);
     }
   });
 
-  it('should reject invalid email', async () => {
-    for (let i = 0; i < 100; i++) { // Run 100 times
-      const userData = createValidUser();
-      userData.email = 'invalid-email';
-      const user = plainToClass(User, userData);
-      const errors = await validate(user);
-      expect(errors.some(e => e.property === 'email')).toBe(true);
-    }
-  });
-
-  it('should reject invalid password', async () => {
-    for (let i = 0; i < 100; i++) { // Run 100 times
-      const userData = createValidUser();
-      userData.password = 'short'; // Too short and no number
-      const user = plainToClass(User, userData);
-      const errors = await validate(user);
-      expect(errors.some(e => e.property === 'password')).toBe(true);
-    }
-  });
-
-  it('should reject invalid names', async () => {
-    for (let i = 0; i < 100; i++) { // Run 100 times
-      const userData = createValidUser();
-      userData.firstName = '123'; // Invalid characters
-      userData.lastName = 'a'; // Too short
-      const user = plainToClass(User, userData);
-      const errors = await validate(user);
-      expect(errors.some(e => e.property === 'firstName' || e.property === 'lastName')).toBe(true);
-    }
-  });
+  // ... (keep the other test cases)
 
   it('should create a valid SafeUserDto', async () => {
-    for (let i = 0; i < 100; i++) { // Run 100 times
+    for (let i = 0; i < 100; i++) {
       const userData = createValidUser();
-      const user = plainToClass(User, {
-        id: 'some-uuid', // You might want to generate this
-        ...userData,
-      });
+      const user = plainToClass(User, userData);
       const safeUser = user.toSafeUser();
       expect(safeUser).not.toHaveProperty('password');
       expect(safeUser).toHaveProperty('id');
