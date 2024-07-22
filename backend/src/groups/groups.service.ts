@@ -27,7 +27,7 @@ export class GroupsService {
   private async getGroup(id: string): Promise<Group> {
     const group = await this.groupsRepository.findOne({
       where: { id: id },
-      relations: ['employees', 'organization']
+      relations: ['organization', 'employees'],
     });
     if (!group) {
       throw new NotFoundException(`Group with id "${id}" not found`);
@@ -114,6 +114,7 @@ export class GroupsService {
   async getEmployees(id: string): Promise<SafeEmployeeDto[]> {
     const group = await this.getGroup(id);
     const employees = group.employees; 
+    console.log(group)
     if (!employees) {
       return [];
     }
@@ -135,27 +136,13 @@ export class GroupsService {
     }
     if (!group.employees) {
       group.employees = [];
-    } else if (group.employees.find(e => e.id === employeeId)) {
+    } else if (group.employees.some(e => e.id === employeeId)) {
       throw new ConflictException(`Employee with id ${employeeId} already belongs to group with id ${groupId}`);
     }
-    console.log(group)
-    console.log(employee)
 
-  const existingRelation = await this.groupsRepository.createQueryBuilder('group')
-    .innerJoinAndSelect('group.employees', 'employee')
-    .where('group.id = :groupId', { groupId })
-    .andWhere('employee.id = :employeeId', { employeeId })
-    .getOne();
+    group.employees.push(employee);
 
-  if (existingRelation) {
-    throw new ConflictException(`Employee with id ${employeeId} already belongs to group with id ${groupId}`);
-  }
-
-  await this.groupsRepository
-    .createQueryBuilder()
-    .relation(Group, 'employees')
-    .of(groupId)
-    .add(employeeId);
+    await this.groupsRepository.save(group);
 
     return this.getEmployees(groupId); 
   }

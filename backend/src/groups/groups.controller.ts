@@ -128,7 +128,7 @@ export class GroupsController {
   @Post(':id/employees/:employeeId')
   @ApiOperation({ summary: 'Add an employee to a group' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'Employee added successfully',
     type: [SafeEmployeeDto],
   })
@@ -142,8 +142,8 @@ export class GroupsController {
   @Delete(':id/employees/:employeeId')
   @ApiOperation({ summary: 'Remove an employee of a group' })
   @ApiResponse({
-    status: 201,
-    description: 'Employee added successfully',
+    status: 200,
+    description: 'Employee removed successfully',
     type: [SafeEmployeeDto],
   })
   removeEmployeeOfGroup(

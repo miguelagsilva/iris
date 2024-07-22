@@ -15,11 +15,22 @@ import { User } from 'src/users/user.entity';
 import { Employee } from 'src/employees/employee.entity';
 
 @Entity()
-@Unique(['name'])
+@Unique(['name', 'code'])
 export class Organization {
   @PrimaryGeneratedColumn('uuid')
   @IsUUID()
   id: string;
+
+  @ApiProperty()
+  @Column()
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 20)
+  @Matches(/^[a-zA-Z0-9-]$/u, {
+    message:
+      'Name can only contain letters, numbers and hyphens',
+  })
+  code: string;
 
   @ApiProperty()
   @Column()
@@ -44,7 +55,9 @@ export class Organization {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @OneToMany(() => User, (user) => user.organization)
+  @OneToMany(() => User, (user) => user.organization, {
+    cascade: true,
+  })
   users: User[];
 
   @OneToMany(() => Group, (group) => group.organization, {

@@ -48,6 +48,6 @@ export class Group {
   })
   organization: Organization;
 
-  @ManyToMany(() => Group, { cascade: true })
+  @ManyToMany(() => Employee, (employee) => employee.groups)
   employees: Employee[];
 }

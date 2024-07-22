@@ -2,6 +2,8 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -12,17 +14,21 @@ import { SafeOrganizationDto } from './dto/safe-organization.dto';
 import { SafeUserDto } from 'src/users/dto/safe-user.dto';
 import { SafeGroupDto } from 'src/groups/dto/safe-group.dto';
 import { SafeEmployeeDto } from 'src/employees/dto/safe-employee.dto';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class OrganizationsService {
   constructor(
     @InjectRepository(Organization)
     private organizationsRepository: Repository<Organization>,
+    @Inject(forwardRef(() => UsersService))
+    private usersService: UsersService,
   ) {}
 
   async getOrganization(id: string): Promise<Organization> {
     const organization = await this.organizationsRepository.findOne({
       where: { id: id },
+      relations: ['users'],
     });
     if (!organization) {
       throw new NotFoundException(`Organization with id "${id}" not found`);
@@ -82,6 +88,52 @@ export class OrganizationsService {
       );
     }
     return this.findOne(id);
+  }
+
+  // Organization
+
+  async addUserToOrganization(
+    organizationId: string,
+    userId: string,
+  ): Promise<SafeUserDto[]> {
+    const user = await this.usersService.getUser(userId);
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+    const organization = await this.getOrganization(organizationId);
+    if (!organization) {
+      throw new NotFoundException(`Organization with id ${organizationId} not found`);
+    }
+    if (!organization.users) {
+      organization.users = [];
+    } else if (organization.users.some(u => u.id === userId)) {
+      throw new ConflictException(`User with id ${userId} already belongs to organization with id ${organizationId}`);
+    }
+    organization.users.push(user);
+
+    await this.organizationsRepository.save(organization);
+
+    return this.getOrganizationEntities<SafeUserDto>(organizationId, 'users');
+  }
+
+  async removeUserFromOrganization(organizationId: string, userId: string): Promise<SafeUserDto[]> {
+    const user = await this.usersService.getUser(userId);
+    if (!user.organization) {
+      throw new NotFoundException(
+        `User with ID "${userId}" is not assigned to any organization`,
+      );
+    }
+    const organization = await this.getOrganization(organizationId);
+    if (!organization) {
+      throw new NotFoundException(`Organization with id ${organizationId} not found`);
+    }
+    if (!organization.users || organization.users.length == 0) {
+      return [];
+    }
+
+    organization.users = organization.users.filter(u => u.id !== userId)
+    await this.organizationsRepository.save(organization);
+    return this.getOrganizationEntities<SafeUserDto>(organizationId, 'users');
   }
 
   // Users, groups and employees

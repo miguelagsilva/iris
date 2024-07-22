@@ -68,7 +68,7 @@ export class Employee {
   })
   organization: Organization;
 
-  @ManyToMany(() => Group, { cascade: true })
+  @ManyToMany(() => Group, (group) => group.employees, { cascade: true })
   @JoinTable()
   groups: Group[];
 }

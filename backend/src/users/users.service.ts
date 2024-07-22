@@ -21,7 +21,7 @@ export class UsersService {
     private organizationsService: OrganizationsService,
   ) {}
 
-  private async getUser(id: string): Promise<User> {
+  async getUser(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id: id },
       relations: ['organization'],
@@ -82,33 +82,6 @@ export class UsersService {
       );
     }
     return this.findOne(id);
-  }
-
-  // Organization
-
-  async assignOrganization(
-    id: string,
-    assignOrganizationDto: AssignOrganizationDto,
-  ): Promise<SafeUserDto> {
-    const user = await this.getUser(id);
-    const organization = await this.organizationsService.getOrganization(
-      assignOrganizationDto.organizationId,
-    );
-    user.organization = organization;
-    const savedUser = await this.usersRepository.save(user);
-    return SafeUserDto.fromUser(savedUser);
-  }
-
-  async removeFromOrganization(id: string): Promise<SafeUserDto> {
-    const user = await this.getUser(id);
-    if (!user.organization) {
-      throw new NotFoundException(
-        `User with ID "${id}" is not assigned to any organization`,
-      );
-    }
-    user.organization = null;
-    const savedUser = await this.usersRepository.save(user);
-    return SafeUserDto.fromUser(savedUser);
   }
 
   // Auth

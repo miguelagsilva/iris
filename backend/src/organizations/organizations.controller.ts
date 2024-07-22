@@ -8,6 +8,7 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  ConflictException,
 } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
 import {
@@ -148,6 +149,42 @@ export class OrganizationsController {
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<SafeUserDto[]> {
     return this.organizationsService.getOrganizationEntities<SafeUserDto>(id, 'users');
+  }
+
+  @Post(':id/users/:userId')
+  @RequireOrganizationManager()
+  @ApiTags('Organization')
+  @ApiOperation({ summary: 'Add a user to an organization' })
+  @ApiResponse({
+    status: 201,
+    description: 'Added user to organization successfully',
+    type: [SafeUserDto],
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'User already belongs to that organization',
+  })
+  addUserToOrganization(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ): Promise<SafeUserDto[]> {
+    return this.organizationsService.addUserToOrganization(id, userId);
+  }
+
+  @Delete(':id/users/:userId')
+  @RequireOrganizationManager()
+  @ApiTags('Organization')
+  @ApiOperation({ summary: 'Remove user from an organization' })
+  @ApiResponse({
+    status: 200,
+    description: 'Removed user from organization successfully',
+    type: [SafeUserDto],
+  })
+  removeUserFromOrganization(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ): Promise<SafeUserDto[]> {
+    return this.organizationsService.removeUserFromOrganization(id, userId);
   }
 
   @Get(':id/groups')
