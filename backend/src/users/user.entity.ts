@@ -1,93 +1,105 @@
-import { validate } from 'class-validator';
-import { User } from './user.entity';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Index,
+  Unique,
+  DeleteDateColumn,
+  ManyToOne,
+} from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsEmail,
+  IsEnum,
+  IsString,
+  Length,
+  IsUUID,
+  Matches,
+  IsNotEmpty,
+} from 'class-validator';
+import { Exclude, plainToClass } from 'class-transformer';
 import { Role } from '../roles/roles.enum';
-import { plainToClass } from 'class-transformer';
+import { Organization } from '../organizations/organization.entity';
+import { SafeUserDto } from './dto/safe-user.dto';
 
-describe('User Entity', () => {
-  const generateValidName = () => {
-    const validChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-\'';
-    const length = Math.floor(Math.random() * 49) + 2; // 2 to 50 characters
-    return Array(length).fill(null).map(() => validChars[Math.floor(Math.random() * validChars.length)]).join('');
-  };
+@Entity()
+@Unique(['email'])
+export class User {
+  @PrimaryGeneratedColumn('uuid')
+  @IsUUID()
+  id: string;
 
-  const generateValidEmail = () => {
-    const username = Math.random().toString(36).substring(2, 15);
-    const domain = Math.random().toString(36).substring(2, 10);
-    return `${username}@${domain}.com`;
-  };
+  @ApiProperty()
+  @Column()
+  @Index()
+  @IsEmail()
+  @IsNotEmpty()
+  @Length(5, 48)
+  email: string;
 
-  const generateValidPassword = () => {
-    const length = Math.floor(Math.random() * 57) + 8; // 8 to 64 characters
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let password = '';
-    for (let i = 0; i < length; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return password + '1'; // Ensure at least one number
-  };
+  @ApiProperty()
+  @Column()
+  @Exclude({ toPlainOnly: true })
+  @IsNotEmpty()
+  @Length(8, 64)
+  @Matches(/^(?=.*\d).{8,}$/, {
+    message:
+      'Password must be at least 8 characters long and contain at least one number',
+  })
+  @Exclude()
+  password: string;
 
-  const createValidUser = () => ({
-    firstName: generateValidName(),
-    lastName: generateValidName(),
-    email: generateValidEmail(),
-    password: generateValidPassword(),
-    role: Object.values(Role)[Math.floor(Math.random() * Object.values(Role).length)],
-  });
+  @ApiProperty()
+  @Column()
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 50)
+  @Matches(/^[\p{L}\p{M}'-]+$/u, {
+    message: 'Name can only contain letters, accents, apostrophes, and hyphens',
+  })
+  firstName: string;
 
-  it('should create a valid user', async () => {
-    for (let i = 0; i < 100; i++) { // Run 100 times
-      const userData = createValidUser();
-      const user = plainToClass(User, userData);
-      const errors = await validate(user);
-      expect(errors).toHaveLength(0);
-    }
-  });
+  @ApiProperty()
+  @Column()
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 50)
+  @Matches(/^[\p{L}\p{M}'-]+$/u, {
+    message: 'Name can only contain letters, accents, apostrophes, and hyphens',
+  })
+  lastName: string;
 
-  it('should reject invalid email', async () => {
-    for (let i = 0; i < 100; i++) { // Run 100 times
-      const userData = createValidUser();
-      userData.email = 'invalid-email';
-      const user = plainToClass(User, userData);
-      const errors = await validate(user);
-      expect(errors.some(e => e.property === 'email')).toBe(true);
-    }
-  });
+  @ApiProperty({ enum: Role, default: Role.USER })
+  @Column({
+    type: 'enum',
+    enum: Role,
+    default: Role.USER,
+  })
+  @IsEnum(Role)
+  role: Role;
 
-  it('should reject invalid password', async () => {
-    for (let i = 0; i < 100; i++) { // Run 100 times
-      const userData = createValidUser();
-      userData.password = 'short'; // Too short and no number
-      const user = plainToClass(User, userData);
-      const errors = await validate(user);
-      expect(errors.some(e => e.property === 'password')).toBe(true);
-    }
-  });
+  @ApiProperty()
+  @CreateDateColumn()
+  @Exclude()
+  createdAt: Date;
 
-  it('should reject invalid names', async () => {
-    for (let i = 0; i < 100; i++) { // Run 100 times
-      const userData = createValidUser();
-      userData.firstName = '123'; // Invalid characters
-      userData.lastName = 'a'; // Too short
-      const user = plainToClass(User, userData);
-      const errors = await validate(user);
-      expect(errors.some(e => e.property === 'firstName' || e.property === 'lastName')).toBe(true);
-    }
-  });
+  @ApiProperty()
+  @UpdateDateColumn()
+  @Exclude()
+  updatedAt: Date;
 
-  it('should create a valid SafeUserDto', async () => {
-    for (let i = 0; i < 100; i++) { // Run 100 times
-      const userData = createValidUser();
-      const user = plainToClass(User, {
-        id: 'some-uuid', // You might want to generate this
-        ...userData,
-      });
-      const safeUser = user.toSafeUser();
-      expect(safeUser).not.toHaveProperty('password');
-      expect(safeUser).toHaveProperty('id');
-      expect(safeUser).toHaveProperty('email');
-      expect(safeUser).toHaveProperty('firstName');
-      expect(safeUser).toHaveProperty('lastName');
-      expect(safeUser).toHaveProperty('role');
-    }
-  });
-});
+  @ApiProperty()
+  @DeleteDateColumn()
+  @Exclude()
+  deletedAt: Date;
+
+  @ManyToOne(() => Organization, (organization) => organization.users)
+  organization: Organization;
+
+  @Exclude()
+  toSafeUser(): SafeUserDto {
+    return plainToClass(SafeUserDto, this, { excludeExtraneousValues: true });
+  }
+}
