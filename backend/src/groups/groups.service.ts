@@ -19,12 +19,13 @@ export class GroupsService {
   constructor(
     @InjectRepository(Group)
     private groupsRepository: Repository<Group>,
+    @Inject(forwardRef(() => EmployeesService))
     private employeesService: EmployeesService,
     @Inject(forwardRef(() => OrganizationsService))
     private organizationService: OrganizationsService,
   ) {}
 
-  private async getGroup(id: string): Promise<Group> {
+  async getGroup(id: string): Promise<Group> {
     const group = await this.groupsRepository.findOne({
       where: { id: id },
       relations: ['organization', 'employees'],
@@ -57,12 +58,14 @@ export class GroupsService {
       );
     }
 
-    const savedGroup = await this.groupsRepository.save({
+    const createdGroup = this.groupsRepository.create({
       ...newGroup,
       organization,
     });
+    await this.groupsRepository.save(createdGroup);
 
-    return savedGroup.toSafeGroup();
+    const foundGroup = this.findOne(createdGroup.id);
+    return foundGroup;
   }
 
   async findAll(): Promise<SafeGroupDto[]> {
@@ -156,11 +159,14 @@ export class GroupsService {
     return this.getEmployees(groupId);
   }
 
-  async removeEmployeeOfGroup(
+  async removeEmployeeFromGroup(
     groupId: string,
     employeeId: string,
   ): Promise<SafeEmployeeDto[]> {
     const group = await this.getGroup(groupId);
+    if (!group.employees) {
+      return [];
+    }
     group.employees = group.employees.filter((e) => e.id !== employeeId);
     await this.groupsRepository.save(group);
     return this.getEmployees(groupId);

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 import {
   IsString,
   IsUUID,
@@ -11,6 +12,7 @@ import {
 export class SafeEmployeeDto {
   @ApiProperty()
   @IsUUID()
+  @Expose()
   id: string;
 
   @ApiProperty()
@@ -21,13 +23,17 @@ export class SafeEmployeeDto {
     message:
       'Name can contain letters, numbers, accents, spaces, and common punctuation (apostrophes, hyphens, periods, commas, exclamation points, ampersands, and parentheses)',
   })
+  @Expose()
   name: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsPhoneNumber('PT')
+  @Expose()
   phone_number: string;
 
   @ApiProperty()
+  @IsUUID()
+  @Expose()
   organizationId: string;
 }

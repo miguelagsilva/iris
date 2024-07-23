@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinTable,
   Column,
-  Timestamp,
+  Unique,
   ManyToMany,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
@@ -27,6 +27,7 @@ import { Group } from '../groups/group.entity';
 import { SafeEmployeeDto } from './dto/safe-employee.dto';
 
 @Entity()
+@Unique(['phone_number'])
 export class Employee {
   @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
@@ -90,5 +91,27 @@ export class Employee {
     return plainToClass(SafeEmployeeDto, this, {
       excludeExtraneousValues: true,
     });
+  }
+
+  getGroups(): Group[] {
+    if (!this.groups) {
+      return [];
+    }
+    return this.groups;
+  }
+
+  addGroup(group: Group): Group[] {
+    if (
+      !this.groups.some((g) => g.id == group.id) &&
+      group.organization.id == this.organization.id
+    ) {
+      this.groups.push(group);
+    }
+    return this.groups;
+  }
+
+  removeGroup(groupId: string): Group[] {
+    this.groups = this.groups.filter((g) => g.id != groupId);
+    return this.groups;
   }
 }

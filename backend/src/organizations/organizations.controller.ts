@@ -8,7 +8,6 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
-  ConflictException,
 } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
 import {

@@ -29,5 +29,6 @@ export class UpdateEmployeeDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsPhoneNumber('PT')
+  @IsOptional()
   phone_number?: string;
 }

@@ -12,8 +12,6 @@ import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { SafeOrganizationDto } from './dto/safe-organization.dto';
 import { SafeUserDto } from '../users/dto/safe-user.dto';
-import { SafeGroupDto } from '../groups/dto/safe-group.dto';
-import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 import { UsersService } from '../users/users.service';
 import { ClassConstructor, plainToClass } from 'class-transformer';
 
@@ -50,10 +48,13 @@ export class OrganizationsService {
       throw new ConflictException('Organization with this name already exists');
     }
 
-    const savedOrganization = await this.organizationsRepository.save(
+    const createdOrganization = this.organizationsRepository.create(
       createOrganizationDto,
     );
-    return savedOrganization.toSafeOrganization();
+    const savedOrganization =
+      await this.organizationsRepository.save(createdOrganization);
+    const newOrganization = await this.findOne(savedOrganization.id);
+    return newOrganization;
   }
 
   async findAll(): Promise<SafeOrganizationDto[]> {

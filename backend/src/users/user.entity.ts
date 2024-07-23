@@ -98,7 +98,6 @@ export class User {
   @ManyToOne(() => Organization, (organization) => organization.users)
   organization: Organization;
 
-  @Exclude()
   toSafeUser(): SafeUserDto {
     return plainToClass(SafeUserDto, this, { excludeExtraneousValues: true });
   }

@@ -44,7 +44,8 @@ export class UsersService {
     createUserDto.password = hashedPassword;
 
     const savedUser = await this.usersRepository.save(createUserDto);
-    return savedUser.toSafeUser();
+    const newUser = await this.findOne(savedUser.id);
+    return newUser;
   }
 
   async findAll(): Promise<SafeUserDto[]> {
@@ -81,7 +82,7 @@ export class UsersService {
 
   // Auth
 
-  async AuthFindOneByEmail(email: string): Promise<User> {
+  async findOneByEmail(email: string): Promise<User> {
     const user = await this.usersRepository.findOneBy({ email: email });
     return user;
   }

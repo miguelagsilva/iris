@@ -20,7 +20,6 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SafeUserDto } from './dto/safe-user.dto';
-import { AssignOrganizationDto } from './dto/assign-organization.dto';
 import { Role } from '../roles/roles.enum';
 import { Roles } from '../roles/roles.decorator';
 

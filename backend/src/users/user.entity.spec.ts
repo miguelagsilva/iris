@@ -24,9 +24,12 @@ describe('User Entity', () => {
   }
 
   const generateValidName = () => {
-    const validChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-\'';
+    const validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-'";
     const length = Math.floor(Math.random() * 49) + 2; // 2 to 50 characters
-    return Array(length).fill(null).map(() => validChars[Math.floor(Math.random() * validChars.length)]).join('');
+    return Array(length)
+      .fill(null)
+      .map(() => validChars[Math.floor(Math.random() * validChars.length)])
+      .join('');
   };
 
   const generateValidEmail = () => {
@@ -37,7 +40,8 @@ describe('User Entity', () => {
 
   const generateValidPassword = () => {
     const length = Math.floor(Math.random() * 56) + 8; // 8 to 63 characters
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const chars =
+      'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let password = '';
     for (let i = 0; i < length; i++) {
       password += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -51,7 +55,9 @@ describe('User Entity', () => {
     lastName: generateValidName(),
     email: generateValidEmail(),
     password: generateValidPassword(),
-    role: Object.values(Role)[Math.floor(Math.random() * Object.values(Role).length)],
+    role: Object.values(Role)[
+      Math.floor(Math.random() * Object.values(Role).length)
+    ],
   });
 
   it('should create a valid user', async () => {

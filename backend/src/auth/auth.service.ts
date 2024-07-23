@@ -18,9 +18,7 @@ export class AuthService {
   ) {}
 
   async signIn(signInUserDto: SignInUserDto): Promise<AccessToken> {
-    const user = await this.usersService.AuthFindOneByEmail(
-      signInUserDto.email,
-    );
+    const user = await this.usersService.findOneByEmail(signInUserDto.email);
     if (
       user == null ||
       !(await argon2.verify(user?.password, signInUserDto.password))

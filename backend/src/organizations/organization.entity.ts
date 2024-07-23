@@ -28,8 +28,8 @@ export class Organization {
   @IsString()
   @IsNotEmpty()
   @Length(2, 20)
-  @Matches(/^[a-zA-Z0-9-]$/u, {
-    message: 'Name can only contain letters, numbers and hyphens',
+  @Matches(/^[a-zA-Z0-9-]*$/u, {
+    message: 'Code can only contain letters, numbers and hyphens',
   })
   code: string;
 
@@ -38,9 +38,9 @@ export class Organization {
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
-  @Matches(/^[\p{L}\p{M}'\- !]+$/u, {
+  @Matches(/^[\p{L}\p{M}0-9'\- !,&-]+$/u, {
     message:
-      'Name can only contain letters, accents, apostrophes, hyphens, spaces and exclamation points',
+      'Name can only contain letters, accents, apostrophes, commas, hyphens, space, exclamation points and &',
   })
   name: string;
 
@@ -74,6 +74,7 @@ export class Organization {
   })
   employees: Employee[];
 
+  @Exclude()
   toSafeOrganization(): SafeOrganizationDto {
     return plainToClass(SafeOrganizationDto, this, {
       excludeExtraneousValues: true,

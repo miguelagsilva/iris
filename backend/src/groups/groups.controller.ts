@@ -19,7 +19,6 @@ import {
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { SafeGroupDto } from './dto/safe-group.dto';
-import { OrganizationsService } from '../organizations/organizations.service';
 import { RequireOrganizationManager } from '../auth/auth.decorators';
 import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 
@@ -140,6 +139,6 @@ export class GroupsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Param('employeeId', ParseUUIDPipe) employeeId: string,
   ): Promise<SafeEmployeeDto[]> {
-    return this.groupsService.removeEmployeeOfGroup(id, employeeId);
+    return this.groupsService.removeEmployeeFromGroup(id, employeeId);
   }
 }

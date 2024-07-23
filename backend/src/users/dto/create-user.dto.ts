@@ -8,5 +8,4 @@ export class CreateUserDto extends OmitType(User, [
   'updatedAt',
   'deletedAt',
   'organization',
-  'toSafeUser',
 ] as const) {}

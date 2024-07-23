@@ -20,19 +20,14 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { SafeEmployeeDto } from './dto/safe-employee.dto';
 import { RequireOrganizationManager } from '../auth/auth.decorators';
-import { GroupsService } from '../groups/groups.service';
-import { Inject, forwardRef } from '@nestjs/common';
+import { SafeGroupDto } from 'src/groups/dto/safe-group.dto';
 
 @ApiBearerAuth('bearer')
 @ApiTags('employees', 'Organization')
 @RequireOrganizationManager()
 @Controller('employees')
 export class EmployeesController {
-  constructor(
-    private readonly employeesService: EmployeesService,
-    @Inject(forwardRef(() => GroupsService))
-    private groupsService: GroupsService,
-  ) {}
+  constructor(private readonly employeesService: EmployeesService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new employee' })
@@ -113,39 +108,37 @@ export class EmployeesController {
   @ApiResponse({
     status: 200,
     description: 'Retrieved employees groups successfully',
-    type: [SafeEmployeeDto],
+    type: [SafeGroupDto],
   })
-  getEmployees(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<SafeEmployeeDto[]> {
-    return this.groupsService.getEmployees(id);
+  getGroups(@Param('id', ParseUUIDPipe) id: string): Promise<SafeGroupDto[]> {
+    return this.employeesService.getGroups(id);
   }
 
   @Post(':id/groups/:groupId')
-  @ApiOperation({ summary: 'Add an employee to a group' })
+  @ApiOperation({ summary: 'Add group to an employee' })
   @ApiResponse({
     status: 201,
-    description: 'Employee added successfully',
-    type: [SafeEmployeeDto],
+    description: 'Group added successfully',
+    type: SafeEmployeeDto,
   })
-  addEmployeeToGroup(
+  addGroupToEmployee(
     @Param('id', ParseUUIDPipe) id: string,
     @Param('groupId', ParseUUIDPipe) groupId: string,
-  ): Promise<SafeEmployeeDto[]> {
-    return this.groupsService.addEmployeeToGroup(groupId, id);
+  ): Promise<SafeEmployeeDto> {
+    return this.employeesService.addGroupToEmployee(groupId, id);
   }
 
   @Delete(':id/group/:groupId')
-  @ApiOperation({ summary: 'Remove an employee of a group' })
+  @ApiOperation({ summary: 'Remove group from an employee' })
   @ApiResponse({
-    status: 201,
-    description: 'Employee removed successfully',
-    type: [SafeEmployeeDto],
+    status: 200,
+    description: 'Group removed successfully',
+    type: SafeEmployeeDto,
   })
-  removeEmployeeOfGroup(
+  removeGroupFromEmployee(
     @Param('id', ParseUUIDPipe) id: string,
     @Param('groupId', ParseUUIDPipe) groupId: string,
-  ): Promise<SafeEmployeeDto[]> {
-    return this.groupsService.removeEmployeeOfGroup(groupId, id);
+  ): Promise<SafeEmployeeDto> {
+    return this.employeesService.removeGroupFromEmployee(groupId, id);
   }
 }
