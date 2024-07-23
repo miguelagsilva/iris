@@ -10,11 +10,13 @@ git status
 git add .
 git status
 ### Commit the changes following the commit standard
-git commit -m "feat(frontend): Add dropdown language selection"
+git commit -m 'feat(frontend): Add dropdown language selection'
 ### Push the changes
 git push -u origin new-feature
 ### Merge the new feature branch into main
 git checkout main
-git pull
-git pull origin new-feature
-git push
+git merge --no-ff new-feature
+### Delete the old branch
+git branch -d new-feature
+### Push results
+git push origin main
