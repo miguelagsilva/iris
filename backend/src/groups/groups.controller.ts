@@ -20,7 +20,7 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { SafeGroupDto } from './dto/safe-group.dto';
 import { RequireOrganizationManager } from '../auth/auth.decorators';
-import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
+import { SafeEmployeeDto } from 'src/employees/dto/safe-employee.dto';
 
 @ApiBearerAuth('bearer')
 @ApiTags('groups', 'Organization')
@@ -102,10 +102,10 @@ export class GroupsController {
   }
 
   @Get(':id/employees')
-  @ApiOperation({ summary: 'Get all employees in a group by ID' })
+  @ApiOperation({ summary: 'Get all employees of a group by ID' })
   @ApiResponse({
     status: 200,
-    description: 'Retrieved all employees in a group successfully',
+    description: 'Retrieved group employees successfully',
     type: [SafeEmployeeDto],
   })
   getEmployees(
@@ -115,30 +115,30 @@ export class GroupsController {
   }
 
   @Post(':id/employees/:employeeId')
-  @ApiOperation({ summary: 'Add an employee to a group' })
+  @ApiOperation({ summary: 'Add employee to a group' })
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: 'Employee added successfully',
-    type: [SafeEmployeeDto],
+    type: SafeGroupDto,
   })
   addEmployeeToGroup(
     @Param('id', ParseUUIDPipe) id: string,
     @Param('employeeId', ParseUUIDPipe) employeeId: string,
-  ): Promise<SafeEmployeeDto[]> {
-    return this.groupsService.addEmployeeToGroup(id, employeeId);
+  ): Promise<SafeGroupDto> {
+    return this.groupsService.addEmployeeToGroup(employeeId, id);
   }
 
   @Delete(':id/employees/:employeeId')
-  @ApiOperation({ summary: 'Remove an employee of a group' })
+  @ApiOperation({ summary: 'Remove employee from a group' })
   @ApiResponse({
     status: 200,
     description: 'Employee removed successfully',
-    type: [SafeEmployeeDto],
+    type: SafeGroupDto,
   })
-  removeEmployeeOfGroup(
+  removeEmployeeFromGroup(
     @Param('id', ParseUUIDPipe) id: string,
     @Param('employeeId', ParseUUIDPipe) employeeId: string,
-  ): Promise<SafeEmployeeDto[]> {
-    return this.groupsService.removeEmployeeFromGroup(id, employeeId);
+  ): Promise<SafeGroupDto> {
+    return this.groupsService.removeEmployeeFromGroup(employeeId, id);
   }
 }

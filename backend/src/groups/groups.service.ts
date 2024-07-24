@@ -2,6 +2,8 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,9 +12,8 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { SafeGroupDto } from './dto/safe-group.dto';
 import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
-import { EmployeesService } from '../employees/employees.service';
-import { Inject, forwardRef } from '@nestjs/common';
 import { OrganizationsService } from '../organizations/organizations.service';
+import { EmployeesService } from 'src/employees/employees.service';
 
 @Injectable()
 export class GroupsService {
@@ -24,6 +25,20 @@ export class GroupsService {
     @Inject(forwardRef(() => OrganizationsService))
     private organizationService: OrganizationsService,
   ) {}
+
+  private async checkGroupExistence(name: string, organizationId: string) {
+    const existingGroup = await this.groupsRepository.findOne({
+      where: {
+        name: name,
+        organization: { id: organizationId },
+      },
+    });
+    if (existingGroup) {
+      throw new ConflictException(
+        'Group with this name already exists in the organization',
+      );
+    }
+  }
 
   async getGroup(id: string): Promise<Group> {
     const group = await this.groupsRepository.findOne({
@@ -37,35 +52,19 @@ export class GroupsService {
   }
 
   async create(createGroupDto: CreateGroupDto): Promise<SafeGroupDto> {
-    const existingGroup = await this.groupsRepository.findOne({
-      where: {
-        name: createGroupDto.name,
-        organization: { id: createGroupDto.organizationId },
-      },
-    });
-    if (existingGroup) {
-      throw new ConflictException(
-        'Group with this name already exists in the organization',
-      );
-    }
-
+    await this.checkGroupExistence(
+      createGroupDto.name,
+      createGroupDto.organizationId,
+    );
     const { organizationId, ...newGroup } = createGroupDto;
-
-    const organization = await this.organizationService.findOne(organizationId);
-    if (!organization) {
-      throw new NotFoundException(
-        `Organization with id "${organizationId}" not found`,
-      );
-    }
-
+    const organization =
+      await this.organizationService.getOrganization(organizationId);
     const createdGroup = this.groupsRepository.create({
       ...newGroup,
       organization,
     });
     await this.groupsRepository.save(createdGroup);
-
-    const foundGroup = this.findOne(createdGroup.id);
-    return foundGroup;
+    return this.findOne(createdGroup.id);
   }
 
   async findAll(): Promise<SafeGroupDto[]> {
@@ -82,93 +81,46 @@ export class GroupsService {
     id: string,
     updateGroupDto: UpdateGroupDto,
   ): Promise<SafeGroupDto> {
-    const existingGroup = await this.groupsRepository.findOne({
-      where: {
-        name: updateGroupDto.name,
-        organization: { id: updateGroupDto.organizationId },
-      },
-    });
-    if (existingGroup) {
-      throw new ConflictException(
-        'Group with this name already exists in the organization',
-      );
-    }
-
+    const group = await this.getGroup(id);
+    await this.checkGroupExistence(updateGroupDto.name, group.organization.id);
     await this.groupsRepository.update(id, updateGroupDto);
-
     return this.findOne(id);
   }
 
   async remove(id: string): Promise<SafeGroupDto> {
-    const group = await this.getGroup(id);
     await this.groupsRepository.softDelete(id);
-    return group.toSafeGroup();
-  }
-
-  async restore(id: string): Promise<SafeGroupDto> {
-    const result = await this.groupsRepository.restore(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(
-        `Group with id "${id}" not found or already restored`,
-      );
-    }
     return this.findOne(id);
   }
 
-  // Employees
+  async restore(id: string): Promise<SafeGroupDto> {
+    await this.groupsRepository.restore(id);
+    return this.findOne(id);
+  }
 
   async getEmployees(id: string): Promise<SafeEmployeeDto[]> {
     const group = await this.getGroup(id);
-    const employees = group.employees;
-    console.log(group);
-    if (!employees) {
-      return [];
-    }
-    return employees.map((e) => e.toSafeEmployee());
+    return group.getEmployees().map((e) => e.toSafeEmployee());
   }
 
   async addEmployeeToGroup(
-    groupId: string,
     employeeId: string,
-  ): Promise<SafeEmployeeDto[]> {
+    groupId: string,
+  ): Promise<SafeGroupDto> {
     const group = await this.getGroup(groupId);
-    if (!group) {
-      throw new NotFoundException(`Group with id ${groupId} not found`);
-    }
     const employee = await this.employeesService.getEmployee(employeeId);
-    if (!employee) {
-      throw new NotFoundException(`Employee with id ${employeeId} not found`);
-    }
-    if (group.organization.id !== employee.organization.id) {
-      throw new ConflictException(
-        `Employee and group do not belong to the same organization`,
-      );
-    }
-    if (!group.employees) {
-      group.employees = [];
-    } else if (group.employees.some((e) => e.id === employeeId)) {
-      throw new ConflictException(
-        `Employee with id ${employeeId} already belongs to group with id ${groupId}`,
-      );
-    }
-
-    group.employees.push(employee);
-
-    await this.groupsRepository.save(group);
-
-    return this.getEmployees(groupId);
+    group.addEmployee(employee);
+    const savedGroup = await this.groupsRepository.save(group);
+    return savedGroup.toSafeGroup();
   }
 
   async removeEmployeeFromGroup(
-    groupId: string,
     employeeId: string,
-  ): Promise<SafeEmployeeDto[]> {
+    groupId: string,
+  ): Promise<SafeGroupDto> {
     const group = await this.getGroup(groupId);
-    if (!group.employees) {
-      return [];
-    }
-    group.employees = group.employees.filter((e) => e.id !== employeeId);
-    await this.groupsRepository.save(group);
-    return this.getEmployees(groupId);
+    const employee = await this.employeesService.getEmployee(employeeId);
+    group.removeEmployee(employee);
+    const savedGroup = await this.groupsRepository.save(group);
+    return savedGroup.toSafeGroup();
   }
 }

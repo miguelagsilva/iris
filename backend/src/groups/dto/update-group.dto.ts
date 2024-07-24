@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,
   Length,
-  IsUUID,
   Matches,
   IsNotEmpty,
   IsOptional,
@@ -19,9 +18,4 @@ export class UpdateGroupDto {
   })
   @IsOptional()
   name?: string;
-
-  @ApiProperty()
-  @IsUUID()
-  @IsOptional()
-  organizationId?: string;
 }

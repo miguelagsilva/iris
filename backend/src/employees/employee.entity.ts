@@ -101,6 +101,9 @@ export class Employee {
   }
 
   addGroup(group: Group): Group[] {
+    if (!this.groups) {
+      this.groups = [];
+    }
     if (
       !this.groups.some((g) => g.id == group.id) &&
       group.organization.id == this.organization.id
@@ -110,8 +113,11 @@ export class Employee {
     return this.groups;
   }
 
-  removeGroup(groupId: string): Group[] {
-    this.groups = this.groups.filter((g) => g.id != groupId);
+  removeGroup(group: Group): Group[] {
+    if (!this.groups) {
+      return [];
+    }
+    this.groups = this.groups.filter((g) => g != group);
     return this.groups;
   }
 }

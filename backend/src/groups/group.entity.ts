@@ -7,6 +7,7 @@ import {
   DeleteDateColumn,
   ManyToOne,
   ManyToMany,
+  Unique,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, Length, IsUUID, Matches, IsNotEmpty } from 'class-validator';
@@ -16,6 +17,7 @@ import { SafeGroupDto } from './dto/safe-group.dto';
 import { Exclude, plainToClass } from 'class-transformer';
 
 @Entity()
+@Unique(['name'])
 export class Group {
   @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
@@ -58,5 +60,33 @@ export class Group {
 
   toSafeGroup(): SafeGroupDto {
     return plainToClass(SafeGroupDto, this, { excludeExtraneousValues: true });
+  }
+
+  getEmployees(): Employee[] {
+    if (!this.employees) {
+      return [];
+    }
+    return this.employees;
+  }
+
+  addEmployee(employee: Employee): Employee[] {
+    if (!this.employees) {
+      this.employees = [];
+    }
+    if (
+      !this.employees.some((e) => e.id == employee.id) &&
+      employee.organization.id == this.organization.id
+    ) {
+      this.employees.push(employee);
+    }
+    return this.employees;
+  }
+
+  removeEmployee(employee: Employee): Employee[] {
+    if (!this.employees) {
+      return [];
+    }
+    this.employees = this.employees.filter((e) => e != employee);
+    return this.employees;
   }
 }

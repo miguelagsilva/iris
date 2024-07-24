@@ -3,7 +3,6 @@ import {
   IsPhoneNumber,
   IsString,
   Length,
-  IsUUID,
   Matches,
   IsNotEmpty,
   IsOptional,
@@ -20,11 +19,6 @@ export class UpdateEmployeeDto {
   })
   @IsOptional()
   name?: string;
-
-  @ApiProperty()
-  @IsUUID()
-  @IsOptional()
-  organizationId?: string;
 
   @ApiProperty()
   @IsNotEmpty()
