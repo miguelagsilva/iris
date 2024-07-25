@@ -88,8 +88,9 @@ export class GroupsService {
   }
 
   async remove(id: string): Promise<SafeGroupDto> {
+    const group = await this.getGroup(id);
     await this.groupsRepository.softDelete(id);
-    return this.findOne(id);
+    return group.toSafeGroup();
   }
 
   async restore(id: string): Promise<SafeGroupDto> {

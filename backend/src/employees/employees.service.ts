@@ -94,8 +94,9 @@ export class EmployeesService {
   }
 
   async remove(id: string): Promise<SafeEmployeeDto> {
+    const employee = await this.getEmployee(id);
     await this.employeesRepository.softDelete(id);
-    return this.findOne(id);
+    return employee.toSafeEmployee();
   }
 
   async restore(id: string): Promise<SafeEmployeeDto> {

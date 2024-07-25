@@ -13,7 +13,8 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { SafeOrganizationDto } from './dto/safe-organization.dto';
 import { SafeUserDto } from '../users/dto/safe-user.dto';
 import { UsersService } from '../users/users.service';
-import { ClassConstructor, plainToClass } from 'class-transformer';
+import { SafeGroupDto } from 'src/groups/dto/safe-group.dto';
+import { SafeEmployeeDto } from 'src/employees/dto/safe-employee.dto';
 
 @Injectable()
 export class OrganizationsService {
@@ -24,10 +25,20 @@ export class OrganizationsService {
     private usersService: UsersService,
   ) {}
 
+  private async checkOrganizationExistence(name: string) {
+    const existingOrganization = await this.organizationsRepository.findOne({
+      where: { name: name },
+      withDeleted: true,
+    });
+    if (existingOrganization) {
+      throw new ConflictException('Organization with this name already exists');
+    }
+  }
+
   async getOrganization(id: string): Promise<Organization> {
     const organization = await this.organizationsRepository.findOne({
       where: { id: id },
-      relations: ['users'],
+      relations: ['users', 'employees', 'groups'],
     });
     if (!organization) {
       throw new NotFoundException(`Organization with id "${id}" not found`);
@@ -40,21 +51,13 @@ export class OrganizationsService {
   async create(
     createOrganizationDto: CreateOrganizationDto,
   ): Promise<SafeOrganizationDto> {
-    const existingOrganization = await this.organizationsRepository.findOne({
-      where: { name: createOrganizationDto.name },
-      withDeleted: true,
-    });
-    if (existingOrganization) {
-      throw new ConflictException('Organization with this name already exists');
-    }
-
+    this.checkOrganizationExistence(createOrganizationDto.name);
     const createdOrganization = this.organizationsRepository.create(
       createOrganizationDto,
     );
     const savedOrganization =
       await this.organizationsRepository.save(createdOrganization);
-    const newOrganization = await this.findOne(savedOrganization.id);
-    return newOrganization;
+    return await this.findOne(savedOrganization.id);
   }
 
   async findAll(): Promise<SafeOrganizationDto[]> {
@@ -69,10 +72,11 @@ export class OrganizationsService {
 
   async update(
     id: string,
-    updateOrganization: UpdateOrganizationDto,
+    updateOrganizationDto: UpdateOrganizationDto,
   ): Promise<SafeOrganizationDto> {
     await this.getOrganization(id);
-    await this.organizationsRepository.update(id, updateOrganization);
+    await this.checkOrganizationExistence(updateOrganizationDto.name);
+    await this.organizationsRepository.update(id, updateOrganizationDto);
     return this.findOne(id);
   }
 
@@ -83,12 +87,7 @@ export class OrganizationsService {
   }
 
   async restore(id: string): Promise<SafeOrganizationDto> {
-    const result = await this.organizationsRepository.restore(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(
-        `Organization with id "${id}" not found or already restored`,
-      );
-    }
+    await this.organizationsRepository.restore(id);
     return this.findOne(id);
   }
 
@@ -99,31 +98,12 @@ export class OrganizationsService {
     userId: string,
   ): Promise<SafeUserDto[]> {
     const user = await this.usersService.getUser(userId);
-    if (!user) {
-      throw new NotFoundException(`User with id ${userId} not found`);
-    }
     const organization = await this.getOrganization(organizationId);
-    if (!organization) {
-      throw new NotFoundException(
-        `Organization with id ${organizationId} not found`,
-      );
-    }
-    if (!organization.users) {
-      organization.users = [];
-    } else if (organization.users.some((u) => u.id === userId)) {
-      throw new ConflictException(
-        `User with id ${userId} already belongs to organization with id ${organizationId}`,
-      );
-    }
-    organization.users.push(user);
-
+    organization.addUser(user);
     await this.organizationsRepository.save(organization);
-
-    return await this.getOrganizationEntities(
-      organizationId,
-      'users',
-      SafeUserDto,
-    );
+    await this.usersService.save(user);
+    const updatedOrganization = await this.getOrganization(organizationId);
+    return updatedOrganization.users.map((u) => u.toSafeUser());
   }
 
   async removeUserFromOrganization(
@@ -131,50 +111,28 @@ export class OrganizationsService {
     userId: string,
   ): Promise<SafeUserDto[]> {
     const user = await this.usersService.getUser(userId);
-    if (!user.organization) {
-      throw new NotFoundException(
-        `User with ID "${userId}" is not assigned to any organization`,
-      );
-    }
     const organization = await this.getOrganization(organizationId);
-    if (!organization) {
-      throw new NotFoundException(
-        `Organization with id ${organizationId} not found`,
-      );
-    }
-    if (!organization.users || organization.users.length == 0) {
-      return [];
-    }
-
-    organization.users = organization.users.filter((u) => u.id !== userId);
+    organization.removeUser(user);
     await this.organizationsRepository.save(organization);
-    return await this.getOrganizationEntities(
-      organizationId,
-      'users',
-      SafeUserDto,
-    );
+    await this.usersService.save(user);
+    const updatedOrganization = await this.getOrganization(organizationId);
+    return updatedOrganization.users.map((u) => u.toSafeUser());
   }
 
   // Users, groups and employees
 
-  async getOrganizationEntities(
-    organizationId: string,
-    entitiesType: 'users' | 'groups' | 'employees',
-    DtoClass: ClassConstructor<any>,
-  ) {
-    const organization = await this.organizationsRepository.findOne({
-      where: { id: organizationId },
-      relations: [entitiesType],
-    });
+  async getOrganizationUsers(id: string): Promise<SafeUserDto[]> {
+    const organization = await this.getOrganization(id);
+    return organization.getUsers().map((o) => o.toSafeUser());
+  }
 
-    if (!organization) {
-      throw new NotFoundException(
-        `Organization with id "${organizationId}" not found`,
-      );
-    }
+  async getOrganizationEmployees(id: string): Promise<SafeEmployeeDto[]> {
+    const organization = await this.getOrganization(id);
+    return organization.getEmployees().map((e) => e.toSafeEmployee());
+  }
 
-    return plainToClass(DtoClass, organization[entitiesType], {
-      excludeExtraneousValues: true,
-    });
+  async getOrganizationGroups(id: string): Promise<SafeGroupDto[]> {
+    const organization = await this.getOrganization(id);
+    return organization.getGroups().map((g) => g.toSafeGroup());
   }
 }

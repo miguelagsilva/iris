@@ -63,10 +63,7 @@ export class Group {
   }
 
   getEmployees(): Employee[] {
-    if (!this.employees) {
-      return [];
-    }
-    return this.employees;
+    return this.employees || [];
   }
 
   addEmployee(employee: Employee): Employee[] {

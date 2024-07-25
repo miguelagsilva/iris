@@ -94,10 +94,7 @@ export class Employee {
   }
 
   getGroups(): Group[] {
-    if (!this.groups) {
-      return [];
-    }
-    return this.groups;
+    return this.groups || [];
   }
 
   addGroup(group: Group): Group[] {

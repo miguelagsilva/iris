@@ -80,4 +80,80 @@ export class Organization {
       excludeExtraneousValues: true,
     });
   }
+
+  getUsers(): User[] {
+    return this.users || [];
+  }
+
+  addUser(user: User): User[] {
+    if (!this.users) {
+      this.users = [];
+    }
+    if (!this.users.some((u) => u.id == user.id)) {
+      this.users.push(user);
+      user.organization = this;
+    }
+    return this.users;
+  }
+
+  removeUser(user: User): User[] {
+    if (!this.users) {
+      return [];
+    }
+    if (user.organization && user.organization.id == this.id) {
+      this.users = this.users.filter((u) => u != user);
+      user.organization = null;
+    }
+    return this.users;
+  }
+
+  getGroups(): Group[] {
+    return this.groups || [];
+  }
+
+  addGroup(group: Group): Group[] {
+    if (!this.groups) {
+      this.groups = [];
+    }
+    if (
+      !this.groups.some((g) => g.id == group.id) &&
+      group.organization.id == this.id
+    ) {
+      this.groups.push(group);
+    }
+    return this.groups;
+  }
+
+  removeGroup(group: Group): Group[] {
+    if (!this.groups) {
+      return [];
+    }
+    this.groups = this.groups.filter((g) => g != group);
+    return this.groups;
+  }
+
+  getEmployees(): Employee[] {
+    return this.employees || [];
+  }
+
+  addEmployee(employee: Employee): Employee[] {
+    if (!this.employees) {
+      this.employees = [];
+    }
+    if (
+      !this.employees.some((e) => e.id == employee.id) &&
+      employee.organization.id == this.id
+    ) {
+      this.employees.push(employee);
+    }
+    return this.employees;
+  }
+
+  removeEmployee(employee: Employee): Employee[] {
+    if (!this.employees) {
+      return [];
+    }
+    this.employees = this.employees.filter((e) => e != employee);
+    return this.employees;
+  }
 }
