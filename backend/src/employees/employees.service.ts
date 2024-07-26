@@ -13,7 +13,7 @@ import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { SafeEmployeeDto } from './dto/safe-employee.dto';
 import { SafeGroupDto } from '../groups/dto/safe-group.dto';
 import { OrganizationsService } from '../organizations/organizations.service';
-import { GroupsService } from 'src/groups/groups.service';
+import { GroupsService } from '../groups/groups.service';
 
 @Injectable()
 export class EmployeesService {
@@ -26,21 +26,21 @@ export class EmployeesService {
     private organizationService: OrganizationsService,
   ) {}
 
-  private async checkEmployeeExistence(
-    phoneNumber: string,
-    organizationId: string,
-  ) {
+  private async checkEmployeeExistence(phoneNumber: string) {
     const existingEmployee = await this.employeesRepository.findOne({
       where: {
         phone_number: phoneNumber,
-        organization: { id: organizationId },
       },
     });
     if (existingEmployee) {
       throw new ConflictException(
-        'Employee with this name already exists in the organization',
+        'Employee with this phone number already exists.',
       );
     }
+  }
+
+  async save(employee: Employee): Promise<Employee> {
+    return await this.employeesRepository.save(employee);
   }
 
   async getEmployee(id: string): Promise<Employee> {
@@ -55,10 +55,7 @@ export class EmployeesService {
   }
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<SafeEmployeeDto> {
-    await this.checkEmployeeExistence(
-      createEmployeeDto.phone_number,
-      createEmployeeDto.organizationId,
-    );
+    await this.checkEmployeeExistence(createEmployeeDto.phone_number);
     const { organizationId, ...newEmployee } = createEmployeeDto;
     const organization =
       await this.organizationService.getOrganization(organizationId);
@@ -84,11 +81,8 @@ export class EmployeesService {
     id: string,
     updateEmployeeDto: UpdateEmployeeDto,
   ): Promise<SafeEmployeeDto> {
-    const employee = await this.getEmployee(id);
-    await this.checkEmployeeExistence(
-      updateEmployeeDto.phone_number,
-      employee.organization.id,
-    );
+    await this.getEmployee(id);
+    await this.checkEmployeeExistence(updateEmployeeDto.phone_number);
     await this.employeesRepository.update(id, updateEmployeeDto);
     return this.findOne(id);
   }

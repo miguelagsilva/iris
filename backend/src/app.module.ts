@@ -13,6 +13,7 @@ import { EmployeesModule } from './employees/employees.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
+      envFilePath: `.env.${process.env.NODE_ENV}`,
       isGlobal: true,
       validate,
     }),

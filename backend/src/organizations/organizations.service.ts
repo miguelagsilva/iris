@@ -13,8 +13,8 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { SafeOrganizationDto } from './dto/safe-organization.dto';
 import { SafeUserDto } from '../users/dto/safe-user.dto';
 import { UsersService } from '../users/users.service';
-import { SafeGroupDto } from 'src/groups/dto/safe-group.dto';
-import { SafeEmployeeDto } from 'src/employees/dto/safe-employee.dto';
+import { SafeGroupDto } from '../groups/dto/safe-group.dto';
+import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 
 @Injectable()
 export class OrganizationsService {

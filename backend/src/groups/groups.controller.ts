@@ -20,7 +20,7 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { SafeGroupDto } from './dto/safe-group.dto';
 import { RequireOrganizationManager } from '../auth/auth.decorators';
-import { SafeEmployeeDto } from 'src/employees/dto/safe-employee.dto';
+import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 
 @ApiBearerAuth('bearer')
 @ApiTags('groups', 'Organization')
@@ -119,12 +119,12 @@ export class GroupsController {
   @ApiResponse({
     status: 201,
     description: 'Employee added successfully',
-    type: SafeGroupDto,
+    type: [SafeEmployeeDto],
   })
   addEmployeeToGroup(
     @Param('id', ParseUUIDPipe) id: string,
     @Param('employeeId', ParseUUIDPipe) employeeId: string,
-  ): Promise<SafeGroupDto> {
+  ): Promise<SafeEmployeeDto[]> {
     return this.groupsService.addEmployeeToGroup(employeeId, id);
   }
 
