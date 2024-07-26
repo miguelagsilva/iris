@@ -26,7 +26,10 @@ export class EmployeesService {
     private organizationService: OrganizationsService,
   ) {}
 
-  private async checkUniqueness(phoneNumber: string, organizationId: string) {
+  private async checkEmployeeExistence(
+    phoneNumber: string,
+    organizationId: string,
+  ) {
     const existingEmployee = await this.employeesRepository.findOne({
       where: {
         phone_number: phoneNumber,
@@ -52,7 +55,7 @@ export class EmployeesService {
   }
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<SafeEmployeeDto> {
-    this.checkUniqueness(
+    await this.checkEmployeeExistence(
       createEmployeeDto.phone_number,
       createEmployeeDto.organizationId,
     );
@@ -81,17 +84,19 @@ export class EmployeesService {
     id: string,
     updateEmployeeDto: UpdateEmployeeDto,
   ): Promise<SafeEmployeeDto> {
-    this.checkUniqueness(
+    const employee = await this.getEmployee(id);
+    await this.checkEmployeeExistence(
       updateEmployeeDto.phone_number,
-      updateEmployeeDto.organizationId,
+      employee.organization.id,
     );
     await this.employeesRepository.update(id, updateEmployeeDto);
     return this.findOne(id);
   }
 
   async remove(id: string): Promise<SafeEmployeeDto> {
+    const employee = await this.getEmployee(id);
     await this.employeesRepository.softDelete(id);
-    return this.findOne(id);
+    return employee.toSafeEmployee();
   }
 
   async restore(id: string): Promise<SafeEmployeeDto> {
@@ -99,12 +104,9 @@ export class EmployeesService {
     return this.findOne(id);
   }
 
-  // Groups
-
   async getGroups(id: string): Promise<SafeGroupDto[]> {
     const employee = await this.getEmployee(id);
-    const groups = employee.getGroups();
-    return groups.map((g) => g.toSafeGroup());
+    return employee.getGroups().map((g) => g.toSafeGroup());
   }
 
   async addGroupToEmployee(
@@ -123,7 +125,8 @@ export class EmployeesService {
     employeeId: string,
   ): Promise<SafeEmployeeDto> {
     const employee = await this.getEmployee(employeeId);
-    employee.removeGroup(groupId);
+    const group = await this.groupsService.getGroup(groupId);
+    employee.removeGroup(group);
     const savedEmployee = await this.employeesRepository.save(employee);
     return savedEmployee.toSafeEmployee();
   }

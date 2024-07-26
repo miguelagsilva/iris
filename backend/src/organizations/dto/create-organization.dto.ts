@@ -1,11 +1,23 @@
-import { OmitType } from '@nestjs/swagger';
-import { Organization } from '../organization.entity';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 
-export class CreateOrganizationDto extends OmitType(Organization, [
-  'id',
-  'createdAt',
-  'updatedAt',
-  'deletedAt',
-  'groups',
-  'users',
-] as const) {}
+export class CreateOrganizationDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 20)
+  @Matches(/^[a-zA-Z0-9-]*$/u, {
+    message: 'Code can only contain letters, numbers and hyphens',
+  })
+  code: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 50)
+  @Matches(/^[\p{L}\p{M}0-9'\- !,&-]+$/u, {
+    message:
+      'Name can only contain letters, accents, apostrophes, commas, hyphens, space, exclamation points and &',
+  })
+  name: string;
+}

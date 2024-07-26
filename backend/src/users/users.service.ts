@@ -18,6 +18,20 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
+  private async checkUserExistence(email: string) {
+    const existingUser = await this.usersRepository.findOne({
+      where: { email: email },
+      withDeleted: true,
+    });
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
+    }
+  }
+
+  async save(user: User): Promise<User> {
+    return await this.usersRepository.save(user);
+  }
+
   async getUser(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id: id },
@@ -32,20 +46,10 @@ export class UsersService {
   // User
 
   async create(createUserDto: CreateUserDto): Promise<SafeUserDto> {
-    const existingUser = await this.usersRepository.findOne({
-      where: { email: createUserDto.email },
-      withDeleted: true,
-    });
-    if (existingUser) {
-      throw new ConflictException('User with this email already exists');
-    }
-
-    const hashedPassword = await argon2.hash(createUserDto.password);
-    createUserDto.password = hashedPassword;
-
+    await this.checkUserExistence(createUserDto.email);
+    createUserDto.password = await argon2.hash(createUserDto.password);
     const savedUser = await this.usersRepository.save(createUserDto);
-    const newUser = await this.findOne(savedUser.id);
-    return newUser;
+    return await this.findOne(savedUser.id);
   }
 
   async findAll(): Promise<SafeUserDto[]> {
@@ -58,9 +62,10 @@ export class UsersService {
     return user.toSafeUser();
   }
 
-  async update(id: string, updateUser: UpdateUserDto): Promise<SafeUserDto> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<SafeUserDto> {
     await this.getUser(id);
-    await this.usersRepository.update(id, updateUser);
+    await this.checkUserExistence(updateUserDto.email);
+    await this.usersRepository.update(id, updateUserDto);
     return this.findOne(id);
   }
 
@@ -71,19 +76,13 @@ export class UsersService {
   }
 
   async restore(id: string): Promise<SafeUserDto> {
-    const result = await this.usersRepository.restore(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(
-        `User with id "${id}" not found or already restored`,
-      );
-    }
+    await this.usersRepository.restore(id);
     return this.findOne(id);
   }
 
   // Auth
 
   async findOneByEmail(email: string): Promise<User> {
-    const user = await this.usersRepository.findOneBy({ email: email });
-    return user;
+    return await this.usersRepository.findOneBy({ email: email });
   }
 }

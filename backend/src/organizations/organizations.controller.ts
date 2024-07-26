@@ -135,25 +135,6 @@ export class OrganizationsController {
     return this.organizationsService.restore(id);
   }
 
-  @Get(':id/users')
-  @RequireOrganizationManager()
-  @ApiTags('Organization')
-  @ApiOperation({ summary: 'Get all users in an organization' })
-  @ApiResponse({
-    status: 200,
-    description: 'Retrieved organization users successfully',
-    type: [SafeUserDto],
-  })
-  getOrganizationUsers(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<SafeUserDto[]> {
-    return this.organizationsService.getOrganizationEntities(
-      id,
-      'users',
-      SafeUserDto,
-    );
-  }
-
   @Post(':id/users/:userId')
   @RequireOrganizationManager()
   @ApiTags('Organization')
@@ -162,10 +143,6 @@ export class OrganizationsController {
     status: 201,
     description: 'Added user to organization successfully',
     type: [SafeUserDto],
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'User already belongs to that organization',
   })
   addUserToOrganization(
     @Param('id', ParseUUIDPipe) id: string,
@@ -190,6 +167,21 @@ export class OrganizationsController {
     return this.organizationsService.removeUserFromOrganization(id, userId);
   }
 
+  @Get(':id/users')
+  @RequireOrganizationManager()
+  @ApiTags('Organization')
+  @ApiOperation({ summary: 'Get all users in an organization' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved organization users successfully',
+    type: [SafeUserDto],
+  })
+  getOrganizationUsers(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<SafeUserDto[]> {
+    return this.organizationsService.getOrganizationUsers(id);
+  }
+
   @Get(':id/groups')
   @RequireOrganizationManager()
   @ApiTags('Organization')
@@ -202,11 +194,7 @@ export class OrganizationsController {
   getOrganizationGroups(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<SafeGroupDto[]> {
-    return this.organizationsService.getOrganizationEntities(
-      id,
-      'groups',
-      SafeGroupDto,
-    );
+    return this.organizationsService.getOrganizationGroups(id);
   }
 
   @Get(':id/employees')
@@ -221,10 +209,6 @@ export class OrganizationsController {
   getOrganizationEmployees(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<SafeEmployeeDto[]> {
-    return this.organizationsService.getOrganizationEntities(
-      id,
-      'employees',
-      SafeEmployeeDto,
-    );
+    return this.organizationsService.getOrganizationEmployees(id);
   }
 }
