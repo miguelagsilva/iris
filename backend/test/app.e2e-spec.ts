@@ -51,12 +51,12 @@ describe('App (e2e)', () => {
           .get('/api/v1/organizations')
           .expect(200)
           .expect((res) => {
-            expect(Array.isArray(res.body)).toBeTruthy();
-            expect(res.body.length).toBeGreaterThan(0);
-            expect(res.body[0]).toHaveProperty('code');
-            expect(res.body[0]).toHaveProperty('name');
-            expect(res.body[0]).toHaveProperty('id');
-            expect(res.body).toContainEqual(currentOrganization);
+            expect(Array.isArray(res.body.items)).toBeTruthy();
+            expect(res.body.items.length).toBeGreaterThan(0);
+            expect(res.body.items[0]).toHaveProperty('code');
+            expect(res.body.items[0]).toHaveProperty('name');
+            expect(res.body.items[0]).toHaveProperty('id');
+            expect(res.body.items).toContainEqual(currentOrganization);
           });
       });
     });
@@ -101,11 +101,12 @@ describe('App (e2e)', () => {
         return request(app.getHttpServer())
           .patch(`/api/v1/organizations/${currentOrganization.id}`)
           .send({
+            code: 'ORG003',
             name: 'Partially Updated Organization',
           })
           .expect(200)
           .expect((res) => {
-            expect(res.body).toHaveProperty('code', currentOrganization.code);
+            expect(res.body).toHaveProperty('code', 'ORG003');
             expect(res.body).toHaveProperty(
               'name',
               'Partially Updated Organization',

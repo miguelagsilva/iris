@@ -6,7 +6,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsOrder, Repository } from 'typeorm';
 import { Organization } from './organization.entity';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
@@ -15,6 +15,8 @@ import { SafeUserDto } from '../users/dto/safe-user.dto';
 import { UsersService } from '../users/users.service';
 import { SafeGroupDto } from '../groups/dto/safe-group.dto';
 import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 
 @Injectable()
 export class OrganizationsService {
@@ -25,9 +27,9 @@ export class OrganizationsService {
     private usersService: UsersService,
   ) {}
 
-  private async checkOrganizationExistence(name: string) {
+  private async checkOrganizationExistence(code: string) {
     const existingOrganization = await this.organizationsRepository.findOne({
-      where: { name: name },
+      where: { code: code },
       withDeleted: true,
     });
     if (existingOrganization) {
@@ -46,12 +48,12 @@ export class OrganizationsService {
     return organization;
   }
 
-  // Organization
+  // CRUD
 
   async create(
     createOrganizationDto: CreateOrganizationDto,
   ): Promise<SafeOrganizationDto> {
-    this.checkOrganizationExistence(createOrganizationDto.name);
+    await this.checkOrganizationExistence(createOrganizationDto.code);
     const createdOrganization = this.organizationsRepository.create(
       createOrganizationDto,
     );
@@ -60,9 +62,31 @@ export class OrganizationsService {
     return await this.findOne(savedOrganization.id);
   }
 
-  async findAll(): Promise<SafeOrganizationDto[]> {
-    const organizations = await this.organizationsRepository.find();
-    return organizations.map((o) => o.toSafeOrganization());
+  async paginate(
+    paginationDto: PaginationDto<Organization>,
+  ): Promise<PaginationResult<SafeOrganizationDto>> {
+    let { page, limit } = paginationDto;
+    const { filter, sortBy, sortOrder } = paginationDto;
+    page = page || 1;
+    limit = limit || 20;
+    const skip = (page - 1) * limit;
+    const sort = sortBy
+      ? { [sortBy]: sortOrder }
+      : ({ id: 'ASC' } as FindOptionsOrder<Organization>);
+    const [items, total] = await this.organizationsRepository.findAndCount({
+      where: filter,
+      order: sort,
+      take: limit,
+      skip: skip,
+    });
+    const safeItems = items.map((i) => i.toSafeOrganization());
+    return {
+      items: safeItems,
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<SafeOrganizationDto> {
@@ -75,7 +99,7 @@ export class OrganizationsService {
     updateOrganizationDto: UpdateOrganizationDto,
   ): Promise<SafeOrganizationDto> {
     await this.getOrganization(id);
-    await this.checkOrganizationExistence(updateOrganizationDto.name);
+    await this.checkOrganizationExistence(updateOrganizationDto.code);
     await this.organizationsRepository.update(id, updateOrganizationDto);
     return this.findOne(id);
   }

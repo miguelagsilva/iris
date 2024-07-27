@@ -51,6 +51,8 @@ export class GroupsService {
     return group;
   }
 
+  // CRUD
+
   async create(createGroupDto: CreateGroupDto): Promise<SafeGroupDto> {
     await this.checkGroupExistence(
       createGroupDto.name,
@@ -97,6 +99,8 @@ export class GroupsService {
     await this.groupsRepository.restore(id);
     return this.findOne(id);
   }
+
+  // Relationships
 
   async getEmployees(id: string): Promise<SafeEmployeeDto[]> {
     const group = await this.getGroup(id);

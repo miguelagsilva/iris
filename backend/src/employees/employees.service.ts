@@ -67,11 +67,6 @@ export class EmployeesService {
     return this.findOne(createdEmployee.id);
   }
 
-  async findAll(): Promise<SafeEmployeeDto[]> {
-    const employees = await this.employeesRepository.find();
-    return employees.map((e) => e.toSafeEmployee());
-  }
-
   async findOne(id: string): Promise<SafeEmployeeDto> {
     const employee = await this.getEmployee(id);
     return employee.toSafeEmployee();
