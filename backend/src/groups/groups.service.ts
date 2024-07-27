@@ -13,7 +13,7 @@ import { UpdateGroupDto } from './dto/update-group.dto';
 import { SafeGroupDto } from './dto/safe-group.dto';
 import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 import { OrganizationsService } from '../organizations/organizations.service';
-import { EmployeesService } from 'src/employees/employees.service';
+import { EmployeesService } from '../employees/employees.service';
 
 @Injectable()
 export class GroupsService {
@@ -50,6 +50,8 @@ export class GroupsService {
     }
     return group;
   }
+
+  // CRUD
 
   async create(createGroupDto: CreateGroupDto): Promise<SafeGroupDto> {
     await this.checkGroupExistence(
@@ -98,6 +100,8 @@ export class GroupsService {
     return this.findOne(id);
   }
 
+  // Relationships
+
   async getEmployees(id: string): Promise<SafeEmployeeDto[]> {
     const group = await this.getGroup(id);
     return group.getEmployees().map((e) => e.toSafeEmployee());
@@ -106,12 +110,14 @@ export class GroupsService {
   async addEmployeeToGroup(
     employeeId: string,
     groupId: string,
-  ): Promise<SafeGroupDto> {
+  ): Promise<SafeEmployeeDto[]> {
     const group = await this.getGroup(groupId);
     const employee = await this.employeesService.getEmployee(employeeId);
     group.addEmployee(employee);
-    const savedGroup = await this.groupsRepository.save(group);
-    return savedGroup.toSafeGroup();
+    await this.groupsRepository.save(group);
+    await this.employeesService.save(employee);
+    const updatedGroup = await this.getGroup(groupId);
+    return updatedGroup.employees.map((e) => e.toSafeEmployee());
   }
 
   async removeEmployeeFromGroup(

@@ -20,7 +20,7 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { SafeEmployeeDto } from './dto/safe-employee.dto';
 import { RequireOrganizationManager } from '../auth/auth.decorators';
-import { SafeGroupDto } from 'src/groups/dto/safe-group.dto';
+import { SafeGroupDto } from '../groups/dto/safe-group.dto';
 
 @ApiBearerAuth('bearer')
 @ApiTags('employees', 'Organization')

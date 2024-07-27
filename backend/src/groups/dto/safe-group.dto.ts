@@ -1,10 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 import { IsString, IsUUID, IsNotEmpty, Length, Matches } from 'class-validator';
 
 export class SafeGroupDto {
   @ApiProperty()
   @IsUUID()
+  @IsNotEmpty()
   @Expose()
   id: string;
 
@@ -22,5 +23,6 @@ export class SafeGroupDto {
   @ApiProperty()
   @IsUUID()
   @Expose()
+  @Transform(({ obj }) => obj.organization?.id)
   organizationId: string;
 }

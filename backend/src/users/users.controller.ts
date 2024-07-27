@@ -9,6 +9,7 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -16,12 +17,16 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SafeUserDto } from './dto/safe-user.dto';
 import { Role } from '../roles/roles.enum';
 import { Roles } from '../roles/roles.decorator';
+import { PaginationResult } from '../common/interfaces/pagination-result.interface';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from './user.entity';
 
 @ApiBearerAuth('bearer')
 @ApiTags('users')
@@ -51,10 +56,42 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: 'Retrieved all users successfully',
-    type: [SafeUserDto],
+    type: PaginationResult<SafeUserDto>,
   })
-  findAll(): Promise<SafeUserDto[]> {
-    return this.usersService.findAll();
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of items per page',
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    type: String,
+    description: 'Field to sort by',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    enum: ['ASC', 'DESC'],
+    description: 'Sort order',
+  })
+  @ApiQuery({
+    name: 'filter',
+    required: false,
+    type: 'object',
+    description: 'Filter criteria',
+  })
+  paginate(
+    @Query() paginationDto: PaginationDto<User>,
+  ): Promise<PaginationResult<SafeUserDto>> {
+    return this.usersService.paginate(paginationDto);
   }
 
   @Get(':id')

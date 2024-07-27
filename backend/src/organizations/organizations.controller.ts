@@ -8,6 +8,7 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
 import {
@@ -15,6 +16,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
@@ -25,6 +27,9 @@ import { SafeUserDto } from '../users/dto/safe-user.dto';
 import { RequireOrganizationManager } from '../auth/auth.decorators';
 import { SafeGroupDto } from '../groups/dto/safe-group.dto';
 import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResult } from '../common/interfaces/pagination-result.interface';
+import { Organization } from './organization.entity';
 
 @ApiBearerAuth('bearer')
 @ApiTags('organizations')
@@ -54,10 +59,42 @@ export class OrganizationsController {
   @ApiResponse({
     status: 200,
     description: 'Retrieved all organizations successfully',
-    type: [SafeOrganizationDto],
+    type: PaginationResult<SafeOrganizationDto>,
   })
-  findAll(): Promise<SafeOrganizationDto[]> {
-    return this.organizationsService.findAll();
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of items per page',
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    type: String,
+    description: 'Field to sort by',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    enum: ['ASC', 'DESC'],
+    description: 'Sort order',
+  })
+  @ApiQuery({
+    name: 'filter',
+    required: false,
+    type: 'object',
+    description: 'Filter criteria',
+  })
+  paginate(
+    @Query() paginationDto: PaginationDto<Organization>,
+  ): Promise<PaginationResult<SafeOrganizationDto>> {
+    return this.organizationsService.paginate(paginationDto);
   }
 
   @Get(':id')

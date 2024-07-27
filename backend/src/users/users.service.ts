@@ -4,12 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsOrder, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SafeUserDto } from './dto/safe-user.dto';
 import * as argon2 from 'argon2';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 
 @Injectable()
 export class UsersService {
@@ -52,9 +54,31 @@ export class UsersService {
     return await this.findOne(savedUser.id);
   }
 
-  async findAll(): Promise<SafeUserDto[]> {
-    const users = await this.usersRepository.find();
-    return users.map((u) => u.toSafeUser());
+  async paginate(
+    paginationDto: PaginationDto<User>,
+  ): Promise<PaginationResult<SafeUserDto>> {
+    let { page, limit } = paginationDto;
+    const { filter, sortBy, sortOrder } = paginationDto;
+    page = page || 1;
+    limit = limit || 20;
+    const skip = (page - 1) * limit;
+    const sort = sortBy
+      ? { [sortBy]: sortOrder }
+      : ({ id: 'ASC' } as FindOptionsOrder<User>);
+    const [items, total] = await this.usersRepository.findAndCount({
+      where: filter,
+      order: sort,
+      take: limit,
+      skip: skip,
+    });
+    const safeItems = items.map((i) => i.toSafeUser());
+    return {
+      items: safeItems,
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<SafeUserDto> {

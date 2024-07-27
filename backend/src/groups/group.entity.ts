@@ -14,7 +14,7 @@ import { IsString, Length, IsUUID, Matches, IsNotEmpty } from 'class-validator';
 import { Organization } from '../organizations/organization.entity';
 import { Employee } from '../employees/employee.entity';
 import { SafeGroupDto } from './dto/safe-group.dto';
-import { Exclude, plainToClass } from 'class-transformer';
+import { Exclude, plainToInstance } from 'class-transformer';
 
 @Entity()
 @Unique(['name'])
@@ -59,7 +59,9 @@ export class Group {
   employees: Employee[];
 
   toSafeGroup(): SafeGroupDto {
-    return plainToClass(SafeGroupDto, this, { excludeExtraneousValues: true });
+    return plainToInstance(SafeGroupDto, this, {
+      excludeExtraneousValues: true,
+    });
   }
 
   getEmployees(): Employee[] {
@@ -72,9 +74,14 @@ export class Group {
     }
     if (
       !this.employees.some((e) => e.id == employee.id) &&
+      employee.organization &&
       employee.organization.id == this.organization.id
     ) {
       this.employees.push(employee);
+      if (!employee.groups) {
+        employee.groups = [];
+      }
+      employee.groups.push(this);
     }
     return this.employees;
   }
