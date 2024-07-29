@@ -9,6 +9,31 @@ on:
 jobs:
   lint-and-format:
     runs-on: ubuntu-22.04
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      NODE_ENV: test
+      PORT: 3000
+      DB_TYPE: postgres
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: test_user
+      DB_PASS: test_password
+      DB_NAME: test_db
+      DB_SYNC: true
+      JWT_SECRET: test_jwt_secret
     steps:
     - uses: actions/checkout@v4
 
