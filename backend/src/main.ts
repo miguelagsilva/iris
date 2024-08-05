@@ -20,7 +20,8 @@ async function bootstrap() {
 
   const sessionRepository = app.get(getRepositoryToken(Session));
   const sessionStore = new TypeOrmSessionStore(sessionRepository);
-  const sessionOptions = {
+
+  app.use(session({  
     store: sessionStore,
     secret: configService.get<string>('SESSIONS_SECRET'),
     resave: false,
@@ -30,11 +31,8 @@ async function bootstrap() {
       httpOnly: process.env.NODE_ENV == 'production',
       secure: process.env.NODE_ENV == 'production',
     },
-  };
-
-  app.use(session({ ...sessionOptions, name: 'user_session_id' }));
-  app.use(session({ ...sessionOptions, name: 'admin_session_id' }));
-  app.use(session({ ...sessionOptions, name: 'employee_session_id' }));
+    name: 'user_sid' })
+  );
 
   // Swagger
 
@@ -63,20 +61,10 @@ async function bootstrap() {
     .addTag('organizations', 'Organization related endpoints')
     .addTag('groups', 'Group related endpoints')
     .setVersion('1.0')
-    .addCookieAuth('user_session_id', {
+    .addCookieAuth('user_sid', {
       type: 'apiKey',
       in: 'cookie',
-      name: 'user_session_id',
-    })
-    .addCookieAuth('admin_session_id', {
-      type: 'apiKey',
-      in: 'cookie',
-      name: 'admin_session_id',
-    })
-    .addCookieAuth('employee_session_id', {
-      type: 'apiKey',
-      in: 'cookie',
-      name: 'employee_session_id_session_id',
+      name: 'user_sid',
     })
     .build();
   const document = SwaggerModule.createDocument(app, config);
