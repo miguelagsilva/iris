@@ -11,34 +11,23 @@ import {
   Query,
 } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiQuery,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { SafeOrganizationDto } from './dto/safe-organization.dto';
-import { Role } from '../roles/roles.enum';
-import { Roles } from '../roles/roles.decorator';
 import { SafeUserDto } from '../users/dto/safe-user.dto';
-import { RequireOrganizationManager } from '../auth/auth.decorators';
 import { SafeGroupDto } from '../groups/dto/safe-group.dto';
 import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 import { Organization } from './organization.entity';
 
-@ApiBearerAuth('bearer')
 @ApiTags('organizations')
 @Controller('organizations')
 export class OrganizationsController {
   constructor(private readonly organizationsService: OrganizationsService) {}
 
   @Post()
-  @Roles(Role.ADMIN)
   @ApiTags('Admin')
   @ApiOperation({ summary: 'Create a new organization' })
   @ApiResponse({
@@ -53,7 +42,6 @@ export class OrganizationsController {
   }
 
   @Get()
-  @Roles(Role.ADMIN)
   @ApiTags('Admin')
   @ApiOperation({ summary: 'Get all organizations' })
   @ApiResponse({
@@ -98,7 +86,6 @@ export class OrganizationsController {
   }
 
   @Get(':id')
-  @RequireOrganizationManager()
   @ApiTags('Organization')
   @ApiOperation({ summary: 'Get an organization by ID' })
   @ApiResponse({
@@ -113,7 +100,6 @@ export class OrganizationsController {
   }
 
   @Put(':id')
-  @Roles(Role.ADMIN)
   @ApiTags('Admin')
   @ApiOperation({ summary: 'Update an organization' })
   @ApiResponse({
@@ -129,7 +115,6 @@ export class OrganizationsController {
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN)
   @ApiTags('Admin')
   @ApiOperation({ summary: 'Partially update an organization' })
   @ApiResponse({
@@ -145,7 +130,6 @@ export class OrganizationsController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
   @ApiTags('Admin')
   @ApiOperation({ summary: 'Soft delete an organization' })
   @ApiResponse({
@@ -158,7 +142,6 @@ export class OrganizationsController {
   }
 
   @Post(':id/restore')
-  @Roles(Role.ADMIN)
   @ApiTags('Admin')
   @ApiOperation({ summary: 'Restore a soft-deleted organization' })
   @ApiResponse({
@@ -173,7 +156,6 @@ export class OrganizationsController {
   }
 
   @Post(':id/users/:userId')
-  @RequireOrganizationManager()
   @ApiTags('Organization')
   @ApiOperation({ summary: 'Add a user to an organization' })
   @ApiResponse({
@@ -189,7 +171,6 @@ export class OrganizationsController {
   }
 
   @Delete(':id/users/:userId')
-  @RequireOrganizationManager()
   @ApiTags('Organization')
   @ApiOperation({ summary: 'Remove user from an organization' })
   @ApiResponse({
@@ -205,7 +186,6 @@ export class OrganizationsController {
   }
 
   @Get(':id/users')
-  @RequireOrganizationManager()
   @ApiTags('Organization')
   @ApiOperation({ summary: 'Get all users in an organization' })
   @ApiResponse({
@@ -220,7 +200,6 @@ export class OrganizationsController {
   }
 
   @Get(':id/groups')
-  @RequireOrganizationManager()
   @ApiTags('Organization')
   @ApiOperation({ summary: 'Get all groups of an organization' })
   @ApiResponse({
@@ -235,7 +214,6 @@ export class OrganizationsController {
   }
 
   @Get(':id/employees')
-  @RequireOrganizationManager()
   @ApiTags('Organization')
   @ApiOperation({ summary: 'Get all employees of an organization' })
   @ApiResponse({

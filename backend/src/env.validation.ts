@@ -48,7 +48,7 @@ class EnvironmentVariables {
 
   @IsString()
   @IsNotEmpty()
-  JWT_SECRET: string;
+  SESSIONS_SECRET: string;
 }
 
 export function validate(config: Record<string, unknown>) {

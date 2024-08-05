@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, Length, Matches } from 'class-validator';
 
-export class SignInUserDto {
+export class ChangePasswordUserDto {
   @ApiProperty()
   @IsEmail()
   @Length(5, 48)
@@ -13,5 +13,13 @@ export class SignInUserDto {
     message:
       'Password must be at least 8 characters long and contain at least one number',
   })
-  password: string;
+  oldPassword: string;
+
+  @ApiProperty()
+  @Length(8, 64)
+  @Matches(/^(?=.*\d).{8,}$/, {
+    message:
+      'Password must be at least 8 characters long and contain at least one number',
+  })
+  newPassword: string;
 }

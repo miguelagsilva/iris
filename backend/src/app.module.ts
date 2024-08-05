@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { AuthModule } from './auth/auth.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validate } from './env.validation';
-import { JwtModule } from '@nestjs/jwt';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { GroupsModule } from './groups/groups.module';
 import { EmployeesModule } from './employees/employees.module';
+import { AuthModule } from './auth/auth.module';
+import { Session } from './auth/session.entity';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -36,19 +37,19 @@ import { EmployeesModule } from './employees/employees.module';
         limit: 20,
       },
     ]),
-    JwtModule,
-    AuthModule,
+    TypeOrmModule.forFeature([Session]),
     UsersModule,
     OrganizationsModule,
     GroupsModule,
     EmployeesModule,
+    AuthModule,
   ],
-  /*
   providers: [
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    /*
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
@@ -61,7 +62,7 @@ import { EmployeesModule } from './employees/employees.module';
       provide: APP_GUARD,
       useClass: OrganizationGuard,
     },
+    */
   ],
-  */
 })
 export class AppModule {}

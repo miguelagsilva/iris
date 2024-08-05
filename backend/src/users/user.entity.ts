@@ -12,7 +12,6 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
-  IsEnum,
   IsString,
   Length,
   IsUUID,
@@ -20,7 +19,6 @@ import {
   IsNotEmpty,
 } from 'class-validator';
 import { Exclude, plainToClass } from 'class-transformer';
-import { Role } from '../roles/roles.enum';
 import { Organization } from '../organizations/organization.entity';
 import { SafeUserDto } from './dto/safe-user.dto';
 
@@ -70,15 +68,6 @@ export class User {
     message: 'Name can only contain letters, accents, apostrophes, and hyphens',
   })
   lastName: string;
-
-  @ApiProperty({ enum: Role, default: Role.USER })
-  @Column({
-    type: 'enum',
-    enum: Role,
-    default: Role.USER,
-  })
-  @IsEnum(Role)
-  role: Role;
 
   @ApiProperty()
   @CreateDateColumn()

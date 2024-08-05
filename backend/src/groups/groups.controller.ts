@@ -10,21 +10,13 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { GroupsService } from './groups.service';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { SafeGroupDto } from './dto/safe-group.dto';
-import { RequireOrganizationManager } from '../auth/auth.decorators';
 import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 
-@ApiBearerAuth('bearer')
 @ApiTags('groups', 'Organization')
-@RequireOrganizationManager()
 @Controller('groups')
 export class GroupsController {
   constructor(private readonly groupsService: GroupsService) {}
