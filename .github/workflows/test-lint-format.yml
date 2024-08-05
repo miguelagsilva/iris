@@ -33,7 +33,7 @@ jobs:
       DB_PASS: test_password
       DB_NAME: test_db
       DB_SYNC: true
-      JWT_SECRET: test_jwt_secret
+      SESSIONS_SECRET: test_session_secret
     steps:
     - uses: actions/checkout@v4
 
