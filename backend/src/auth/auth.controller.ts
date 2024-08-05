@@ -1,37 +1,80 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { SignInUserDto } from '../users/dto/sign-in-user.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Controller, Post, Body, Session } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public } from './auth.decorators';
-import { AccessToken } from './auth.entity';
-import { SignUpUserDto } from '../users/dto/sign-up-user.dto';
+import { SignUpUserDto } from 'src/users/dto/sign-up-user.dto';
+import {
+  ApiCookieAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { SignInUserDto } from 'src/users/dto/sign-in-user.dto';
+import { ChangePasswordUserDto } from 'src/users/dto/change-password-user.dto';
 
-@ApiTags('auth', 'Public')
 @Controller('auth')
+@ApiTags('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Public()
-  @Post('sign-in')
-  @ApiOperation({ summary: 'Sign into an account' })
-  @ApiResponse({
-    status: 201,
-    description: 'Signed in successfully',
-    type: AccessToken,
-  })
-  signIn(@Body() signInUserDto: SignInUserDto): Promise<AccessToken> {
-    return this.authService.signIn(signInUserDto);
-  }
-
-  @Public()
-  @Post('sign-up')
-  @ApiOperation({ summary: 'Sign up' })
+  @Post('user/sign-up')
+  @ApiOperation({ summary: 'Sign up as a user' })
   @ApiResponse({
     status: 201,
     description: 'Signed up successfully',
-    type: AccessToken,
   })
-  signUp(@Body() signUpUserDto: SignUpUserDto): Promise<AccessToken> {
-    return this.authService.signUp(signUpUserDto);
+  signUpUser(
+    @Session() session: Record<string, any>,
+    @Body() signUpUserDto: SignUpUserDto,
+  ) {
+    return this.authService.signUpUser(session, signUpUserDto);
+  }
+
+  @Post('user/sign-in')
+  @ApiOperation({ summary: 'Sign in as a user' })
+  @ApiResponse({
+    status: 201,
+    description: 'Signed in successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  signInUser(
+    @Session() session: Record<string, any>,
+    @Body() signInUserDto: SignInUserDto,
+  ) {
+    return this.authService.signInUser(
+      session,
+      signInUserDto.email,
+      signInUserDto.password,
+    );
+  }
+
+  @Post('user/sign-out')
+  @ApiOperation({ summary: 'Sign out as a user' })
+  @ApiResponse({
+    status: 201,
+    description: 'Signed out successfully',
+  })
+  @ApiCookieAuth()
+  signOutUser(@Session() session: Record<string, any>) {
+    return this.authService.signOut(session);
+  }
+
+  @Post('user/change-password')
+  @ApiOperation({ summary: 'Change password as a user' })
+  @ApiResponse({
+    status: 201,
+    description: 'Changed password successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Not logged in' })
+  @ApiResponse({ status: 403, description: 'Invalid old password' })
+  @ApiCookieAuth()
+  changePassword(
+    @Session() session: Record<string, any>,
+    @Body() changePasswordUserDto: ChangePasswordUserDto,
+  ) {
+    return this.authService.changePasswordUser(
+      session,
+      changePasswordUserDto.email,
+      changePasswordUserDto.oldPassword,
+      changePasswordUserDto.newPassword,
+    );
   }
 }

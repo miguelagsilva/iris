@@ -3,11 +3,40 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import 'reflect-metadata';
+import * as session from 'express-session';
+import { ConfigService } from '@nestjs/config';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Session } from './auth/session.entity';
+import { TypeOrmSessionStore } from './auth/typeorm-session.store';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(new ValidationPipe());
+
+  const configService = app.get(ConfigService);
+
+  // Sessions
+
+  const sessionRepository = app.get(getRepositoryToken(Session));
+  const sessionStore = new TypeOrmSessionStore(sessionRepository);
+  const sessionOptions = {
+    store: sessionStore,
+    secret: configService.get<string>('SESSIONS_SECRET'),
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      httpOnly: process.env.NODE_ENV == 'production',
+      secure: process.env.NODE_ENV == 'production',
+    },
+  };
+
+  app.use(session({ ...sessionOptions, name: 'user_session_id' }));
+  app.use(session({ ...sessionOptions, name: 'admin_session_id' }));
+  app.use(session({ ...sessionOptions, name: 'employee_session_id' }));
+
+  // Swagger
 
   const config = new DocumentBuilder()
     .setTitle('OpenAPI')
@@ -18,9 +47,9 @@ async function bootstrap() {
       This API uses the following authentication and permission levels:
 
       - **Public**: No authentication required
-      - **User**: Requires a valid JWT token
-      - **Admin**: Requires a valid JWT token with admin role
-      - **Organization Member**: Requires a valid JWT token and membership in the specific organization
+      - **User** 
+      - **Admin**
+      - **Organization Member**
 
       Each endpoint in this documentation specifies its required permission level in the description.
     `,
@@ -34,15 +63,21 @@ async function bootstrap() {
     .addTag('organizations', 'Organization related endpoints')
     .addTag('groups', 'Group related endpoints')
     .setVersion('1.0')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        in: 'header',
-      },
-      'bearer',
-    )
+    .addCookieAuth('user_session_id', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'user_session_id',
+    })
+    .addCookieAuth('admin_session_id', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'admin_session_id',
+    })
+    .addCookieAuth('employee_session_id', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'employee_session_id_session_id',
+    })
     .build();
   const document = SwaggerModule.createDocument(app, config);
 

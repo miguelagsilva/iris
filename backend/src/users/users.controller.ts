@@ -10,25 +10,18 @@ import {
   Delete,
   ParseUUIDPipe,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiQuery,
-} from '@nestjs/swagger';
-import { CreateUserDto } from './dto/create-user.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SafeUserDto } from './dto/safe-user.dto';
-import { Role } from '../roles/roles.enum';
-import { Roles } from '../roles/roles.decorator';
 import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { User } from './user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { AuthGuard, Roles } from '../auth/auth.guard';
 
-@ApiBearerAuth('bearer')
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
@@ -37,7 +30,6 @@ export class UsersController {
   // Admin
 
   @Post()
-  @Roles(Role.ADMIN)
   @ApiTags('Admin')
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({
@@ -45,13 +37,14 @@ export class UsersController {
     description: 'User created successfully',
     type: SafeUserDto,
   })
-  create(@Body() createUserDto: CreateUserDto): Promise<SafeUserDto> {
-    return this.usersService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto): Promise<SafeUserDto> {
+    return (await this.usersService.create(createUserDto)).toSafeUser();
   }
 
   @Get()
-  @Roles(Role.ADMIN)
   @ApiTags('Admin')
+  @UseGuards(AuthGuard)
+  @Roles('user')
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({
     status: 200,
@@ -95,7 +88,6 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Roles(Role.ADMIN)
   @ApiTags('Admin')
   @ApiOperation({ summary: 'Get a user by ID' })
   @ApiResponse({
@@ -108,7 +100,6 @@ export class UsersController {
   }
 
   @Put(':id')
-  @Roles(Role.ADMIN)
   @ApiTags('Admin')
   @ApiOperation({ summary: 'Update a user' })
   @ApiResponse({
@@ -124,7 +115,6 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN)
   @ApiTags('Admin')
   @ApiOperation({ summary: 'Partially update a user' })
   @ApiResponse({
@@ -140,7 +130,6 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
   @ApiTags('Admin')
   @ApiOperation({ summary: 'Soft delete a user' })
   @ApiResponse({
@@ -153,7 +142,6 @@ export class UsersController {
   }
 
   @Post(':id/restore')
-  @Roles(Role.ADMIN)
   @ApiTags('Admin')
   @ApiOperation({ summary: 'Restore a soft-deleted user' })
   @ApiResponse({
@@ -172,7 +160,6 @@ export class UsersController {
   // User
 
   @Get('me')
-  @Roles(Role.USER)
   @ApiTags('User')
   @ApiOperation({ summary: 'Get own profile' })
   @ApiResponse({
@@ -185,7 +172,6 @@ export class UsersController {
   }
 
   @Patch('me')
-  @Roles(Role.USER)
   @ApiTags('User')
   @ApiOperation({ summary: 'Partially update own profile' })
   @ApiResponse({

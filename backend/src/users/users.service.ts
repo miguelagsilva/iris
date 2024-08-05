@@ -47,11 +47,11 @@ export class UsersService {
 
   // User
 
-  async create(createUserDto: CreateUserDto): Promise<SafeUserDto> {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     await this.checkUserExistence(createUserDto.email);
     createUserDto.password = await argon2.hash(createUserDto.password);
     const savedUser = await this.usersRepository.save(createUserDto);
-    return await this.findOne(savedUser.id);
+    return await this.getUser(savedUser.id);
   }
 
   async paginate(
@@ -89,6 +89,7 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto): Promise<SafeUserDto> {
     await this.getUser(id);
     await this.checkUserExistence(updateUserDto.email);
+    updateUserDto.password = await argon2.hash(updateUserDto.password);
     await this.usersRepository.update(id, updateUserDto);
     return this.findOne(id);
   }
@@ -106,7 +107,19 @@ export class UsersService {
 
   // Auth
 
-  async findOneByEmail(email: string): Promise<User> {
-    return await this.usersRepository.findOneBy({ email: email });
+  async findOneByEmail(email: string): Promise<User | undefined> {
+    return (
+      (await this.usersRepository.findOneBy({ email: email })) || undefined
+    );
+  }
+
+  async changeUserPassword(
+    email: string,
+    password: string,
+  ): Promise<User | undefined> {
+    const user = await this.findOneByEmail(email);
+    user.password = await argon2.hash(password);
+    await this.usersRepository.save(user);
+    return user;
   }
 }
