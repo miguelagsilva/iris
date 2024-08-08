@@ -15,17 +15,14 @@ import { UserDashboardEmployees } from "./pages/user/dashboard/employees";
 import { UserDashboardSettings } from "./pages/user/dashboard/settings";
 import { UserDashboardHome } from "./pages/user/dashboard/home";
 import UserDashboardLayout from "./pages/user/dashboard/layout";
+import { UserDashboardSupport } from "./pages/user/dashboard/support";
+import { Api } from "./lib/api";
+
+export const api = new Api({ baseUrl: "http://localhost:3000" });
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route errorElement={<NotFound />}>
-      <Route path="/login">
-        {/*
-        <Route path="admin" element={<AdminLogin />} />
-        <Route path="employee" element={<EmployeeLogin />} />
-        */}
-      </Route>
-
       <Route path="user/login" element={<UserLogin />} />
 
       <Route path="user" element={<ProtectedRoute userType="user" />}>
@@ -35,31 +32,15 @@ const router = createBrowserRouter(
           <Route path="groups" element={<UserDashboardGroups />} />
           <Route path="employees" element={<UserDashboardEmployees />} />
           <Route path="settings" element={<UserDashboardSettings />} />
+          <Route path="support" element={<UserDashboardSupport />} />
         </Route>
         {/*
   <Route path="profile" element={<UserProfile />} />
   <Route path="settings" element={<UserSettings />} />
   */}
       </Route>
-      {/*
-        <Route path="admin" element={<ProtectedRoute userType="admin" />}>
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="users" element={<AdminUsers />} />
-          <Route path="employees" element={<AdminEmployees />} />
-          <Route path="reports" element={<AdminReports />} />
-        </Route>
-
-        <Route path="employee" element={<ProtectedRoute userType="employee" />}>
-          <Route path="dashboard" element={<EmployeeDashboard />} />
-          <Route path="tasks" element={<EmployeeTasks />} />
-          <Route path="timesheet" element={<EmployeeTimesheet />} />
-        </Route>
-    */}
 
       <Route path="/" element={<Navigate to="/login/user" replace />} />
-      {/*
-        <Route path="*" element={<NotFound />} /> 
-        */}
     </Route>,
   ),
 );

@@ -5,7 +5,7 @@ function ProtectedRoute({ userType }) {
   const currentUserType = "user"; // Implement this function
 
   if (!isAuthenticated) {
-    return <Navigate to={`/login/${userType}`} replace />;
+    return <Navigate to={`/${userType}/login`} replace />;
   }
 
   if (currentUserType !== userType) {
