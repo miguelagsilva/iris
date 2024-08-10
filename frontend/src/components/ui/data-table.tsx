@@ -387,7 +387,9 @@ export function DataTable<TData, TValue>({
                         currentPage === pageNumber ? "default" : "outline"
                       }
                       size="sm"
-                      onClick={() => table.setPageIndex(pageNumber as number - 1)}
+                      onClick={() =>
+                        table.setPageIndex((pageNumber as number) - 1)
+                      }
                       disabled={currentPage === pageNumber}
                     >
                       {pageNumber}

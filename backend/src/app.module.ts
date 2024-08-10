@@ -3,13 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { validate } from './env.validation';
+import { validate } from './config/env.validation';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { GroupsModule } from './groups/groups.module';
 import { EmployeesModule } from './employees/employees.module';
 import { AuthModule } from './auth/auth.module';
 import { Session } from './auth/session.entity';
 import { APP_GUARD } from '@nestjs/core';
+import dataSourceOptions from './config/database.config';
 
 @Module({
   imports: [
@@ -19,16 +20,7 @@ import { APP_GUARD } from '@nestjs/core';
       validate,
     }),
     TypeOrmModule.forRootAsync({
-      useFactory: async (configService: ConfigService) => ({
-        type: configService.get<any>('DB_TYPE'),
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USER'),
-        password: configService.get<string>('DB_PASS'),
-        database: configService.get<string>('DB_NAME'),
-        synchronize: configService.get<boolean>('DB_SYNC'),
-        autoLoadEntities: true,
-      }),
+      useFactory: async (configService: ConfigService) => ({...dataSourceOptions(configService), autoLoadEntities: true}),
       inject: [ConfigService],
     }),
     ThrottlerModule.forRoot([
@@ -38,6 +30,7 @@ import { APP_GUARD } from '@nestjs/core';
       },
     ]),
     TypeOrmModule.forFeature([Session]),
+    AuthModule,
     UsersModule,
     OrganizationsModule,
     GroupsModule,
