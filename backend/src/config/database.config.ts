@@ -1,7 +1,9 @@
 import { ConfigService } from '@nestjs/config';
 import { DataSourceOptions } from 'typeorm';
 
-export function dataSourceOptions(configService: ConfigService): DataSourceOptions {
+export function dataSourceOptions(
+  configService: ConfigService,
+): DataSourceOptions {
   return {
     type: configService.get<any>('DB_TYPE'),
     host: configService.get<string>('DB_HOST'),
@@ -13,6 +15,6 @@ export function dataSourceOptions(configService: ConfigService): DataSourceOptio
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
     migrations: [__dirname + '/migrations/*{.ts,.js}'],
   };
-};
+}
 
 export default dataSourceOptions;

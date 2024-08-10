@@ -5,6 +5,7 @@ import { SignUpUserDto } from '../users/dto/sign-up-user.dto';
 import { User } from 'src/users/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { SafeUserDto } from 'src/users/dto/safe-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +23,10 @@ export class AuthService {
     return user;
   }
 
-  async signUpUser(session: Record<string, any>, signUpUserDto: SignUpUserDto) {
+  async signUpUser(
+    session: Record<string, any>,
+    signUpUserDto: SignUpUserDto,
+  ): Promise<{ message: string }> {
     const user = await this.usersService.create(signUpUserDto);
     session.userId = user.id;
     return { message: 'Signed up successfully' };
@@ -32,13 +36,13 @@ export class AuthService {
     session: Record<string, any>,
     email: string,
     password: string,
-  ) {
+  ): Promise<{ message: string }> {
     const user = await this.validateUser(email, password);
     session.userId = user.id;
     return { message: 'Signed in successfully' };
   }
 
-  async signOut(session: Record<string, any>) {
+  async signOut(session: Record<string, any>): Promise<{ message: string }> {
     session.destroy((err: Error) => {
       if (err) {
         console.error('Error destroying session:', err);
@@ -52,7 +56,7 @@ export class AuthService {
     email: string,
     oldPassword: string,
     newPassword: string,
-  ) {
+  ): Promise<{ message: string }> {
     if (!session.userId) {
       throw new UnauthorizedException('Not logged in');
     }
@@ -67,5 +71,12 @@ export class AuthService {
     user.password = hashedPassword;
     await this.usersRepository.save(user);
     return { message: 'Changed password successfully' };
+  }
+
+  async getProfileUser(session: Record<string, any>): Promise<SafeUserDto> {
+    if (!session.userId) {
+      throw new UnauthorizedException('Not logged in');
+    }
+    return await this.usersService.findOne(session.userId);
   }
 }

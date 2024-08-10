@@ -20,3 +20,8 @@ git merge --no-ff new-feature
 git branch -d new-feature
 ### Push results
 git push origin main
+
+## frontend
+### Generate the api.ts file for backend requests
+Copy openAPI json from the backend to openapi.json in the frontend directory
+pnpm run generate-api

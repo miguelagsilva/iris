@@ -1,15 +1,15 @@
+import { useAuth } from "@/providers/AuthProvider";
 import { Navigate, Outlet } from "react-router-dom";
 
 function ProtectedRoute({ userType }) {
-  const isAuthenticated = true; // Implement this function
-  const currentUserType = "user"; // Implement this function
+  //const isAuthenticated = true; // Implement this function
+  const currentUserType = useAuth(); // Implement this function
 
-  if (!isAuthenticated) {
-    return <Navigate to={`/${userType}/login`} replace />;
-  }
+  console.log("currentUserType", currentUserType);
+  console.log("UserType", userType);
 
-  if (currentUserType !== userType) {
-    return <Navigate to="/unauthorized" replace />;
+  if (!currentUserType.user) {
+    return <Navigate to={`/${userType}/sign-in`} replace />;
   }
 
   return <Outlet />;

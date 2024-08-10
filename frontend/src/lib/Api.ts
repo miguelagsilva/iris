@@ -9,15 +9,6 @@
  * ---------------------------------------------------------------
  */
 
-export interface SignInUserDto {
-  email: string;
-  password: string;
-}
-
-export interface AccessToken {
-  access_token: string;
-}
-
 export interface SignUpUserDto {
   email: string;
   password: string;
@@ -25,11 +16,15 @@ export interface SignUpUserDto {
   lastName: string;
 }
 
-export interface CreateUserDto {
+export interface SignInUserDto {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+}
+
+export interface ChangePasswordUserDto {
+  email: string;
+  oldPassword: string;
+  newPassword: string;
 }
 
 export interface SafeUserDto {
@@ -38,6 +33,13 @@ export interface SafeUserDto {
   firstName: string;
   lastName: string;
   organizationId: string;
+}
+
+export interface CreateUserDto {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
 }
 
 export interface PaginationResult {
@@ -163,10 +165,10 @@ export class HttpClient<SecurityDataType = unknown> {
     fetch(...fetchParams);
 
   private baseApiParams: RequestParams = {
-    credentials: "same-origin",
+    credentials: "include",
     headers: {},
     redirect: "follow",
-    referrerPolicy: "no-referrer",
+    referrerPolicy: "strict-origin-when-cross-origin",
   };
 
   constructor(apiConfig: ApiConfig<SecurityDataType> = {}) {
@@ -358,9 +360,9 @@ export class HttpClient<SecurityDataType = unknown> {
  *       This API uses the following authentication and permission levels:
  *
  *       - **Public**: No authentication required
- *       - **User**: Requires a valid JWT token
- *       - **Admin**: Requires a valid JWT token with admin role
- *       - **Organization Member**: Requires a valid JWT token and membership in the specific organization
+ *       - **User**
+ *       - **Admin**
+ *       - **Organization Member**
  *
  *       Each endpoint in this documentation specifies its required permission level in the description.
  *
@@ -372,35 +374,96 @@ export class Api<
     /**
      * No description
      *
-     * @tags auth, Public
-     * @name AuthControllerSignIn
-     * @summary Sign into an account
-     * @request POST:/api/v1/auth/sign-in
+     * @tags auth
+     * @name AuthControllerSignUpUser
+     * @summary Sign up as a user
+     * @request POST:/api/v1/auth/user/sign-up
      */
-    authControllerSignIn: (data: SignInUserDto, params: RequestParams = {}) =>
-      this.request<AccessToken, void>({
-        path: `/api/v1/auth/sign-in`,
+    authControllerSignUpUser: (
+      data: SignUpUserDto,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, void>({
+        path: `/api/v1/auth/user/sign-up`,
         method: "POST",
         body: data,
         type: ContentType.Json,
-        format: "json",
         ...params,
       }),
 
     /**
      * No description
      *
-     * @tags auth, Public
-     * @name AuthControllerSignUp
-     * @summary Sign up
-     * @request POST:/api/v1/auth/sign-up
+     * @tags auth
+     * @name AuthControllerSignInUser
+     * @summary Sign in as a user
+     * @request POST:/api/v1/auth/user/sign-in
      */
-    authControllerSignUp: (data: SignUpUserDto, params: RequestParams = {}) =>
-      this.request<AccessToken, void>({
-        path: `/api/v1/auth/sign-up`,
+    authControllerSignInUser: (
+      data: SignInUserDto,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, void>({
+        path: `/api/v1/auth/user/sign-in`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auth
+     * @name AuthControllerSignOutUser
+     * @summary Sign out as a user
+     * @request POST:/api/v1/auth/user/sign-out
+     * @secure
+     */
+    authControllerSignOutUser: (params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/api/v1/auth/user/sign-out`,
+        method: "POST",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auth
+     * @name AuthControllerChangePassword
+     * @summary Change password as a user
+     * @request POST:/api/v1/auth/user/change-password
+     * @secure
+     */
+    authControllerChangePassword: (
+      data: ChangePasswordUserDto,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, void>({
+        path: `/api/v1/auth/user/change-password`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auth
+     * @name AuthControllerGetProfileUser
+     * @summary Get own user profile
+     * @request POST:/api/v1/auth/user/profile
+     * @secure
+     */
+    authControllerGetProfileUser: (params: RequestParams = {}) =>
+      this.request<SafeUserDto, void>({
+        path: `/api/v1/auth/user/profile`,
+        method: "POST",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -412,14 +475,12 @@ export class Api<
      * @name UsersControllerCreate
      * @summary Create a new user
      * @request POST:/api/v1/users
-     * @secure
      */
     usersControllerCreate: (data: CreateUserDto, params: RequestParams = {}) =>
       this.request<SafeUserDto, void>({
         path: `/api/v1/users`,
         method: "POST",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -432,7 +493,6 @@ export class Api<
      * @name UsersControllerPaginate
      * @summary Get all users
      * @request GET:/api/v1/users
-     * @secure
      */
     usersControllerPaginate: (
       query?: {
@@ -462,7 +522,6 @@ export class Api<
         path: `/api/v1/users`,
         method: "GET",
         query: query,
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -474,13 +533,11 @@ export class Api<
      * @name UsersControllerFindOne
      * @summary Get a user by ID
      * @request GET:/api/v1/users/{id}
-     * @secure
      */
     usersControllerFindOne: (id: string, params: RequestParams = {}) =>
       this.request<SafeUserDto, void>({
         path: `/api/v1/users/${id}`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -492,7 +549,6 @@ export class Api<
      * @name UsersControllerUpdate
      * @summary Update a user
      * @request PUT:/api/v1/users/{id}
-     * @secure
      */
     usersControllerUpdate: (
       id: string,
@@ -503,7 +559,6 @@ export class Api<
         path: `/api/v1/users/${id}`,
         method: "PUT",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -516,7 +571,6 @@ export class Api<
      * @name UsersControllerPartialUpdate
      * @summary Partially update a user
      * @request PATCH:/api/v1/users/{id}
-     * @secure
      */
     usersControllerPartialUpdate: (
       id: string,
@@ -527,7 +581,6 @@ export class Api<
         path: `/api/v1/users/${id}`,
         method: "PATCH",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -540,13 +593,11 @@ export class Api<
      * @name UsersControllerRemove
      * @summary Soft delete a user
      * @request DELETE:/api/v1/users/{id}
-     * @secure
      */
     usersControllerRemove: (id: string, params: RequestParams = {}) =>
       this.request<SafeUserDto, void>({
         path: `/api/v1/users/${id}`,
         method: "DELETE",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -558,13 +609,11 @@ export class Api<
      * @name UsersControllerRestore
      * @summary Restore a soft-deleted user
      * @request POST:/api/v1/users/{id}/restore
-     * @secure
      */
     usersControllerRestore: (id: string, params: RequestParams = {}) =>
       this.request<SafeUserDto, void>({
         path: `/api/v1/users/${id}/restore`,
         method: "POST",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -576,13 +625,11 @@ export class Api<
      * @name UsersControllerGetCurrentUser
      * @summary Get own profile
      * @request GET:/api/v1/users/me
-     * @secure
      */
     usersControllerGetCurrentUser: (params: RequestParams = {}) =>
       this.request<SafeUserDto, void>({
         path: `/api/v1/users/me`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -594,7 +641,6 @@ export class Api<
      * @name UsersControllerUpdateCurrentUser
      * @summary Partially update own profile
      * @request PATCH:/api/v1/users/me
-     * @secure
      */
     usersControllerUpdateCurrentUser: (
       data: UpdateUserDto,
@@ -604,7 +650,6 @@ export class Api<
         path: `/api/v1/users/me`,
         method: "PATCH",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -617,7 +662,6 @@ export class Api<
      * @name OrganizationsControllerCreate
      * @summary Create a new organization
      * @request POST:/api/v1/organizations
-     * @secure
      */
     organizationsControllerCreate: (
       data: CreateOrganizationDto,
@@ -627,7 +671,6 @@ export class Api<
         path: `/api/v1/organizations`,
         method: "POST",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -640,7 +683,6 @@ export class Api<
      * @name OrganizationsControllerPaginate
      * @summary Get all organizations
      * @request GET:/api/v1/organizations
-     * @secure
      */
     organizationsControllerPaginate: (
       query?: {
@@ -670,7 +712,6 @@ export class Api<
         path: `/api/v1/organizations`,
         method: "GET",
         query: query,
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -682,13 +723,11 @@ export class Api<
      * @name OrganizationsControllerFindOne
      * @summary Get an organization by ID
      * @request GET:/api/v1/organizations/{id}
-     * @secure
      */
     organizationsControllerFindOne: (id: string, params: RequestParams = {}) =>
       this.request<SafeOrganizationDto, void>({
         path: `/api/v1/organizations/${id}`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -700,7 +739,6 @@ export class Api<
      * @name OrganizationsControllerUpdate
      * @summary Update an organization
      * @request PUT:/api/v1/organizations/{id}
-     * @secure
      */
     organizationsControllerUpdate: (
       id: string,
@@ -711,7 +749,6 @@ export class Api<
         path: `/api/v1/organizations/${id}`,
         method: "PUT",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -724,7 +761,6 @@ export class Api<
      * @name OrganizationsControllerPartialUpdate
      * @summary Partially update an organization
      * @request PATCH:/api/v1/organizations/{id}
-     * @secure
      */
     organizationsControllerPartialUpdate: (
       id: string,
@@ -735,7 +771,6 @@ export class Api<
         path: `/api/v1/organizations/${id}`,
         method: "PATCH",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -748,13 +783,11 @@ export class Api<
      * @name OrganizationsControllerRemove
      * @summary Soft delete an organization
      * @request DELETE:/api/v1/organizations/{id}
-     * @secure
      */
     organizationsControllerRemove: (id: string, params: RequestParams = {}) =>
       this.request<SafeOrganizationDto, void>({
         path: `/api/v1/organizations/${id}`,
         method: "DELETE",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -766,13 +799,11 @@ export class Api<
      * @name OrganizationsControllerRestore
      * @summary Restore a soft-deleted organization
      * @request POST:/api/v1/organizations/{id}/restore
-     * @secure
      */
     organizationsControllerRestore: (id: string, params: RequestParams = {}) =>
       this.request<SafeOrganizationDto, void>({
         path: `/api/v1/organizations/${id}/restore`,
         method: "POST",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -784,7 +815,6 @@ export class Api<
      * @name OrganizationsControllerAddUserToOrganization
      * @summary Add a user to an organization
      * @request POST:/api/v1/organizations/{id}/users/{userId}
-     * @secure
      */
     organizationsControllerAddUserToOrganization: (
       id: string,
@@ -794,7 +824,6 @@ export class Api<
       this.request<SafeUserDto[], void>({
         path: `/api/v1/organizations/${id}/users/${userId}`,
         method: "POST",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -806,7 +835,6 @@ export class Api<
      * @name OrganizationsControllerRemoveUserFromOrganization
      * @summary Remove user from an organization
      * @request DELETE:/api/v1/organizations/{id}/users/{userId}
-     * @secure
      */
     organizationsControllerRemoveUserFromOrganization: (
       id: string,
@@ -816,7 +844,6 @@ export class Api<
       this.request<SafeUserDto[], void>({
         path: `/api/v1/organizations/${id}/users/${userId}`,
         method: "DELETE",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -828,7 +855,6 @@ export class Api<
      * @name OrganizationsControllerGetOrganizationUsers
      * @summary Get all users in an organization
      * @request GET:/api/v1/organizations/{id}/users
-     * @secure
      */
     organizationsControllerGetOrganizationUsers: (
       id: string,
@@ -837,7 +863,6 @@ export class Api<
       this.request<SafeUserDto[], void>({
         path: `/api/v1/organizations/${id}/users`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -849,7 +874,6 @@ export class Api<
      * @name OrganizationsControllerGetOrganizationGroups
      * @summary Get all groups of an organization
      * @request GET:/api/v1/organizations/{id}/groups
-     * @secure
      */
     organizationsControllerGetOrganizationGroups: (
       id: string,
@@ -858,7 +882,6 @@ export class Api<
       this.request<SafeGroupDto[], void>({
         path: `/api/v1/organizations/${id}/groups`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -870,7 +893,6 @@ export class Api<
      * @name OrganizationsControllerGetOrganizationEmployees
      * @summary Get all employees of an organization
      * @request GET:/api/v1/organizations/{id}/employees
-     * @secure
      */
     organizationsControllerGetOrganizationEmployees: (
       id: string,
@@ -879,7 +901,6 @@ export class Api<
       this.request<SafeEmployeeDto[], void>({
         path: `/api/v1/organizations/${id}/employees`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -891,7 +912,6 @@ export class Api<
      * @name GroupsControllerCreate
      * @summary Create a new group
      * @request POST:/api/v1/groups
-     * @secure
      */
     groupsControllerCreate: (
       data: CreateGroupDto,
@@ -901,7 +921,6 @@ export class Api<
         path: `/api/v1/groups`,
         method: "POST",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -914,13 +933,11 @@ export class Api<
      * @name GroupsControllerFindOne
      * @summary Get a group by ID
      * @request GET:/api/v1/groups/{id}
-     * @secure
      */
     groupsControllerFindOne: (id: string, params: RequestParams = {}) =>
       this.request<SafeGroupDto, void>({
         path: `/api/v1/groups/${id}`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -932,7 +949,6 @@ export class Api<
      * @name GroupsControllerUpdate
      * @summary Update a group
      * @request PUT:/api/v1/groups/{id}
-     * @secure
      */
     groupsControllerUpdate: (
       id: string,
@@ -943,7 +959,6 @@ export class Api<
         path: `/api/v1/groups/${id}`,
         method: "PUT",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -956,7 +971,6 @@ export class Api<
      * @name GroupsControllerPartialUpdate
      * @summary Partially update a group
      * @request PATCH:/api/v1/groups/{id}
-     * @secure
      */
     groupsControllerPartialUpdate: (
       id: string,
@@ -967,7 +981,6 @@ export class Api<
         path: `/api/v1/groups/${id}`,
         method: "PATCH",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -980,13 +993,11 @@ export class Api<
      * @name GroupsControllerRemove
      * @summary Soft delete a group
      * @request DELETE:/api/v1/groups/{id}
-     * @secure
      */
     groupsControllerRemove: (id: string, params: RequestParams = {}) =>
       this.request<SafeGroupDto, void>({
         path: `/api/v1/groups/${id}`,
         method: "DELETE",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -998,13 +1009,11 @@ export class Api<
      * @name GroupsControllerRestore
      * @summary Restore a soft-deleted group
      * @request POST:/api/v1/groups/{id}/restore
-     * @secure
      */
     groupsControllerRestore: (id: string, params: RequestParams = {}) =>
       this.request<SafeGroupDto, void>({
         path: `/api/v1/groups/${id}/restore`,
         method: "POST",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -1016,13 +1025,11 @@ export class Api<
      * @name GroupsControllerGetEmployees
      * @summary Get all employees of a group by ID
      * @request GET:/api/v1/groups/{id}/employees
-     * @secure
      */
     groupsControllerGetEmployees: (id: string, params: RequestParams = {}) =>
       this.request<SafeEmployeeDto[], void>({
         path: `/api/v1/groups/${id}/employees`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -1034,7 +1041,6 @@ export class Api<
      * @name GroupsControllerAddEmployeeToGroup
      * @summary Add employee to a group
      * @request POST:/api/v1/groups/{id}/employees/{employeeId}
-     * @secure
      */
     groupsControllerAddEmployeeToGroup: (
       id: string,
@@ -1044,7 +1050,6 @@ export class Api<
       this.request<SafeEmployeeDto[], void>({
         path: `/api/v1/groups/${id}/employees/${employeeId}`,
         method: "POST",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -1056,7 +1061,6 @@ export class Api<
      * @name GroupsControllerRemoveEmployeeFromGroup
      * @summary Remove employee from a group
      * @request DELETE:/api/v1/groups/{id}/employees/{employeeId}
-     * @secure
      */
     groupsControllerRemoveEmployeeFromGroup: (
       id: string,
@@ -1066,7 +1070,6 @@ export class Api<
       this.request<SafeGroupDto, void>({
         path: `/api/v1/groups/${id}/employees/${employeeId}`,
         method: "DELETE",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -1078,7 +1081,6 @@ export class Api<
      * @name EmployeesControllerCreate
      * @summary Create a new employee
      * @request POST:/api/v1/employees
-     * @secure
      */
     employeesControllerCreate: (
       data: CreateEmployeeDto,
@@ -1088,7 +1090,6 @@ export class Api<
         path: `/api/v1/employees`,
         method: "POST",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -1101,13 +1102,11 @@ export class Api<
      * @name EmployeesControllerFindOne
      * @summary Get a employee by ID
      * @request GET:/api/v1/employees/{id}
-     * @secure
      */
     employeesControllerFindOne: (id: string, params: RequestParams = {}) =>
       this.request<SafeEmployeeDto, void>({
         path: `/api/v1/employees/${id}`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -1119,7 +1118,6 @@ export class Api<
      * @name EmployeesControllerUpdate
      * @summary Update a employee
      * @request PUT:/api/v1/employees/{id}
-     * @secure
      */
     employeesControllerUpdate: (
       id: string,
@@ -1130,7 +1128,6 @@ export class Api<
         path: `/api/v1/employees/${id}`,
         method: "PUT",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -1143,7 +1140,6 @@ export class Api<
      * @name EmployeesControllerPartialUpdate
      * @summary Partially update a employee
      * @request PATCH:/api/v1/employees/{id}
-     * @secure
      */
     employeesControllerPartialUpdate: (
       id: string,
@@ -1154,7 +1150,6 @@ export class Api<
         path: `/api/v1/employees/${id}`,
         method: "PATCH",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -1167,13 +1162,11 @@ export class Api<
      * @name EmployeesControllerRemove
      * @summary Soft delete a employee
      * @request DELETE:/api/v1/employees/{id}
-     * @secure
      */
     employeesControllerRemove: (id: string, params: RequestParams = {}) =>
       this.request<SafeEmployeeDto, void>({
         path: `/api/v1/employees/${id}`,
         method: "DELETE",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -1185,13 +1178,11 @@ export class Api<
      * @name EmployeesControllerRestore
      * @summary Restore a soft-deleted employee
      * @request POST:/api/v1/employees/{id}/restore
-     * @secure
      */
     employeesControllerRestore: (id: string, params: RequestParams = {}) =>
       this.request<SafeEmployeeDto, void>({
         path: `/api/v1/employees/${id}/restore`,
         method: "POST",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -1203,13 +1194,11 @@ export class Api<
      * @name EmployeesControllerGetGroups
      * @summary Get all groups of an employee by ID
      * @request GET:/api/v1/employees/{id}/groups
-     * @secure
      */
     employeesControllerGetGroups: (id: string, params: RequestParams = {}) =>
       this.request<SafeGroupDto[], void>({
         path: `/api/v1/employees/${id}/groups`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -1221,7 +1210,6 @@ export class Api<
      * @name EmployeesControllerAddGroupToEmployee
      * @summary Add group to an employee
      * @request POST:/api/v1/employees/{id}/groups/{groupId}
-     * @secure
      */
     employeesControllerAddGroupToEmployee: (
       id: string,
@@ -1231,7 +1219,6 @@ export class Api<
       this.request<SafeEmployeeDto, void>({
         path: `/api/v1/employees/${id}/groups/${groupId}`,
         method: "POST",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -1243,7 +1230,6 @@ export class Api<
      * @name EmployeesControllerRemoveGroupFromEmployee
      * @summary Remove group from an employee
      * @request DELETE:/api/v1/employees/{id}/group/{groupId}
-     * @secure
      */
     employeesControllerRemoveGroupFromEmployee: (
       id: string,
@@ -1253,7 +1239,6 @@ export class Api<
       this.request<SafeEmployeeDto, void>({
         path: `/api/v1/employees/${id}/group/${groupId}`,
         method: "DELETE",
-        secure: true,
         format: "json",
         ...params,
       }),

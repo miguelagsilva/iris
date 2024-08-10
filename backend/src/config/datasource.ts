@@ -1,7 +1,7 @@
-import { DataSource } from "typeorm"
+import { DataSource } from 'typeorm';
 
 export const dataSourceOptions = new DataSource({
-  type: 'postgres', 
+  type: 'postgres',
   host: 'localhost',
   port: 5432,
   username: 'postgres',
@@ -9,7 +9,5 @@ export const dataSourceOptions = new DataSource({
   database: 'iris_development',
   synchronize: true,
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
-  migrations: [
-    'migrations/*.ts',
-  ],
+  migrations: ['migrations/*.ts'],
 });

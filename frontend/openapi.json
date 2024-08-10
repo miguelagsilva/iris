@@ -1,55 +1,10 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/api/v1/auth/sign-in": {
+    "/api/v1/auth/user/sign-up": {
       "post": {
-        "operationId": "AuthController_signIn",
-        "summary": "Sign into an account",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SignInUserDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Signed in successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AccessToken"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Content not found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "tags": ["auth", "Public"]
-      }
-    },
-    "/api/v1/auth/sign-up": {
-      "post": {
-        "operationId": "AuthController_signUp",
-        "summary": "Sign up",
+        "operationId": "AuthController_signUpUser",
+        "summary": "Sign up as a user",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -63,11 +18,153 @@
         },
         "responses": {
           "201": {
-            "description": "Signed up successfully",
+            "description": "Signed up successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Content not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": ["auth"]
+      }
+    },
+    "/api/v1/auth/user/sign-in": {
+      "post": {
+        "operationId": "AuthController_signInUser",
+        "summary": "Sign in as a user",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Signed in successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Content not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": ["auth"]
+      }
+    },
+    "/api/v1/auth/user/sign-out": {
+      "post": {
+        "operationId": "AuthController_signOutUser",
+        "summary": "Sign out as a user",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Signed out successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Content not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": ["auth"],
+        "security": [
+          {
+            "cookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/user/change-password": {
+      "post": {
+        "operationId": "AuthController_changePassword",
+        "summary": "Change password as a user",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Changed password successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Content not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": ["auth"],
+        "security": [
+          {
+            "cookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/user/profile": {
+      "post": {
+        "operationId": "AuthController_getProfileUser",
+        "summary": "Get own user profile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Retrieved profile successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AccessToken"
+                  "$ref": "#/components/schemas/SafeUserDto"
                 }
               }
             }
@@ -88,7 +185,12 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["auth", "Public"]
+        "tags": ["auth"],
+        "security": [
+          {
+            "cookie": []
+          }
+        ]
       }
     },
     "/api/v1/users": {
@@ -133,12 +235,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "Admin"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["users", "Admin"]
       },
       "get": {
         "operationId": "UsersController_paginate",
@@ -223,12 +320,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "Admin"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["users", "Admin"]
       }
     },
     "/api/v1/users/{id}": {
@@ -272,12 +364,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "Admin"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["users", "Admin"]
       },
       "put": {
         "operationId": "UsersController_update",
@@ -329,12 +416,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "Admin"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["users", "Admin"]
       },
       "patch": {
         "operationId": "UsersController_partialUpdate",
@@ -386,12 +468,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "Admin"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["users", "Admin"]
       },
       "delete": {
         "operationId": "UsersController_remove",
@@ -433,12 +510,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "Admin"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["users", "Admin"]
       }
     },
     "/api/v1/users/{id}/restore": {
@@ -482,12 +554,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "Admin"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["users", "Admin"]
       }
     },
     "/api/v1/users/me": {
@@ -522,12 +589,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "User"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["users", "User"]
       },
       "patch": {
         "operationId": "UsersController_updateCurrentUser",
@@ -570,12 +632,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "User"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["users", "User"]
       }
     },
     "/api/v1/organizations": {
@@ -620,12 +677,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Admin"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["organizations", "Admin"]
       },
       "get": {
         "operationId": "OrganizationsController_paginate",
@@ -710,12 +762,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Admin"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["organizations", "Admin"]
       }
     },
     "/api/v1/organizations/{id}": {
@@ -759,12 +806,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["organizations", "Organization"]
       },
       "put": {
         "operationId": "OrganizationsController_update",
@@ -816,12 +858,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Admin"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["organizations", "Admin"]
       },
       "patch": {
         "operationId": "OrganizationsController_partialUpdate",
@@ -873,12 +910,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Admin"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["organizations", "Admin"]
       },
       "delete": {
         "operationId": "OrganizationsController_remove",
@@ -920,12 +952,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Admin"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["organizations", "Admin"]
       }
     },
     "/api/v1/organizations/{id}/restore": {
@@ -969,12 +996,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Admin"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["organizations", "Admin"]
       }
     },
     "/api/v1/organizations/{id}/users/{userId}": {
@@ -1029,12 +1051,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["organizations", "Organization"]
       },
       "delete": {
         "operationId": "OrganizationsController_removeUserFromOrganization",
@@ -1087,12 +1104,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["organizations", "Organization"]
       }
     },
     "/api/v1/organizations/{id}/users": {
@@ -1139,12 +1151,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["organizations", "Organization"]
       }
     },
     "/api/v1/organizations/{id}/groups": {
@@ -1191,12 +1198,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["organizations", "Organization"]
       }
     },
     "/api/v1/organizations/{id}/employees": {
@@ -1243,12 +1245,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["organizations", "Organization"]
       }
     },
     "/api/v1/groups": {
@@ -1293,12 +1290,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["groups", "Organization"]
       }
     },
     "/api/v1/groups/{id}": {
@@ -1342,12 +1334,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["groups", "Organization"]
       },
       "put": {
         "operationId": "GroupsController_update",
@@ -1399,12 +1386,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["groups", "Organization"]
       },
       "patch": {
         "operationId": "GroupsController_partialUpdate",
@@ -1456,12 +1438,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["groups", "Organization"]
       },
       "delete": {
         "operationId": "GroupsController_remove",
@@ -1503,12 +1480,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["groups", "Organization"]
       }
     },
     "/api/v1/groups/{id}/restore": {
@@ -1552,12 +1524,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["groups", "Organization"]
       }
     },
     "/api/v1/groups/{id}/employees": {
@@ -1604,12 +1571,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["groups", "Organization"]
       }
     },
     "/api/v1/groups/{id}/employees/{employeeId}": {
@@ -1664,12 +1626,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["groups", "Organization"]
       },
       "delete": {
         "operationId": "GroupsController_removeEmployeeFromGroup",
@@ -1719,12 +1676,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["groups", "Organization"]
       }
     },
     "/api/v1/employees": {
@@ -1769,12 +1721,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["employees", "Organization"]
       }
     },
     "/api/v1/employees/{id}": {
@@ -1818,12 +1765,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["employees", "Organization"]
       },
       "put": {
         "operationId": "EmployeesController_update",
@@ -1875,12 +1817,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["employees", "Organization"]
       },
       "patch": {
         "operationId": "EmployeesController_partialUpdate",
@@ -1932,12 +1869,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["employees", "Organization"]
       },
       "delete": {
         "operationId": "EmployeesController_remove",
@@ -1979,12 +1911,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["employees", "Organization"]
       }
     },
     "/api/v1/employees/{id}/restore": {
@@ -2028,12 +1955,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["employees", "Organization"]
       }
     },
     "/api/v1/employees/{id}/groups": {
@@ -2080,12 +2002,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["employees", "Organization"]
       }
     },
     "/api/v1/employees/{id}/groups/{groupId}": {
@@ -2137,12 +2054,7 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["employees", "Organization"]
       }
     },
     "/api/v1/employees/{id}/group/{groupId}": {
@@ -2194,18 +2106,13 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "tags": ["employees", "Organization"]
       }
     }
   },
   "info": {
     "title": "OpenAPI",
-    "description": "\n      # Authentication and Permissions\n\n      This API uses the following authentication and permission levels:\n\n      - **Public**: No authentication required\n      - **User**: Requires a valid JWT token\n      - **Admin**: Requires a valid JWT token with admin role\n      - **Organization Member**: Requires a valid JWT token and membership in the specific organization\n\n      Each endpoint in this documentation specifies its required permission level in the description.\n    ",
+    "description": "\n      # Authentication and Permissions\n\n      This API uses the following authentication and permission levels:\n\n      - **Public**: No authentication required\n      - **User** \n      - **Admin**\n      - **Organization Member**\n\n      Each endpoint in this documentation specifies its required permission level in the description.\n    ",
     "version": "1.0",
     "contact": {}
   },
@@ -2246,35 +2153,13 @@
   "servers": [],
   "components": {
     "securitySchemes": {
-      "bearer": {
-        "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "type": "http",
-        "in": "header"
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "user_sid"
       }
     },
     "schemas": {
-      "SignInUserDto": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        },
-        "required": ["email", "password"]
-      },
-      "AccessToken": {
-        "type": "object",
-        "properties": {
-          "access_token": {
-            "type": "string"
-          }
-        },
-        "required": ["access_token"]
-      },
       "SignUpUserDto": {
         "type": "object",
         "properties": {
@@ -2293,7 +2178,7 @@
         },
         "required": ["email", "password", "firstName", "lastName"]
       },
-      "CreateUserDto": {
+      "SignInUserDto": {
         "type": "object",
         "properties": {
           "email": {
@@ -2301,15 +2186,24 @@
           },
           "password": {
             "type": "string"
-          },
-          "firstName": {
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "ChangePasswordUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
             "type": "string"
           },
-          "lastName": {
+          "oldPassword": {
+            "type": "string"
+          },
+          "newPassword": {
             "type": "string"
           }
         },
-        "required": ["email", "password", "firstName", "lastName"]
+        "required": ["email", "oldPassword", "newPassword"]
       },
       "SafeUserDto": {
         "type": "object",
@@ -2331,6 +2225,24 @@
           }
         },
         "required": ["id", "email", "firstName", "lastName", "organizationId"]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        },
+        "required": ["email", "password", "firstName", "lastName"]
       },
       "PaginationResult": {
         "type": "object",

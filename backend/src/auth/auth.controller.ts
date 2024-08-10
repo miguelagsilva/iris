@@ -9,6 +9,7 @@ import {
 } from '@nestjs/swagger';
 import { SignInUserDto } from 'src/users/dto/sign-in-user.dto';
 import { ChangePasswordUserDto } from 'src/users/dto/change-password-user.dto';
+import { SafeUserDto } from 'src/users/dto/safe-user.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -24,7 +25,7 @@ export class AuthController {
   signUpUser(
     @Session() session: Record<string, any>,
     @Body() signUpUserDto: SignUpUserDto,
-  ) {
+  ): Promise<{ message: string }> {
     return this.authService.signUpUser(session, signUpUserDto);
   }
 
@@ -38,7 +39,7 @@ export class AuthController {
   signInUser(
     @Session() session: Record<string, any>,
     @Body() signInUserDto: SignInUserDto,
-  ) {
+  ): Promise<{ message: string }> {
     return this.authService.signInUser(
       session,
       signInUserDto.email,
@@ -53,7 +54,9 @@ export class AuthController {
     description: 'Signed out successfully',
   })
   @ApiCookieAuth()
-  signOutUser(@Session() session: Record<string, any>) {
+  signOutUser(
+    @Session() session: Record<string, any>,
+  ): Promise<{ message: string }> {
     return this.authService.signOut(session);
   }
 
@@ -69,12 +72,27 @@ export class AuthController {
   changePassword(
     @Session() session: Record<string, any>,
     @Body() changePasswordUserDto: ChangePasswordUserDto,
-  ) {
+  ): Promise<{ message: string }> {
     return this.authService.changePasswordUser(
       session,
       changePasswordUserDto.email,
       changePasswordUserDto.oldPassword,
       changePasswordUserDto.newPassword,
     );
+  }
+
+  @Post('user/profile')
+  @ApiOperation({ summary: 'Get own user profile' })
+  @ApiResponse({
+    status: 201,
+    description: 'Retrieved profile successfully',
+    type: SafeUserDto,
+  })
+  @ApiResponse({ status: 401, description: 'Not logged in' })
+  @ApiCookieAuth()
+  getProfileUser(
+    @Session() session: Record<string, any>,
+  ): Promise<SafeUserDto> {
+    return this.authService.getProfileUser(session);
   }
 }

@@ -20,7 +20,10 @@ import dataSourceOptions from './config/database.config';
       validate,
     }),
     TypeOrmModule.forRootAsync({
-      useFactory: async (configService: ConfigService) => ({...dataSourceOptions(configService), autoLoadEntities: true}),
+      useFactory: async (configService: ConfigService) => ({
+        ...dataSourceOptions(configService),
+        autoLoadEntities: true,
+      }),
       inject: [ConfigService],
     }),
     ThrottlerModule.forRoot([
