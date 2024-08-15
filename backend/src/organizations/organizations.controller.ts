@@ -9,6 +9,8 @@ import {
   Delete,
   ParseUUIDPipe,
   Query,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
@@ -21,11 +23,17 @@ import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 import { Organization } from './organization.entity';
+import { User } from 'src/users/user.entity';
+import { UsersService } from 'src/users/users.service';
 
 @ApiTags('organizations')
 @Controller('organizations')
 export class OrganizationsController {
-  constructor(private readonly organizationsService: OrganizationsService) {}
+  constructor(
+    private readonly organizationsService: OrganizationsService,
+    @Inject(forwardRef(() => UsersService))
+    private usersService: UsersService,
+  ) {}
 
   @Post()
   @ApiTags('Admin')
@@ -79,7 +87,7 @@ export class OrganizationsController {
     type: 'object',
     description: 'Filter criteria',
   })
-  paginate(
+  getPaginated(
     @Query() paginationDto: PaginationDto<Organization>,
   ): Promise<PaginationResult<SafeOrganizationDto>> {
     return this.organizationsService.paginate(paginationDto);
@@ -187,16 +195,48 @@ export class OrganizationsController {
 
   @Get(':id/users')
   @ApiTags('Organization')
-  @ApiOperation({ summary: 'Get all users in an organization' })
+  @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({
     status: 200,
     description: 'Retrieved organization users successfully',
-    type: [SafeUserDto],
+    type: PaginationResult<SafeUserDto>,
   })
-  getOrganizationUsers(
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of items per page',
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    type: String,
+    description: 'Field to sort by',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    enum: ['ASC', 'DESC'],
+    description: 'Sort order',
+  })
+  @ApiQuery({
+    name: 'filter',
+    required: false,
+    type: 'object',
+    description: 'Filter criteria',
+  })
+  getPaginatedUsers(
     @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<SafeUserDto[]> {
-    return this.organizationsService.getOrganizationUsers(id);
+    @Query() paginationDto: PaginationDto<User>,
+  ): Promise<PaginationResult<SafeUserDto>> {
+    paginationDto.filter = { organization: { id: id } };
+    return this.usersService.paginate(paginationDto);
   }
 
   @Get(':id/groups')

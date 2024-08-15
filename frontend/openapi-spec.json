@@ -154,12 +154,60 @@
       }
     },
     "/api/v1/auth/user/profile": {
-      "post": {
+      "get": {
         "operationId": "AuthController_getProfileUser",
         "summary": "Get own user profile",
         "parameters": [],
         "responses": {
-          "200": {
+          "201": {
+            "description": "Retrieved profile successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SafeUserDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Content not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": ["auth"],
+        "security": [
+          {
+            "cookie": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "AuthController_updateProfileUser",
+        "summary": "Get own user profile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
             "description": "Retrieved profile successfully",
             "content": {
               "application/json": {
@@ -680,7 +728,7 @@
         "tags": ["organizations", "Admin"]
       },
       "get": {
-        "operationId": "OrganizationsController_paginate",
+        "operationId": "OrganizationsController_getPaginated",
         "summary": "Get all organizations",
         "parameters": [
           {
@@ -1109,14 +1157,65 @@
     },
     "/api/v1/organizations/{id}/users": {
       "get": {
-        "operationId": "OrganizationsController_getOrganizationUsers",
-        "summary": "Get all users in an organization",
+        "operationId": "OrganizationsController_getPaginatedUsers",
+        "summary": "Get all users",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
             "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "description": "Filter criteria",
+            "schema": {
+              "type": "object"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Field to sort by",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "enum": ["ASC", "DESC"],
               "type": "string"
             }
           }
@@ -1127,10 +1226,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SafeUserDto"
-                  }
+                  "$ref": "#/components/schemas/PaginationResult"
                 }
               }
             }
@@ -2226,6 +2322,24 @@
         },
         "required": ["id", "email", "firstName", "lastName", "organizationId"]
       },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        },
+        "required": ["email", "password", "firstName", "lastName"]
+      },
       "CreateUserDto": {
         "type": "object",
         "properties": {
@@ -2267,24 +2381,6 @@
           }
         },
         "required": ["items", "total", "page", "limit", "pages"]
-      },
-      "UpdateUserDto": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          }
-        },
-        "required": ["email", "password", "firstName", "lastName"]
       },
       "CreateOrganizationDto": {
         "type": "object",

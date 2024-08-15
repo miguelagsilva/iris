@@ -11,11 +11,10 @@ const AuthProvider = ({ children }) => {
   const getUserProfile = async () => {
     try {
       const res = await api.api.authControllerGetProfileUser();
-      const jsonRes = await res.json();
-      if (res.status === 201) {
-        return jsonRes;
+      if (res.status === 200) {
+        return res.data;
       }
-      throw new Error(jsonRes.message);
+      throw new Error(res.statusText);
     } catch (err) {
       console.error(err);
     }
@@ -24,16 +23,16 @@ const AuthProvider = ({ children }) => {
   const signInUser = async (data: { email: string; password: string }) => {
     try {
       const res = await api.api.authControllerSignInUser(data);
-      const jsonRes = await res.json();
-      console.log("res.headers", res.headers.getSetCookie());
-      console.log("jsonRes", jsonRes);
+      console.log("res.headers", res.headers);
+      console.log("res.data", res.data);
       if (res.status === 201) {
         const user = await getUserProfile();
+        console.log("user", user);
         setUser(user);
         navigate("/user/dashboard");
         return;
       }
-      throw new Error(jsonRes.message);
+      throw new Error(res.statusText);
     } catch (err) {
       console.error(err);
     }

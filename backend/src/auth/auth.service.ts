@@ -6,6 +6,7 @@ import { User } from 'src/users/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SafeUserDto } from 'src/users/dto/safe-user.dto';
+import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -74,9 +75,20 @@ export class AuthService {
   }
 
   async getProfileUser(session: Record<string, any>): Promise<SafeUserDto> {
+    console.log(session);
     if (!session.userId) {
       throw new UnauthorizedException('Not logged in');
     }
     return await this.usersService.findOne(session.userId);
+  }
+
+  async updateProfileUser(
+    session: Record<string, any>,
+    updateUserDto: UpdateUserDto,
+  ): Promise<SafeUserDto> {
+    if (!session.userId) {
+      throw new UnauthorizedException('Not logged in');
+    }
+    return await this.usersService.update(session.userId, updateUserDto);
   }
 }

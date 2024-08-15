@@ -1,10 +1,12 @@
-import { DataSource, MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 import * as argon2 from 'argon2';
 import { faker } from '@faker-js/faker';
 
 export class DevelopmeentSeed1723240614476 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
+    let seed_organization_id = '';
+
     for (let j = 0; j < 10; j++) {
       const organization_id = faker.string.uuid();
       const organization_code = faker.helpers.fromRegExp(/^[a-zA-Z0-9-]{3,10}$/);
@@ -63,7 +65,18 @@ VALUES ('${employee_id}', '${group_id}')
 `);
         }
       }
+
+      seed_organization_id = organization_id;
     }
+
+    const seed_email = process.env.SEED_EMAIL;
+    const seed_pass = await argon2.hash(process.env.SEED_PASS)
+    const seed_firstName = faker.person.firstName().replace(/'/g, '');
+    const seed_lastName = faker.person.lastName().replace(/'/g, '');
+    await queryRunner.query(`
+INSERT INTO "user" ("email", "password", "firstName", "lastName", "organizationId")
+VALUES ('${seed_email}', '${seed_pass}', '${seed_firstName}', '${seed_lastName}', '${seed_organization_id}')
+`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

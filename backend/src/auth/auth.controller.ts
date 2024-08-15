@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Session } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Session,
+  Get,
+  Patch,
+  Request,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpUserDto } from 'src/users/dto/sign-up-user.dto';
 import {
@@ -10,6 +18,7 @@ import {
 import { SignInUserDto } from 'src/users/dto/sign-in-user.dto';
 import { ChangePasswordUserDto } from 'src/users/dto/change-password-user.dto';
 import { SafeUserDto } from 'src/users/dto/safe-user.dto';
+import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -81,7 +90,7 @@ export class AuthController {
     );
   }
 
-  @Post('user/profile')
+  @Get('user/profile')
   @ApiOperation({ summary: 'Get own user profile' })
   @ApiResponse({
     status: 201,
@@ -94,5 +103,22 @@ export class AuthController {
     @Session() session: Record<string, any>,
   ): Promise<SafeUserDto> {
     return this.authService.getProfileUser(session);
+  }
+
+  @Patch('user/profile')
+  @ApiOperation({ summary: 'Get own user profile' })
+  @ApiResponse({
+    status: 201,
+    description: 'Retrieved profile successfully',
+    type: SafeUserDto,
+  })
+  @ApiResponse({ status: 401, description: 'Not logged in' })
+  @ApiCookieAuth()
+  updateProfileUser(
+    @Session() session: Record<string, any>,
+    @Request() req: any,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<SafeUserDto> {
+    return this.authService.updateProfileUser(session, updateUserDto);
   }
 }

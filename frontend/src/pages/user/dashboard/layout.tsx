@@ -16,7 +16,7 @@ export function MobileSidebar() {
             className="flex items-center gap-2 text-lg font-semibold"
           >
             <Package2 className="h-6 w-6" />
-            <span className="sr-only">Acme Inc</span>
+            <span className="sr-only">Organization name</span>
           </NavLink>
           <NavLink
             to="/user/dashboard"

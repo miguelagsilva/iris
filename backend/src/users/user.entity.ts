@@ -88,6 +88,10 @@ export class User {
   organization: Organization;
 
   toSafeUser(): SafeUserDto {
-    return plainToClass(SafeUserDto, this, { excludeExtraneousValues: true });
+    const safeUser = plainToClass(SafeUserDto, this, {
+      excludeExtraneousValues: true,
+    });
+    safeUser.organizationId = this.organization.id;
+    return safeUser;
   }
 }
