@@ -1,18 +1,21 @@
 import { useAuth } from "@/providers/AuthProvider";
 import { Navigate, Outlet } from "react-router-dom";
 
-function OrganizationProtectedRoute({ userType }) {
-  //const isAuthenticated = true; // Implement this function
-  const currentEntity = useAuth()[userType];
+function OrganizationProtectedRoute({
+  userType,
+}: {
+  userType: "user" | "admin" | "employee";
+}) {
+  const { user, organization, isLoading } = useAuth();
 
-  if (!currentEntity) {
-    return <Navigate to={`/${userType}/sign-in`} replace />;
+  if (isLoading) {
+    return <div>Loading organization</div>;
   }
 
-  console.log("currentEntity", currentEntity);
-  console.log("UserType", userType);
-
-  if (!currentEntity || !currentEntity.organizationId) {
+  if (!organization) {
+    console.log("Redirecting to no-organization");
+    console.log("ORGANIZATION ROUTE USER", user);
+    console.log("ORGANIZATION ROUTE ORG", organization);
     return <Navigate to={`/${userType}/no-organization`} replace />;
   }
 

@@ -68,7 +68,7 @@ export class OrganizationsService {
     let { page, limit } = paginationDto;
     const { filter, sortBy, sortOrder } = paginationDto;
     page = page || 1;
-    limit = limit || 20;
+    limit = limit || 10;
     const skip = (page - 1) * limit;
     const sort = sortBy
       ? { [sortBy]: sortOrder }

@@ -60,7 +60,7 @@ export class UsersService {
     let { page, limit } = paginationDto;
     const { filter, sortBy, sortOrder } = paginationDto;
     page = page || 1;
-    limit = limit || 20;
+    limit = limit || 10;
     const skip = (page - 1) * limit;
     const sort = sortBy
       ? { [sortBy]: sortOrder }
@@ -70,6 +70,7 @@ export class UsersService {
       order: sort,
       take: limit,
       skip: skip,
+      relations: ['organization'],
     });
     const safeItems = items.map((i) => i.toSafeUser());
     return {

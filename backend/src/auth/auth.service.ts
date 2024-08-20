@@ -75,10 +75,10 @@ export class AuthService {
   }
 
   async getProfileUser(session: Record<string, any>): Promise<SafeUserDto> {
-    console.log(session);
     if (!session.userId) {
       throw new UnauthorizedException('Not logged in');
     }
+    console.log(await this.usersService.findOne(session.userId));
     return await this.usersService.findOne(session.userId);
   }
 

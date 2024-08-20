@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,18 +15,19 @@ import { useAuth } from "@/providers/AuthProvider";
 
 export function UserSignIn() {
   const { signInUser } = useAuth();
-
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
-      signInUser({ email, password });
-      return;
-    } catch (error) {
-      console.error("Login failed:", error);
+      await signInUser({ email, password });
+      console.log("Navigation to the dashboard");
+      navigate("/user/dashboard");
+    } catch (err) {
+      console.error(err);
     }
   };
 

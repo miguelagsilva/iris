@@ -1,12 +1,16 @@
 import { useAuth } from "@/providers/AuthProvider";
 import { Navigate, Outlet } from "react-router-dom";
 
-function UserProtectedRoute({ userType }) {
-  //const isAuthenticated = true; // Implement this function
-  const currentUserType = useAuth();
+function UserProtectedRoute() {
+  const { user, isLoading } = useAuth();
 
-  if (!currentUserType || !currentUserType[`${userType}`]) {
-    return <Navigate to={`/${userType}/sign-in`} replace />;
+  if (isLoading) {
+    return <div>Loading user route</div>;
+  }
+
+  if (!user) {
+    console.log("Redirecting to sign-in");
+    return <Navigate to={`/user/sign-in`} replace />;
   }
 
   return <Outlet />;

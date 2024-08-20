@@ -18,13 +18,13 @@ export class PaginationDto<T> {
   @Type(() => Number)
   page?: number = 1;
 
-  @ApiProperty({ default: 20, minimum: 1, maximum: 50 })
+  @ApiProperty({ default: 10, minimum: 1, maximum: 50 })
   @IsOptional()
   @IsInt()
   @Min(1)
   @Max(50)
   @Type(() => Number)
-  limit?: number = 20;
+  limit?: number = 10;
 
   @ApiProperty()
   @IsOptional()

@@ -231,12 +231,19 @@ export class OrganizationsController {
     type: 'object',
     description: 'Filter criteria',
   })
-  getPaginatedUsers(
+  async getPaginatedUsers(
     @Param('id', ParseUUIDPipe) id: string,
     @Query() paginationDto: PaginationDto<User>,
   ): Promise<PaginationResult<SafeUserDto>> {
-    paginationDto.filter = { organization: { id: id } };
-    return this.usersService.paginate(paginationDto);
+    paginationDto.filter = {
+      ...paginationDto.filter,
+      organization: { id: id },
+    };
+    console.log(
+      'paginetdUsers',
+      await this.usersService.paginate(paginationDto),
+    );
+    return await this.usersService.paginate(paginationDto);
   }
 
   @Get(':id/groups')

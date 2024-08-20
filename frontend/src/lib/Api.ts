@@ -459,7 +459,7 @@ export class Api<
          * Number of items per page
          * @min 1
          * @max 50
-         * @default 20
+         * @default 10
          */
         limit?: number;
         /** Filter criteria */
@@ -574,43 +574,6 @@ export class Api<
     /**
      * No description
      *
-     * @tags users, User
-     * @name UsersControllerGetCurrentUser
-     * @summary Get own profile
-     * @request GET:/api/v1/users/me
-     */
-    usersControllerGetCurrentUser: (params: RequestParams = {}) =>
-      this.request<SafeUserDto, void>({
-        path: `/api/v1/users/me`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags users, User
-     * @name UsersControllerUpdateCurrentUser
-     * @summary Partially update own profile
-     * @request PATCH:/api/v1/users/me
-     */
-    usersControllerUpdateCurrentUser: (
-      data: UpdateUserDto,
-      params: RequestParams = {},
-    ) =>
-      this.request<SafeUserDto, void>({
-        path: `/api/v1/users/me`,
-        method: "PATCH",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
      * @tags organizations, Admin
      * @name OrganizationsControllerCreate
      * @summary Create a new organization
@@ -649,7 +612,7 @@ export class Api<
          * Number of items per page
          * @min 1
          * @max 50
-         * @default 20
+         * @default 10
          */
         limit?: number;
         /** Filter criteria */
@@ -822,7 +785,7 @@ export class Api<
          * Number of items per page
          * @min 1
          * @max 50
-         * @default 20
+         * @default 10
          */
         limit?: number;
         /** Filter criteria */

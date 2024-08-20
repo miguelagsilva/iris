@@ -28,7 +28,7 @@ import dataSourceOptions from './config/database.config';
     }),
     ThrottlerModule.forRoot([
       {
-        ttl: 30000,
+        ttl: 15000,
         limit: 20,
       },
     ]),

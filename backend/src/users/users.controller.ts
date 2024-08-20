@@ -5,7 +5,6 @@ import {
   Body,
   Put,
   Patch,
-  Request,
   Param,
   Delete,
   ParseUUIDPipe,
@@ -155,31 +154,5 @@ export class UsersController {
   })
   restore(@Param('id', ParseUUIDPipe) id: string): Promise<SafeUserDto> {
     return this.usersService.restore(id);
-  }
-
-  // User
-
-  @Get('me')
-  @ApiTags('User')
-  @ApiOperation({ summary: 'Get own profile' })
-  @ApiResponse({
-    status: 200,
-    description: 'Retrieved own user profile successfully',
-    type: SafeUserDto,
-  })
-  getCurrentUser(@Request() req: any) {
-    return this.usersService.findOne(req.user.id);
-  }
-
-  @Patch('me')
-  @ApiTags('User')
-  @ApiOperation({ summary: 'Partially update own profile' })
-  @ApiResponse({
-    status: 200,
-    description: 'Updated own user profile successfully',
-    type: SafeUserDto,
-  })
-  updateCurrentUser(@Request() req: any, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(req.user.id, updateUserDto);
   }
 }

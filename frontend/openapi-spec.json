@@ -308,7 +308,7 @@
             "schema": {
               "minimum": 1,
               "maximum": 50,
-              "default": 20,
+              "default": 10,
               "type": "number"
             }
           },
@@ -605,84 +605,6 @@
         "tags": ["users", "Admin"]
       }
     },
-    "/api/v1/users/me": {
-      "get": {
-        "operationId": "UsersController_getCurrentUser",
-        "summary": "Get own profile",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Retrieved own user profile successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SafeUserDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Content not found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "tags": ["users", "User"]
-      },
-      "patch": {
-        "operationId": "UsersController_updateCurrentUser",
-        "summary": "Partially update own profile",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Updated own user profile successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SafeUserDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Content not found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "tags": ["users", "User"]
-      }
-    },
     "/api/v1/organizations": {
       "post": {
         "operationId": "OrganizationsController_create",
@@ -750,7 +672,7 @@
             "schema": {
               "minimum": 1,
               "maximum": 50,
-              "default": 20,
+              "default": 10,
               "type": "number"
             }
           },
@@ -1187,7 +1109,7 @@
             "schema": {
               "minimum": 1,
               "maximum": 50,
-              "default": 20,
+              "default": 10,
               "type": "number"
             }
           },

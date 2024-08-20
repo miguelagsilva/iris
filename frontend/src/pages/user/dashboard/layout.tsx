@@ -105,10 +105,13 @@ export function MobileSidebar() {
   );
 }
 
+import { useAuth } from "@/providers/AuthProvider";
+
 export function Header() {
+  const { signOutUser } = useAuth();
+
   return (
     <header className="flex h-14 justify-end items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
-      {/* Mobile sidebar */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="icon" className="rounded-full">
@@ -122,8 +125,8 @@ export function Header() {
           <DropdownMenuItem>Settings</DropdownMenuItem>
           <DropdownMenuItem>Support</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <Link to="/user/login">Logout</Link>
+          <DropdownMenuItem onClick={signOutUser}>
+            <Link to="/user/sign-in">Logout</Link>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -159,6 +162,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Toaster } from "@/components/ui/toaster";
 
 export function Sidebar() {
   return (
@@ -259,11 +263,12 @@ function UserDashboardLayout() {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-white">
           <div className="container mx-auto px-6 py-8">
             <Outlet />
           </div>
         </main>
+        <Toaster />
       </div>
     </div>
   );

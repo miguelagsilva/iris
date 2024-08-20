@@ -74,7 +74,6 @@ export class Organization {
   })
   employees: Employee[];
 
-  @Exclude()
   toSafeOrganization(): SafeOrganizationDto {
     return plainToClass(SafeOrganizationDto, this, {
       excludeExtraneousValues: true,

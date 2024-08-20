@@ -43,6 +43,7 @@ export class SafeUserDto {
   lastName: string;
 
   @ApiProperty()
+  @IsUUID()
   @Expose()
   organizationId: string;
 }

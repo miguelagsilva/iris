@@ -18,7 +18,7 @@ import {
   Matches,
   IsNotEmpty,
 } from 'class-validator';
-import { Exclude, plainToClass } from 'class-transformer';
+import { Exclude, plainToInstance } from 'class-transformer';
 import { Organization } from '../organizations/organization.entity';
 import { SafeUserDto } from './dto/safe-user.dto';
 
@@ -88,10 +88,10 @@ export class User {
   organization: Organization;
 
   toSafeUser(): SafeUserDto {
-    const safeUser = plainToClass(SafeUserDto, this, {
+    const safeUser = plainToInstance(SafeUserDto, this, {
       excludeExtraneousValues: true,
     });
-    safeUser.organizationId = this.organization.id;
+    safeUser.organizationId = this.organization?.id ? this.organization.id : "";
     return safeUser;
   }
 }
