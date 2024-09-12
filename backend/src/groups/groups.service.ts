@@ -6,7 +6,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsOrder, Repository } from 'typeorm';
 import { Group } from './group.entity';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
@@ -14,6 +14,9 @@ import { SafeGroupDto } from './dto/safe-group.dto';
 import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { EmployeesService } from '../employees/employees.service';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationResult } from 'src/common/interfaces/pagination-result.interface';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class GroupsService {
@@ -69,9 +72,32 @@ export class GroupsService {
     return this.findOne(createdGroup.id);
   }
 
-  async findAll(): Promise<SafeGroupDto[]> {
-    const groups = await this.groupsRepository.find();
-    return groups.map((g) => g.toSafeGroup());
+  async paginate(
+    paginationDto: PaginationDto<Group>,
+  ): Promise<PaginationResult<SafeGroupDto>> {
+    let { page, limit } = paginationDto;
+    const { filter, sortBy, sortOrder } = paginationDto;
+    page = page || 1;
+    limit = limit || 10;
+    const skip = (page - 1) * limit;
+    const sort = sortBy
+      ? { [sortBy]: sortOrder }
+      : ({ id: 'ASC' } as FindOptionsOrder<Group>);
+    const [items, total] = await this.groupsRepository.findAndCount({
+      where: [ filter ],
+      order: sort,
+      take: limit,
+      skip: skip,
+      relations: ['organization'],
+    });
+    const safeItems = items.map((i) => i.toSafeGroup());
+    return {
+      items: safeItems,
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<SafeGroupDto> {

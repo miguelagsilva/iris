@@ -1,4 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,
   Length,
@@ -8,7 +7,6 @@ import {
 } from 'class-validator';
 
 export class UpdateGroupDto {
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)

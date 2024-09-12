@@ -10,12 +10,10 @@ import {
 } from 'class-validator';
 
 export class SafeEmployeeDto {
-  @ApiProperty()
   @IsUUID()
   @Expose()
   id: string;
 
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
@@ -26,13 +24,11 @@ export class SafeEmployeeDto {
   @Expose()
   name: string;
 
-  @ApiProperty()
   @IsNotEmpty()
   @IsPhoneNumber('PT')
   @Expose()
   phone_number: string;
 
-  @ApiProperty()
   @IsUUID()
   @Expose()
   organizationId: string;

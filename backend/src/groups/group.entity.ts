@@ -9,7 +9,6 @@ import {
   ManyToMany,
   Unique,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 import { IsString, Length, IsUUID, Matches, IsNotEmpty } from 'class-validator';
 import { Organization } from '../organizations/organization.entity';
 import { Employee } from '../employees/employee.entity';
@@ -19,12 +18,10 @@ import { Exclude, plainToInstance } from 'class-transformer';
 @Entity()
 @Unique(['name'])
 export class Group {
-  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   @IsUUID()
   id: string;
 
-  @ApiProperty()
   @Column()
   @IsString()
   @IsNotEmpty()
@@ -35,17 +32,14 @@ export class Group {
   })
   name: string;
 
-  @ApiProperty()
   @CreateDateColumn()
   @Exclude()
   createdAt: Date;
 
-  @ApiProperty()
   @UpdateDateColumn()
   @Exclude()
   updatedAt: Date;
 
-  @ApiProperty()
   @DeleteDateColumn()
   @Exclude()
   deletedAt: Date;

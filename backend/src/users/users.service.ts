@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsOrder, Repository } from 'typeorm';
+import { FindOptionsOrder, ILike, Like, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -66,13 +66,14 @@ export class UsersService {
       ? { [sortBy]: sortOrder }
       : ({ id: 'ASC' } as FindOptionsOrder<User>);
     const [items, total] = await this.usersRepository.findAndCount({
-      where: filter,
+      where: [ filter ],
       order: sort,
       take: limit,
       skip: skip,
       relations: ['organization'],
     });
     const safeItems = items.map((i) => i.toSafeUser());
+    console.log("filter", filter)
     return {
       items: safeItems,
       total,

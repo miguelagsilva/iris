@@ -1,8 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 
 export class CreateOrganizationDto {
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 20)
@@ -11,7 +9,6 @@ export class CreateOrganizationDto {
   })
   code: string;
 
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)

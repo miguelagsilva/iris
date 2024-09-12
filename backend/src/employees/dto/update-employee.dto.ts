@@ -9,7 +9,6 @@ import {
 } from 'class-validator';
 
 export class UpdateEmployeeDto {
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
@@ -20,7 +19,6 @@ export class UpdateEmployeeDto {
   @IsOptional()
   name?: string;
 
-  @ApiProperty()
   @IsNotEmpty()
   @IsPhoneNumber('PT')
   @IsOptional()

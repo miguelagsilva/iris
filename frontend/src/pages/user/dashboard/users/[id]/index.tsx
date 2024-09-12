@@ -6,9 +6,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
-export function UserDashboardUserNew() {
+export function UserDashboardUserView() {
+  const { userId } = useParams();
+
   return (
     <>
       <Breadcrumb>
@@ -26,12 +28,12 @@ export function UserDashboardUserNew() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>New</BreadcrumbPage>
+            <BreadcrumbPage>{userId}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="container mx-auto py-10">
-        <h1>new</h1>
+        <h1>view {userId}</h1>
       </div>
     </>
   );

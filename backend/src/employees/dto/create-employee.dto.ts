@@ -9,7 +9,6 @@ import {
 } from 'class-validator';
 
 export class CreateEmployeeDto {
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
@@ -19,12 +18,10 @@ export class CreateEmployeeDto {
   })
   name: string;
 
-  @ApiProperty()
   @IsUUID()
   @IsNotEmpty()
   organizationId: string;
 
-  @ApiProperty()
   @IsNotEmpty()
   @IsPhoneNumber('PT')
   phone_number: string;

@@ -1,4 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsInt,
@@ -11,14 +10,12 @@ import {
 import { FindOptionsWhere } from 'typeorm';
 
 export class PaginationDto<T> {
-  @ApiProperty({ default: 1, minimum: 1 })
   @IsOptional()
   @IsInt()
   @Min(1)
   @Type(() => Number)
   page?: number = 1;
 
-  @ApiProperty({ default: 10, minimum: 1, maximum: 50 })
   @IsOptional()
   @IsInt()
   @Min(1)
@@ -26,18 +23,23 @@ export class PaginationDto<T> {
   @Type(() => Number)
   limit?: number = 10;
 
-  @ApiProperty()
   @IsOptional()
   @IsObject()
   @Type(() => Object)
   filter?: FindOptionsWhere<T>;
 
-  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  filterBy?: string;
+
+  @IsOptional()
+  @IsString()
+  filterValue?: string;
+
   @IsOptional()
   @IsString()
   sortBy?: string;
 
-  @ApiProperty()
   @IsOptional()
   @IsString()
   sortOrder?: 'ASC' | 'DESC' = 'ASC';

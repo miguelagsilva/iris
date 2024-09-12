@@ -1,13 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, Length, Matches } from 'class-validator';
 
 export class ChangePasswordUserDto {
-  @ApiProperty()
   @IsEmail()
   @Length(5, 48)
   email: string;
 
-  @ApiProperty()
   @Length(8, 64)
   @Matches(/^(?=.*\d).{8,}$/, {
     message:
@@ -15,7 +12,6 @@ export class ChangePasswordUserDto {
   })
   oldPassword: string;
 
-  @ApiProperty()
   @Length(8, 64)
   @Matches(/^(?=.*\d).{8,}$/, {
     message:

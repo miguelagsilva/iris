@@ -36,7 +36,9 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/v1/auth/user/sign-in": {
@@ -74,7 +76,9 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/v1/auth/user/sign-out": {
@@ -102,7 +106,9 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "security": [
           {
             "cookie": []
@@ -145,7 +151,9 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "security": [
           {
             "cookie": []
@@ -159,6 +167,16 @@
         "summary": "Get own user profile",
         "parameters": [],
         "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SafeUserDto"
+                }
+              }
+            }
+          },
           "201": {
             "description": "Retrieved profile successfully",
             "content": {
@@ -185,7 +203,9 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "security": [
           {
             "cookie": []
@@ -207,6 +227,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SafeUserDto"
+                }
+              }
+            }
+          },
           "201": {
             "description": "Retrieved profile successfully",
             "content": {
@@ -233,7 +263,9 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "security": [
           {
             "cookie": []
@@ -283,7 +315,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "Admin"]
+        "tags": [
+          "users",
+          "Admin"
+        ]
       },
       "get": {
         "operationId": "UsersController_paginate",
@@ -322,21 +357,27 @@
             }
           },
           {
-            "name": "sortBy",
+            "name": "filterBy",
             "required": false,
             "in": "query",
-            "description": "Field to sort by",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "sortOrder",
+            "name": "filterValue",
             "required": false,
             "in": "query",
-            "description": "Sort order",
             "schema": {
-              "enum": ["ASC", "DESC"],
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Field to sort by",
+            "schema": {
               "type": "string"
             }
           }
@@ -368,7 +409,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "Admin"]
+        "tags": [
+          "users",
+          "Admin"
+        ]
       }
     },
     "/api/v1/users/{id}": {
@@ -412,7 +456,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "Admin"]
+        "tags": [
+          "users",
+          "Admin"
+        ]
       },
       "put": {
         "operationId": "UsersController_update",
@@ -464,7 +511,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "Admin"]
+        "tags": [
+          "users",
+          "Admin"
+        ]
       },
       "patch": {
         "operationId": "UsersController_partialUpdate",
@@ -516,7 +566,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "Admin"]
+        "tags": [
+          "users",
+          "Admin"
+        ]
       },
       "delete": {
         "operationId": "UsersController_remove",
@@ -558,7 +611,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "Admin"]
+        "tags": [
+          "users",
+          "Admin"
+        ]
       }
     },
     "/api/v1/users/{id}/restore": {
@@ -602,7 +658,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["users", "Admin"]
+        "tags": [
+          "users",
+          "Admin"
+        ]
       }
     },
     "/api/v1/organizations": {
@@ -647,7 +706,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Admin"]
+        "tags": [
+          "organizations",
+          "Admin"
+        ]
       },
       "get": {
         "operationId": "OrganizationsController_getPaginated",
@@ -686,21 +748,27 @@
             }
           },
           {
-            "name": "sortBy",
+            "name": "filterBy",
             "required": false,
             "in": "query",
-            "description": "Field to sort by",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "sortOrder",
+            "name": "filterValue",
             "required": false,
             "in": "query",
-            "description": "Sort order",
             "schema": {
-              "enum": ["ASC", "DESC"],
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Field to sort by",
+            "schema": {
               "type": "string"
             }
           }
@@ -732,7 +800,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Admin"]
+        "tags": [
+          "organizations",
+          "Admin"
+        ]
       }
     },
     "/api/v1/organizations/{id}": {
@@ -776,7 +847,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Organization"]
+        "tags": [
+          "organizations",
+          "Organization"
+        ]
       },
       "put": {
         "operationId": "OrganizationsController_update",
@@ -828,7 +902,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Admin"]
+        "tags": [
+          "organizations",
+          "Admin"
+        ]
       },
       "patch": {
         "operationId": "OrganizationsController_partialUpdate",
@@ -880,7 +957,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Admin"]
+        "tags": [
+          "organizations",
+          "Admin"
+        ]
       },
       "delete": {
         "operationId": "OrganizationsController_remove",
@@ -922,7 +1002,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Admin"]
+        "tags": [
+          "organizations",
+          "Admin"
+        ]
       }
     },
     "/api/v1/organizations/{id}/restore": {
@@ -966,7 +1049,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Admin"]
+        "tags": [
+          "organizations",
+          "Admin"
+        ]
       }
     },
     "/api/v1/organizations/{id}/users/{userId}": {
@@ -1021,7 +1107,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Organization"]
+        "tags": [
+          "organizations",
+          "Organization"
+        ]
       },
       "delete": {
         "operationId": "OrganizationsController_removeUserFromOrganization",
@@ -1074,7 +1163,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Organization"]
+        "tags": [
+          "organizations",
+          "Organization"
+        ]
       }
     },
     "/api/v1/organizations/{id}/users": {
@@ -1114,12 +1206,21 @@
             }
           },
           {
-            "name": "filter",
+            "name": "filterBy",
             "required": false,
             "in": "query",
-            "description": "Filter criteria",
+            "description": "Field to filter by",
             "schema": {
-              "type": "object"
+              "type": "string"
+            }
+          },
+          {
+            "name": "filterValue",
+            "required": false,
+            "in": "query",
+            "description": "Value to filter by",
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -1128,16 +1229,6 @@
             "in": "query",
             "description": "Field to sort by",
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "sortOrder",
-            "required": false,
-            "in": "query",
-            "description": "Sort order",
-            "schema": {
-              "enum": ["ASC", "DESC"],
               "type": "string"
             }
           }
@@ -1169,18 +1260,71 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Organization"]
+        "tags": [
+          "organizations",
+          "Organization"
+        ]
       }
     },
     "/api/v1/organizations/{id}/groups": {
       "get": {
-        "operationId": "OrganizationsController_getOrganizationGroups",
-        "summary": "Get all groups of an organization",
+        "operationId": "OrganizationsController_getPaginatedGroups",
+        "summary": "Get all groups",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filterBy",
+            "required": false,
+            "in": "query",
+            "description": "Field to filter by",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filterValue",
+            "required": false,
+            "in": "query",
+            "description": "Value to filter by",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Field to sort by",
             "schema": {
               "type": "string"
             }
@@ -1192,10 +1336,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SafeGroupDto"
-                  }
+                  "$ref": "#/components/schemas/PaginationResult"
                 }
               }
             }
@@ -1216,18 +1357,71 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Organization"]
+        "tags": [
+          "organizations",
+          "Organization"
+        ]
       }
     },
     "/api/v1/organizations/{id}/employees": {
       "get": {
-        "operationId": "OrganizationsController_getOrganizationEmployees",
-        "summary": "Get all employees of an organization",
+        "operationId": "OrganizationsController_getPaginatedEmployees",
+        "summary": "Get all employees",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filterBy",
+            "required": false,
+            "in": "query",
+            "description": "Field to filter by",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filterValue",
+            "required": false,
+            "in": "query",
+            "description": "Value to filter by",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Field to sort by",
             "schema": {
               "type": "string"
             }
@@ -1239,10 +1433,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SafeEmployeeDto"
-                  }
+                  "$ref": "#/components/schemas/PaginationResult"
                 }
               }
             }
@@ -1263,7 +1454,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["organizations", "Organization"]
+        "tags": [
+          "organizations",
+          "Organization"
+        ]
       }
     },
     "/api/v1/groups": {
@@ -1308,7 +1502,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"]
+        "tags": [
+          "groups",
+          "Organization"
+        ]
       }
     },
     "/api/v1/groups/{id}": {
@@ -1352,7 +1549,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"]
+        "tags": [
+          "groups",
+          "Organization"
+        ]
       },
       "put": {
         "operationId": "GroupsController_update",
@@ -1404,7 +1604,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"]
+        "tags": [
+          "groups",
+          "Organization"
+        ]
       },
       "patch": {
         "operationId": "GroupsController_partialUpdate",
@@ -1456,7 +1659,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"]
+        "tags": [
+          "groups",
+          "Organization"
+        ]
       },
       "delete": {
         "operationId": "GroupsController_remove",
@@ -1498,7 +1704,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"]
+        "tags": [
+          "groups",
+          "Organization"
+        ]
       }
     },
     "/api/v1/groups/{id}/restore": {
@@ -1542,7 +1751,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"]
+        "tags": [
+          "groups",
+          "Organization"
+        ]
       }
     },
     "/api/v1/groups/{id}/employees": {
@@ -1589,7 +1801,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"]
+        "tags": [
+          "groups",
+          "Organization"
+        ]
       }
     },
     "/api/v1/groups/{id}/employees/{employeeId}": {
@@ -1644,7 +1859,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"]
+        "tags": [
+          "groups",
+          "Organization"
+        ]
       },
       "delete": {
         "operationId": "GroupsController_removeEmployeeFromGroup",
@@ -1694,7 +1912,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["groups", "Organization"]
+        "tags": [
+          "groups",
+          "Organization"
+        ]
       }
     },
     "/api/v1/employees": {
@@ -1739,7 +1960,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"]
+        "tags": [
+          "employees",
+          "Organization"
+        ]
       }
     },
     "/api/v1/employees/{id}": {
@@ -1783,7 +2007,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"]
+        "tags": [
+          "employees",
+          "Organization"
+        ]
       },
       "put": {
         "operationId": "EmployeesController_update",
@@ -1835,7 +2062,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"]
+        "tags": [
+          "employees",
+          "Organization"
+        ]
       },
       "patch": {
         "operationId": "EmployeesController_partialUpdate",
@@ -1887,7 +2117,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"]
+        "tags": [
+          "employees",
+          "Organization"
+        ]
       },
       "delete": {
         "operationId": "EmployeesController_remove",
@@ -1929,7 +2162,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"]
+        "tags": [
+          "employees",
+          "Organization"
+        ]
       }
     },
     "/api/v1/employees/{id}/restore": {
@@ -1973,7 +2209,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"]
+        "tags": [
+          "employees",
+          "Organization"
+        ]
       }
     },
     "/api/v1/employees/{id}/groups": {
@@ -2020,7 +2259,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"]
+        "tags": [
+          "employees",
+          "Organization"
+        ]
       }
     },
     "/api/v1/employees/{id}/groups/{groupId}": {
@@ -2072,7 +2314,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"]
+        "tags": [
+          "employees",
+          "Organization"
+        ]
       }
     },
     "/api/v1/employees/{id}/group/{groupId}": {
@@ -2124,7 +2369,10 @@
             "description": "Internal Server Error"
           }
         },
-        "tags": ["employees", "Organization"]
+        "tags": [
+          "employees",
+          "Organization"
+        ]
       }
     }
   },
@@ -2182,46 +2430,82 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 48
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 64,
+            "pattern": "/^(?=.*\\d).{8,}$/"
           },
           "firstName": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}'-]+$/u"
           },
           "lastName": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}'-]+$/u"
           }
         },
-        "required": ["email", "password", "firstName", "lastName"]
+        "required": [
+          "email",
+          "password",
+          "firstName",
+          "lastName"
+        ]
       },
       "SignInUserDto": {
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 48
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 64,
+            "pattern": "/^(?=.*\\d).{8,}$/"
           }
         },
-        "required": ["email", "password"]
+        "required": [
+          "email",
+          "password"
+        ]
       },
       "ChangePasswordUserDto": {
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 48
           },
           "oldPassword": {
-            "type": "string"
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 64,
+            "pattern": "/^(?=.*\\d).{8,}$/"
           },
           "newPassword": {
-            "type": "string"
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 64,
+            "pattern": "/^(?=.*\\d).{8,}$/"
           }
         },
-        "required": ["email", "oldPassword", "newPassword"]
+        "required": [
+          "email",
+          "oldPassword",
+          "newPassword"
+        ]
       },
       "SafeUserDto": {
         "type": "object",
@@ -2230,115 +2514,180 @@
             "type": "string"
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 48
           },
           "firstName": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}'-]+$/u"
           },
           "lastName": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}'-]+$/u"
           },
           "organizationId": {
             "type": "string"
           }
         },
-        "required": ["id", "email", "firstName", "lastName", "organizationId"]
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "organizationId"
+        ]
       },
       "UpdateUserDto": {
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 48
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 64,
+            "pattern": "/^(?=.*\\d).{8,}$/"
           },
           "firstName": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}'-]+$/u"
           },
           "lastName": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}'-]+$/u"
           }
-        },
-        "required": ["email", "password", "firstName", "lastName"]
+        }
       },
       "CreateUserDto": {
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 48
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 64,
+            "pattern": "/^(?=.*\\d).{8,}$/"
           },
           "firstName": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}'-]+$/u"
           },
           "lastName": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}'-]+$/u"
           }
         },
-        "required": ["email", "password", "firstName", "lastName"]
+        "required": [
+          "email",
+          "password",
+          "firstName",
+          "lastName"
+        ]
       },
       "PaginationResult": {
         "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "type": "array"
-            }
-          },
-          "total": {
-            "type": "number"
-          },
-          "page": {
-            "type": "number"
-          },
-          "limit": {
-            "type": "number"
-          },
-          "pages": {
-            "type": "number"
-          }
-        },
-        "required": ["items", "total", "page", "limit", "pages"]
+        "properties": {}
       },
       "CreateOrganizationDto": {
         "type": "object",
         "properties": {
           "code": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 20,
+            "pattern": "/^[a-zA-Z0-9-]*$/u"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}0-9'\\- !,&-]+$/u"
           }
         },
-        "required": ["code", "name"]
+        "required": [
+          "code",
+          "name"
+        ]
       },
       "SafeOrganizationDto": {
         "type": "object",
         "properties": {
-          "code": {
+          "id": {
             "type": "string"
           },
+          "code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 20,
+            "pattern": "/^[a-zA-Z0-9-]*$/u"
+          },
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}0-9'\\- !,&-]+$/u"
           }
         },
-        "required": ["code", "name"]
+        "required": [
+          "id",
+          "code",
+          "name"
+        ]
       },
       "UpdateOrganizationDto": {
         "type": "object",
         "properties": {
           "code": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 20,
+            "pattern": "/^[a-zA-Z0-9-]*$/u"
           },
           "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}0-9'\\- !,&-]+$/u"
+          }
+        }
+      },
+      "CreateGroupDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}\\p{N}\\s'\\-,.!&()]+$/u"
+          },
+          "organizationId": {
             "type": "string"
           }
         },
-        "required": ["code", "name"]
+        "required": [
+          "name",
+          "organizationId"
+        ]
       },
       "SafeGroupDto": {
         "type": "object",
@@ -2347,13 +2696,31 @@
             "type": "string"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}\\p{N}\\s'\\-,.!&()]+$/u"
           },
           "organizationId": {
             "type": "string"
           }
         },
-        "required": ["id", "name", "organizationId"]
+        "required": [
+          "id",
+          "name",
+          "organizationId"
+        ]
+      },
+      "UpdateGroupDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}\\p{N}\\s'\\-,.!&()]+$/u"
+          }
+        }
       },
       "SafeEmployeeDto": {
         "type": "object",
@@ -2362,7 +2729,10 @@
             "type": "string"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}\\p{N}\\s'\\-,.!&()]+$/u"
           },
           "phone_number": {
             "type": "string"
@@ -2371,34 +2741,21 @@
             "type": "string"
           }
         },
-        "required": ["id", "name", "phone_number", "organizationId"]
-      },
-      "CreateGroupDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "organizationId": {
-            "type": "string"
-          }
-        },
-        "required": ["name", "organizationId"]
-      },
-      "UpdateGroupDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": ["name"]
+        "required": [
+          "id",
+          "name",
+          "phone_number",
+          "organizationId"
+        ]
       },
       "CreateEmployeeDto": {
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}\\p{N}\\s'\\-,.!&()]+$/u"
           },
           "organizationId": {
             "type": "string"
@@ -2407,19 +2764,25 @@
             "type": "string"
           }
         },
-        "required": ["name", "organizationId", "phone_number"]
+        "required": [
+          "name",
+          "organizationId",
+          "phone_number"
+        ]
       },
       "UpdateEmployeeDto": {
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "/^[\\p{L}\\p{M}\\p{N}\\s'\\-,.!&()]+$/u"
           },
           "phone_number": {
             "type": "string"
           }
-        },
-        "required": ["name", "phone_number"]
+        }
       }
     }
   }

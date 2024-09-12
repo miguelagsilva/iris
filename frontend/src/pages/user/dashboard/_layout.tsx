@@ -105,10 +105,8 @@ export function MobileSidebar() {
   );
 }
 
-import { useAuth } from "@/providers/AuthProvider";
-
 export function Header() {
-  const { signOutUser } = useAuth();
+  const { handleUserSignOut } = useAuth();
 
   return (
     <header className="flex h-14 justify-end items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
@@ -125,9 +123,7 @@ export function Header() {
           <DropdownMenuItem>Settings</DropdownMenuItem>
           <DropdownMenuItem>Support</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={signOutUser}>
-            <Link to="/user/sign-in">Logout</Link>
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleUserSignOut} >Sign out</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>
@@ -135,12 +131,10 @@ export function Header() {
 }
 
 import {
-  Bell,
   Briefcase,
   CircleHelp,
   Home,
   IdCard,
-  Brain,
   Settings,
   Users,
   CircleUser,
@@ -163,104 +157,26 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Toaster } from "@/components/ui/toaster";
+import { Sidebar } from "@/components/ui/sidebar";
+import { useAuth } from "@/hooks/auth";
+import { signOutUser } from "@/lib/api";
 
-export function Sidebar() {
-  return (
-    <div className="hidden border-r bg-muted/40 md:block">
-      <div className="flex h-full max-h-screen flex-col gap-2">
-        <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-          <NavLink to="/" className="flex items-center gap-2 font-semibold">
-            <Brain className="h-6 w-6" />
-            <span className="">Organization Name</span>
-          </NavLink>
-          <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
-            <Bell className="h-4 w-4" />
-            <span className="sr-only">Toggle notifications</span>
-          </Button>
-        </div>
-        <div className="flex-1">
-          <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-            <NavLink
-              to="/user/dashboard"
-              end
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
-                  isActive ? "bg-muted text-primary" : "text-muted-foreground"
-                }`
-              }
-            >
-              <Home className="h-4 w-4" />
-              Dashboard
-            </NavLink>
-            <NavLink
-              to="users"
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
-                  isActive ? "bg-muted text-primary" : "text-muted-foreground"
-                }`
-              }
-            >
-              <IdCard className="h-4 w-4" />
-              Users
-              <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                6
-              </Badge>
-            </NavLink>
-            <NavLink
-              to="groups"
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
-                  isActive ? "bg-muted text-primary" : "text-muted-foreground"
-                }`
-              }
-            >
-              <Briefcase className="h-4 w-4" />
-              Groups
-            </NavLink>
-            <NavLink
-              to="employees"
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
-                  isActive ? "bg-muted text-primary" : "text-muted-foreground"
-                }`
-              }
-            >
-              <Users className="h-4 w-4" />
-              Employees
-            </NavLink>
-            <NavLink
-              to="settings"
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
-                  isActive ? "bg-muted text-primary" : "text-muted-foreground"
-                }`
-              }
-            >
-              <Settings className="h-4 w-4" />
-              Settings
-            </NavLink>
-            <NavLink
-              to="support"
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
-                  isActive ? "bg-muted text-primary" : "text-muted-foreground"
-                }`
-              }
-            >
-              <CircleHelp className="h-4 w-4" />
-              Support
-            </NavLink>
-          </nav>
-        </div>
-      </div>
-    </div>
-  );
-}
+const navItems = [
+  { to: "", icon: <Home className="h-4 w-4" />, label: "Dashboard" },
+  { to: "users", icon: <IdCard className="h-4 w-4" />, label: "Users" },
+  { to: "groups", icon: <Briefcase className="h-4 w-4" />, label: "Groups" },
+  { to: "employees", icon: <Users className="h-4 w-4" />, label: "Employees" },
+  { to: "settings", icon: <Settings className="h-4 w-4" />, label: "Settings" },
+  { to: "support", icon: <CircleHelp className="h-4 w-4" />, label: "Support" },
+]
 
 function UserDashboardLayout() {
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <Sidebar />
+      <Sidebar
+        title="My Organization"
+        navItems={navItems}
+      />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-white">
@@ -268,7 +184,6 @@ function UserDashboardLayout() {
             <Outlet />
           </div>
         </main>
-        <Toaster />
       </div>
     </div>
   );

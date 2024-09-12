@@ -6,6 +6,7 @@ import {
   useReactTable,
   VisibilityState,
   Table as ReactTable,
+  ColumnFiltersState,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -16,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import React from "react";
+import React, { ReactNode, useState } from "react";
 import { Input } from "./input";
 import {
   DropdownMenu,
@@ -70,32 +71,39 @@ const createSelectColumn = <TData,>(): ColumnDef<TData> => ({
 });
 
 interface DataTableProps<TData, TValue> {
-  modelName: string;
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   enableColumnVisibility?: boolean;
   enableSelection?: boolean;
   enablePagination?: boolean;
+  enableFiltering?: boolean;
   enableSorting?: boolean;
+  filtering: ColumnFiltersState;
   sorting: SortingState;
   pagination: PaginationState;
   fetchData: (
     pagination: Partial<PaginationState>,
     sorting: SortingState,
+    filtering: ColumnFiltersState,
   ) => Promise<void>;
+  buttonLabel?: string,
+  buttonAction?: () => void,
 }
 
 export function DataTable<TData, TValue>({
-  modelName,
   columns,
   data,
   enableColumnVisibility = false,
   enableSelection = true,
   enablePagination = true,
+  enableFiltering = true,
   enableSorting = true,
+  filtering,
   sorting,
   pagination,
   fetchData,
+  buttonLabel,
+  buttonAction,
 }: DataTableProps<TData, TValue>) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -117,6 +125,7 @@ export function DataTable<TData, TValue>({
     onRowSelectionChange: setRowSelection,
     enableSorting,
     manualPagination: true,
+    manualFiltering: true,
     manualSorting: true,
     state: {
       sorting,
@@ -124,13 +133,23 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
     },
+    onColumnFiltersChange: (updater) => {
+      setIsLoading(true);
+      if (updater instanceof Function) {
+        const newFiltering = updater(filtering);
+        fetchData(pagination, sorting, newFiltering);
+      } else {
+        fetchData(pagination, sorting, updater);
+      }
+      setIsLoading(false);
+    },
     onSortingChange: (updater) => {
       setIsLoading(true);
       if (updater instanceof Function) {
         const newSorting = updater(sorting);
-        fetchData(pagination, newSorting);
+        fetchData(pagination, newSorting, filtering);
       } else {
-        fetchData(pagination, updater);
+        fetchData(pagination, updater, filtering);
       }
       setIsLoading(false);
     },
@@ -138,9 +157,9 @@ export function DataTable<TData, TValue>({
       setIsLoading(true);
       if (updater instanceof Function) {
         const newPagination = updater(pagination);
-        fetchData(newPagination, sorting);
+        fetchData(newPagination, sorting, filtering);
       } else {
-        fetchData(updater, sorting);
+        fetchData(updater, sorting, filtering);
       }
       setIsLoading(false);
     },
@@ -153,30 +172,23 @@ export function DataTable<TData, TValue>({
   return (
     <div className="flex flex-col">
       <div className="flex justify-between items-center py-4">
-        <div className="relative w-full md:w-auto">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={`Filter by ${table.getAllColumns()[1].id.toLocaleLowerCase()}...`}
-            value={table.getAllColumns()[1]?.getFilterValue() as string}
-            onChange={(event) =>
-              table.getAllColumns()[1]?.setFilterValue(event.target.value)
-            }
-            className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-          />
-        </div>
+        {enableFiltering &&
+          <DataTableFilteringInput<TData> table={table} />
+        }
         <div className="ml-auto flex items-center gap-2">
           {enableColumnVisibility && (
             <DataTableColumnVisibilityButton<TData> table={table} />
           )}
-          <Link
-            to="new"
-            className="sr-only sm:not-sr-only sm:whitespace-nowrap"
-          >
-            <Button size="sm" className="h-8 gap-1">
+          {buttonLabel &&
+            <Button 
+              size="sm" 
+              className="h-8 gap-1"
+              onClick={buttonAction}
+            >
               <PlusCircle className="h-3.5 w-3.5" />
-              Add {modelName}
+              {buttonLabel}
             </Button>
-          </Link>
+          }
         </div>
       </div>
       <div className="rounded-md border border-gray-200">
@@ -385,3 +397,29 @@ const DataTablePagination = <TData,>({
     </div>
   );
 };
+
+const DataTableFilteringInput = <TData,>({
+  table,
+}: {
+    table: ReactTable<TData>;
+  }) => {
+  const [inputValue, setInputValue] = useState(table.getAllColumns()[1]?.getFilterValue() as string ?? "");
+
+  const handleFilterSubmit = (event: any) => {
+    event.preventDefault();
+    table.getAllColumns()[1]?.setFilterValue(inputValue);
+    console.log("Form submitted with value:", inputValue);
+  };
+
+  return (
+    <form onSubmit={handleFilterSubmit} className="relative w-full md:w-auto">
+      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+      <Input
+        placeholder={`Filter by ${table.getAllColumns()[1].columnDef.header?.toString().toLowerCase()}...`}
+        value={inputValue}
+        onChange={(event) => setInputValue(event.target.value)}
+        className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
+      />
+    </form>
+  );
+}

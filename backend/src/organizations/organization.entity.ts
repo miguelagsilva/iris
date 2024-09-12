@@ -8,7 +8,6 @@ import {
   DeleteDateColumn,
   OneToMany,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 import { IsString, Length, IsUUID, Matches, IsNotEmpty } from 'class-validator';
 import { Group } from '../groups/group.entity';
 import { User } from '../users/user.entity';
@@ -23,7 +22,6 @@ export class Organization {
   @IsUUID()
   id: string;
 
-  @ApiProperty()
   @Column()
   @IsString()
   @IsNotEmpty()
@@ -33,7 +31,6 @@ export class Organization {
   })
   code: string;
 
-  @ApiProperty()
   @Column()
   @IsString()
   @IsNotEmpty()
@@ -44,17 +41,14 @@ export class Organization {
   })
   name: string;
 
-  @ApiProperty()
   @CreateDateColumn()
   @Exclude()
   createdAt: Date;
 
-  @ApiProperty()
   @UpdateDateColumn()
   @Exclude()
   updatedAt: Date;
 
-  @ApiProperty()
   @DeleteDateColumn()
   @Exclude()
   deletedAt: Date;

@@ -20,6 +20,7 @@ import {
   IsPhoneNumber,
   IsDate,
   IsNumberString,
+  IsNumber,
 } from 'class-validator';
 import { Exclude, plainToClass } from 'class-transformer';
 import { Organization } from '../organizations/organization.entity';
@@ -29,12 +30,10 @@ import { SafeEmployeeDto } from './dto/safe-employee.dto';
 @Entity()
 @Unique(['phone_number'])
 export class Employee {
-  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   @IsUUID()
   id: string;
 
-  @ApiProperty()
   @Column()
   @IsString()
   @IsNotEmpty()
@@ -45,35 +44,29 @@ export class Employee {
   })
   name: string;
 
-  @ApiProperty()
   @Column()
   @IsNotEmpty()
   @IsPhoneNumber('PT')
   phone_number: string;
 
-  @ApiProperty()
   @Column({ nullable: true })
   @IsNumberString()
   @Exclude()
   otp: string;
 
-  @ApiProperty()
   @Column({ nullable: true })
   @IsDate()
   @Exclude()
-  otp_expires: Date;
+  otp_expires_at: Date;
 
-  @ApiProperty()
   @CreateDateColumn()
   @Exclude()
   createdAt: Date;
 
-  @ApiProperty()
   @UpdateDateColumn()
   @Exclude()
   updatedAt: Date;
 
-  @ApiProperty()
   @DeleteDateColumn()
   @Exclude()
   deletedAt: Date;

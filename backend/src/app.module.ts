@@ -11,6 +11,8 @@ import { AuthModule } from './auth/auth.module';
 import { Session } from './auth/session.entity';
 import { APP_GUARD } from '@nestjs/core';
 import dataSourceOptions from './config/database.config';
+import { UserInvitesModule } from './user-invites/user-invites.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -28,17 +30,19 @@ import dataSourceOptions from './config/database.config';
     }),
     ThrottlerModule.forRoot([
       {
-        ttl: 15000,
-        limit: 20,
+        ttl: 3000,
+        limit: 30,
       },
     ]),
     TypeOrmModule.forFeature([Session]),
+    ScheduleModule.forRoot(),
     AuthModule,
     UsersModule,
     OrganizationsModule,
     GroupsModule,
     EmployeesModule,
     AuthModule,
+    UserInvitesModule,
   ],
   providers: [
     {

@@ -1,8 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { IsString, Length, IsUUID, Matches, IsNotEmpty } from 'class-validator';
 
 export class CreateGroupDto {
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
@@ -12,7 +10,6 @@ export class CreateGroupDto {
   })
   name: string;
 
-  @ApiProperty()
   @IsUUID()
   @IsNotEmpty()
   organizationId: string;

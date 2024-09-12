@@ -1,4 +1,4 @@
-function NoOrganization() {
+export default function NoUserOrganization() {
   return (
     <div>
       <h1>No organization</h1>
@@ -6,5 +6,3 @@ function NoOrganization() {
     </div>
   );
 }
-
-export default NoOrganization;

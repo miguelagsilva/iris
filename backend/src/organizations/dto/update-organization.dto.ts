@@ -1,4 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsOptional,
@@ -8,7 +7,6 @@ import {
 } from 'class-validator';
 
 export class UpdateOrganizationDto {
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 20)
@@ -18,7 +16,6 @@ export class UpdateOrganizationDto {
   @IsOptional()
   code?: string;
 
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
