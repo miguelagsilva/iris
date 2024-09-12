@@ -15,6 +15,6 @@ import { GroupsModule } from '../groups/groups.module';
   ],
   providers: [EmployeesService],
   controllers: [EmployeesController],
-  exports: [EmployeesService, TypeOrmModule]
+  exports: [EmployeesService, TypeOrmModule],
 })
 export class EmployeesModule {}

@@ -54,10 +54,7 @@ export class AuthController {
     @Session() session: Record<string, any>,
     @Body() signInUserDto: SignInUserDto,
   ): Promise<{ message: string }> {
-    return this.authService.signInUser(
-      session,
-      signInUserDto,
-    );
+    return this.authService.signInUser(session, signInUserDto);
   }
 
   @Post('user/sign-out')
@@ -137,7 +134,9 @@ export class AuthController {
   requestEmployeeOTP(
     @Body() requestOTPEmployeeDto: RequestOTPEmployeeDto,
   ): Promise<{ message: string }> {
-    return this.authService.requestEmployeeOTP(requestOTPEmployeeDto.phone_number);
+    return this.authService.requestEmployeeOTP(
+      requestOTPEmployeeDto.phone_number,
+    );
   }
 
   @Post('employee/sign-in')
@@ -151,10 +150,7 @@ export class AuthController {
     @Session() session: Record<string, any>,
     @Body() signInEmployeeDto: SignInEmployeeDto,
   ): Promise<{ message: string }> {
-    return this.authService.signInEmployee(
-      session,
-      signInEmployeeDto
-    );
+    return this.authService.signInEmployee(session, signInEmployeeDto);
   }
 
   @Post('employee/sign-out')

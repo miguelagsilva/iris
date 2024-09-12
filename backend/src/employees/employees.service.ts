@@ -81,7 +81,7 @@ export class EmployeesService {
       ? { [sortBy]: sortOrder }
       : ({ id: 'ASC' } as FindOptionsOrder<Employee>);
     const [items, total] = await this.employeesRepository.findAndCount({
-      where: [ filter ],
+      where: [filter],
       order: sort,
       take: limit,
       skip: skip,
@@ -155,13 +155,13 @@ export class EmployeesService {
   async findOneByPhoneNumber(phoneNumber: string): Promise<Employee> {
     if (!phoneNumber) return null;
     return await this.employeesRepository.findOne({
-      where: [ { phone_number: phoneNumber } ]
+      where: [{ phone_number: phoneNumber }],
     });
   }
 
   async setNewOTP(employee: Employee, otp: string): Promise<Employee> {
     employee.otp = otp;
-    employee.otp_expires_at = new Date(Date.now() + 5*60*1000);
+    employee.otp_expires_at = new Date(Date.now() + 5 * 60 * 1000);
     await this.employeesRepository.save(employee);
     return await this.getEmployee(employee.id);
   }

@@ -1,10 +1,4 @@
-import {
-  IsEmail,
-  Length,
-  IsNotEmpty,
-  Max,
-  IsUUID,
-} from 'class-validator';
+import { IsEmail, Length, IsNotEmpty, Max, IsUUID } from 'class-validator';
 
 export class CreateUserInviteDto {
   @IsNotEmpty()

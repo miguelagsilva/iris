@@ -249,12 +249,18 @@ export class OrganizationsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Query() paginationDto: PaginationDto<User>,
   ): Promise<PaginationResult<SafeUserDto>> {
-    console.log("paginationDto", paginationDto);
+    console.log('paginationDto', paginationDto);
     const filter: Record<string, any> = {
       organization: { id: id },
     };
-    if (paginationDto.filterBy && paginationDto.filterBy != 'organization' && paginationDto.filterValue) {
-      filter[paginationDto.filterBy] = ILike(`%${paginationDto.filterValue.toLowerCase()}%`);
+    if (
+      paginationDto.filterBy &&
+      paginationDto.filterBy != 'organization' &&
+      paginationDto.filterValue
+    ) {
+      filter[paginationDto.filterBy] = ILike(
+        `%${paginationDto.filterValue.toLowerCase()}%`,
+      );
     }
     paginationDto.filter = filter;
     return await this.usersService.paginate(paginationDto);
@@ -308,12 +314,18 @@ export class OrganizationsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Query() paginationDto: PaginationDto<Group>,
   ): Promise<PaginationResult<SafeGroupDto>> {
-    console.log("paginationDto", paginationDto);
+    console.log('paginationDto', paginationDto);
     const filter: Record<string, any> = {
       organization: { id: id },
     };
-    if (paginationDto.filterBy && paginationDto.filterBy != 'organization' && paginationDto.filterValue) {
-      filter[paginationDto.filterBy] = ILike(`%${paginationDto.filterValue.toLowerCase()}%`);
+    if (
+      paginationDto.filterBy &&
+      paginationDto.filterBy != 'organization' &&
+      paginationDto.filterValue
+    ) {
+      filter[paginationDto.filterBy] = ILike(
+        `%${paginationDto.filterValue.toLowerCase()}%`,
+      );
     }
     paginationDto.filter = filter;
     return await this.groupsService.paginate(paginationDto);
@@ -367,12 +379,18 @@ export class OrganizationsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Query() paginationDto: PaginationDto<Group>,
   ): Promise<PaginationResult<SafeGroupDto>> {
-    console.log("paginationDto", paginationDto);
+    console.log('paginationDto', paginationDto);
     const filter: Record<string, any> = {
       organization: { id: id },
     };
-    if (paginationDto.filterBy && paginationDto.filterBy != 'organization' && paginationDto.filterValue) {
-      filter[paginationDto.filterBy] = ILike(`%${paginationDto.filterValue.toLowerCase()}%`);
+    if (
+      paginationDto.filterBy &&
+      paginationDto.filterBy != 'organization' &&
+      paginationDto.filterValue
+    ) {
+      filter[paginationDto.filterBy] = ILike(
+        `%${paginationDto.filterValue.toLowerCase()}%`,
+      );
     }
     paginationDto.filter = filter;
     return await this.employeesService.paginate(paginationDto);

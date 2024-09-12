@@ -26,7 +26,9 @@ export class UserInvitesController {
     description: 'User invite created successfully',
     type: UserInvite,
   })
-  async create(@Body() createUserInviteDto: CreateUserInviteDto): Promise<UserInvite> {
+  async create(
+    @Body() createUserInviteDto: CreateUserInviteDto,
+  ): Promise<UserInvite> {
     return await this.userInvitesService.create(createUserInviteDto);
   }
 

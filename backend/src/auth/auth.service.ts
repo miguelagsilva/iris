@@ -56,12 +56,17 @@ export class AuthService {
     session: Record<string, any>,
     signInUserDto: SignInUserDto,
   ): Promise<{ message: string }> {
-    const user = await this.validateUser(signInUserDto.email, signInUserDto.password);
+    const user = await this.validateUser(
+      signInUserDto.email,
+      signInUserDto.password,
+    );
     session.userId = user.id;
     return { message: 'Signed in successfully' };
   }
 
-  async signOutUser(session: Record<string, any>): Promise<{ message: string }> {
+  async signOutUser(
+    session: Record<string, any>,
+  ): Promise<{ message: string }> {
     session.userId = null;
     this.checkEmptySession(session);
     return { message: 'Signed out successfully' };
@@ -93,12 +98,12 @@ export class AuthService {
     if (!session.userId) {
       throw new UnauthorizedException('Not logged in');
     }
-    const signedInUserDto = await this.usersRepository.findOne({ 
+    const signedInUserDto = await this.usersRepository.findOne({
       where: { id: session.userId },
-      relations: ["organization"],
-    })
-    console.log(signedInUserDto)
-    return signedInUserDto 
+      relations: ['organization'],
+    });
+    console.log(signedInUserDto);
+    return signedInUserDto;
   }
 
   async updateProfileUser(
@@ -114,24 +119,23 @@ export class AuthService {
   // Employees
 
   private generateOTP(): string {
-    const digits = '0123456789'; 
-    let OTP = ''; 
-    for (let i = 0; i < 6; i++) { 
-        OTP += digits[Math.floor(Math.random() * digits.length)]; 
-    } 
+    const digits = '0123456789';
+    let OTP = '';
+    for (let i = 0; i < 6; i++) {
+      OTP += digits[Math.floor(Math.random() * digits.length)];
+    }
     return OTP;
   }
 
-  async requestEmployeeOTP(
-    phoneNumber: string,
-  ): Promise<{ message: string }> {
-    const employee = await this.employeesService.findOneByPhoneNumber(phoneNumber);
+  async requestEmployeeOTP(phoneNumber: string): Promise<{ message: string }> {
+    const employee =
+      await this.employeesService.findOneByPhoneNumber(phoneNumber);
     if (!employee) {
       throw new UnauthorizedException('Invalid phone number');
     }
     const otp = this.generateOTP();
     await this.employeesService.setNewOTP(employee, otp);
-    console.log("employee otp", employee.otp)
+    console.log('employee otp', employee.otp);
     return { message: 'One time password sent successfully' };
   }
 
@@ -139,8 +143,14 @@ export class AuthService {
     session: Record<string, any>,
     signInEmployeeDto: SignInEmployeeDto,
   ): Promise<{ message: string }> {
-    const employee = await this.employeesService.findOneByPhoneNumber(signInEmployeeDto.phone_number);
-    if (!employee || signInEmployeeDto.otp != employee.otp || employee.otp_expires_at.getTime() < Date.now()) {
+    const employee = await this.employeesService.findOneByPhoneNumber(
+      signInEmployeeDto.phone_number,
+    );
+    if (
+      !employee ||
+      signInEmployeeDto.otp != employee.otp ||
+      employee.otp_expires_at.getTime() < Date.now()
+    ) {
       throw new UnauthorizedException('Invalid phone number or password');
     }
     employee.otp = null;
@@ -149,7 +159,9 @@ export class AuthService {
     return { message: 'Signed in successfully' };
   }
 
-  async signOutEmployee(session: Record<string, any>): Promise<{ message: string }> {
+  async signOutEmployee(
+    session: Record<string, any>,
+  ): Promise<{ message: string }> {
     if (!session.employeeId) {
       throw new UnauthorizedException('Not logged in');
     }
@@ -158,15 +170,17 @@ export class AuthService {
     return { message: 'Signed out successfully' };
   }
 
-  async getProfileEmployee(session: Record<string, any>): Promise<SignedInEmployeeDto> {
+  async getProfileEmployee(
+    session: Record<string, any>,
+  ): Promise<SignedInEmployeeDto> {
     if (!session.employeeId) {
       throw new UnauthorizedException('Not logged in');
     }
-    const signedInEmployeeDto = await this.employeesRepository.findOne({ 
+    const signedInEmployeeDto = await this.employeesRepository.findOne({
       where: { id: session.employeeId },
-      relations: ["organization"],
-    })
-    console.log(signedInEmployeeDto)
-    return signedInEmployeeDto 
+      relations: ['organization'],
+    });
+    console.log(signedInEmployeeDto);
+    return signedInEmployeeDto;
   }
 }

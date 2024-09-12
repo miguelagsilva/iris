@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, Repository } from 'typeorm';
 import { UserInvite } from './user-invite.entity';
@@ -26,10 +23,15 @@ export class UserInvitesService {
   }
 
   async create(createUserInviteDto: CreateUserInviteDto): Promise<UserInvite> {
-    const expiredAt = new Date((new Date().getTime()) + createUserInviteDto.expirationTime);
+    const expiredAt = new Date(
+      new Date().getTime() + createUserInviteDto.expirationTime,
+    );
     const newUserInvite = new UserInvite();
     newUserInvite.expiredAt = expiredAt;
-    const savedUser = await this.userInvitesRepository.save({ ...createUserInviteDto, ...newUserInvite});
+    const savedUser = await this.userInvitesRepository.save({
+      ...createUserInviteDto,
+      ...newUserInvite,
+    });
     return await this.getUserInvite(savedUser.id);
   }
 

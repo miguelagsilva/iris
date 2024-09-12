@@ -84,7 +84,7 @@ export class GroupsService {
       ? { [sortBy]: sortOrder }
       : ({ id: 'ASC' } as FindOptionsOrder<Group>);
     const [items, total] = await this.groupsRepository.findAndCount({
-      where: [ filter ],
+      where: [filter],
       order: sort,
       take: limit,
       skip: skip,

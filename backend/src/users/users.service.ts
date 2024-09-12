@@ -66,14 +66,14 @@ export class UsersService {
       ? { [sortBy]: sortOrder }
       : ({ id: 'ASC' } as FindOptionsOrder<User>);
     const [items, total] = await this.usersRepository.findAndCount({
-      where: [ filter ],
+      where: [filter],
       order: sort,
       take: limit,
       skip: skip,
       relations: ['organization'],
     });
     const safeItems = items.map((i) => i.toSafeUser());
-    console.log("filter", filter)
+    console.log('filter', filter);
     return {
       items: safeItems,
       total,
