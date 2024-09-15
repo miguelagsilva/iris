@@ -8,12 +8,14 @@ import {
   ManyToOne,
   ManyToMany,
   Unique,
+  OneToOne,
 } from 'typeorm';
 import { IsString, Length, IsUUID, Matches, IsNotEmpty } from 'class-validator';
 import { Organization } from '../organizations/organization.entity';
 import { Employee } from '../employees/employee.entity';
 import { SafeGroupDto } from './dto/safe-group.dto';
 import { Exclude, plainToInstance } from 'class-transformer';
+import { Assistant } from '../ai/assistants/entities/assistant.entity';
 
 @Entity()
 @Unique(['name'])
@@ -51,6 +53,9 @@ export class Group {
 
   @ManyToMany(() => Employee, (employee) => employee.groups)
   employees: Employee[];
+
+  @OneToOne(() => Assistant, (assistant) => assistant.group)
+  assistant: Assistant;
 
   toSafeGroup(): SafeGroupDto {
     return plainToInstance(SafeGroupDto, this, {

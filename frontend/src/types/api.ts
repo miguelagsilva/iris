@@ -172,6 +172,6 @@ export const CreateEmployeeSchema = z.object({
       message: 'Name can contain letters, numbers, accents, spaces, and common punctuation (apostrophes, hyphens, periods, commas, exclamation points, ampersands, and parentheses)',
     }),
   phone_number: z.string()
-    .regex(/^(\+351)?9[1236]\d{7}$/, 'Please enter a valid Portuguese phone number'),
+    .regex(/^9\d{8}$/, 'Please enter a valid Portuguese phone number'),
   organizationId: z.string().uuid('Invalid organization ID'),
 });

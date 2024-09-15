@@ -103,7 +103,7 @@ export function UserDashboardUsers() {
   const fetchData = async (newPagination: Partial<PaginationState>, newSorting: SortingState, newFiltering: ColumnFiltersState) => {
     try {
       const paginatedUsers = await getOrganizationUsers(
-        user.organization.id, 
+        user.organizationId, 
         { 
           page: (newPagination.pageIndex ?? pagination.pageIndex)+1,
           limit: newPagination.pageSize ?? pagination.pageSize, 

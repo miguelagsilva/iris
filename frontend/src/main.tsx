@@ -27,12 +27,14 @@ import EmployeeProtectedRoute from "./routes/employee-protected";
 import OrganizationProtectedRoute from "./routes/organization-protected";
 import { EmployeeSignIn } from "./pages/employee/sign-in";
 import { Toaster } from "./components/ui/toaster";
+import AiChat from "./pages/employee/chat/aichat";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Router>
       <AuthProvider>
         <Routes>
+          <Route path="chat" element={<AiChat />} />
           <Route path="employee">
             <Route index element={<Navigate to="sign-in" replace />} />
             <Route path="sign-in" element={<EmployeeSignIn />} />
@@ -56,7 +58,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 <Route path="dashboard" element={<UserDashboardLayout />}>
                   <Route index element={<UserDashboardHome />} />
                   <Route path="users">
-                    <Route index element={<UserDashboardUsers />} />
                     <Route path="invite" element={<UserDashboardUserInvite />} />
                     <Route path=":userId">
                       <Route index element={<UserDashboardUserView />} />

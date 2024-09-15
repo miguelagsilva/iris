@@ -13,6 +13,7 @@ import { APP_GUARD } from '@nestjs/core';
 import dataSourceOptions from './config/database.config';
 import { UserInvitesModule } from './user-invites/user-invites.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     EmployeesModule,
     AuthModule,
     UserInvitesModule,
+    AiModule,
   ],
   providers: [
     {

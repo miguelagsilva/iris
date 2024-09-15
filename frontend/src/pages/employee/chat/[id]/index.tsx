@@ -14,38 +14,12 @@ type Message = {
   sender: 'user' | 'bot'
 }
 
-type ChatBot = {
-  id: string
-  name: string
-  avatar: string
-}
-
 export function EmployeeChatInterface() {
   const { groupId } = useParams();
   const [group, setGroup] = useState<SafeGroupDto>();
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState<boolean>(false);
-
-  const fetchGroup = async () => {
-    if (!groupId) {
-      console.error("No group ID provided.");
-      toast({
-        variant: "destructive",
-        title: "An error occurred while fetching the bot",
-      });
-      return;
-    };
-    try {
-      setLoading(true);
-      const group = await getGroupById(groupId);
-      setGroup(group);
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false);
-    }
-  }
 
   const handleSend = () => {
     if (input.trim()) {
@@ -66,6 +40,25 @@ export function EmployeeChatInterface() {
   }
 
   useEffect(() => {
+    const fetchGroup = async () => {
+      if (!groupId) {
+        toast({
+          variant: "destructive",
+          title: "An error occurred while fetching the bot",
+        });
+        return;
+      };
+      setLoading(true);
+      try {
+        const group = await getGroupById(groupId);
+        setGroup(group);
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setLoading(false);
+      }
+    }
+
     fetchGroup()
   }, [])
 
@@ -74,18 +67,8 @@ export function EmployeeChatInterface() {
   }
 
   return (
-    <div className="flex-grow flex flex-col">
-
-
-      <div className="bg-primary text-primary-foreground p-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Chat with {group?.name}</h1>
-        <Button variant="ghost" size="icon" className="md:hidden">
-          <Menu className="h-6 w-6" />
-        </Button>
-      </div>
-
-
-      <ScrollArea className="flex-grow p-4 space-y-4">
+    <div className="flex flex-col h-screen">
+      <ScrollArea className="flex-grow">
         {messages.map((message) => (
           <div
             key={message.id}
@@ -103,20 +86,18 @@ export function EmployeeChatInterface() {
           </div>
         ))}
       </ScrollArea>
-
-
       <div className="p-4 border-t">
         <form
           onSubmit={(e) => {
-            e.preventDefault()
-            handleSend()
+            e.preventDefault();
+            handleSend();
           }}
           className="flex space-x-2"
         >
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={`Ask something...`}
+            placeholder="Ask something..."
             className="flex-grow"
           />
           <Button type="submit" size="icon">

@@ -17,8 +17,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import React, { ReactNode, useState } from "react";
-import { Input } from "./input";
+import React, { ReactNode, useEffect, useState } from "react";
+import { Input } from "../ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +26,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuSeparator,
   DropdownMenuLabel,
-} from "./dropdown-menu";
+} from "../ui/dropdown-menu";
 import {
   ChevronLeft,
   ChevronRight,
@@ -37,7 +37,7 @@ import {
   ArrowDown,
   ArrowUpDown,
 } from "lucide-react";
-import { Checkbox } from "./checkbox";
+import { Checkbox } from "../ui/checkbox";
 import { Link } from "react-router-dom";
 
 export type PaginationState = {
@@ -81,6 +81,10 @@ interface DataTableProps<TData, TValue> {
   filtering: ColumnFiltersState;
   sorting: SortingState;
   pagination: PaginationState;
+  fetchFunction: (
+    id: string,
+    options: { page: number; limit: number; filterBy: string; filterValue: string; sortBy: string; sortOrder: string }
+  ) => Promise<TData[]>;
   fetchData: (
     pagination: Partial<PaginationState>,
     sorting: SortingState,
@@ -90,17 +94,18 @@ interface DataTableProps<TData, TValue> {
   buttonAction?: () => void,
 }
 
-export function DataTable<TData, TValue>({
+export function ServerDataTable<TData, TValue>({
   columns,
   data,
   enableColumnVisibility = false,
-  enableSelection = true,
+  enableSelection = false,
   enablePagination = true,
   enableFiltering = true,
   enableSorting = true,
   filtering,
   sorting,
   pagination,
+  fetchFunction,
   fetchData,
   buttonLabel,
   buttonAction,

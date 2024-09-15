@@ -1,15 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { DataTable, PaginationState } from "@/components/ui/data-table";
+import DataTableDemo, { DataTable } from "@/components/custom/data-table";
 import { ColumnDef, ColumnFiltersState, SortingState } from "@tanstack/react-table";
-import { Eye, PencilLine, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { ToastAction } from "@/components/ui/toast";
+import { Eye, PencilLine } from "lucide-react";
+import { Suspense, useEffect, useState } from "react";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Link, useNavigate } from "react-router-dom";
 import { SafeEmployeeDto } from "@/types/api";
-import { getOrganizationEmployees } from "@/lib/api";
+import { deleteEmployee, getOrganizationEmployees } from "@/lib/api";
 import { useUser } from "@/hooks/user";
+import RemovalAlert from "@/components/custom/removal-alert";
 
 export function UserDashboardEmployees() {
   const navigate = useNavigate();
@@ -17,25 +16,13 @@ export function UserDashboardEmployees() {
   const [error, setError] = useState<string | null>(null);
   const [filtering, setFiltering] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [pagination, setPagination] = useState<PaginationState>({ elements: 0, pageCount: 0, pageIndex: 0, pageSize: 10});
-  const { toast } = useToast()
+  const [pagination, setPagination] = useState<any>({ elements: 0, pageCount: 0, pageIndex: 0, pageSize: 10});
   const { user } = useUser();
 
   const removeEmployeeFromOrganization = async (targetEmployee: string) => {
     try {
-      await removeEmployeeFromOrganization(targetEmployee);
-      toast({
-        variant: "destructive",
-        title: "Employee has been removed.",
-        action: (
-          <ToastAction altText="Undo">
-            Undo
-          </ToastAction>
-        )
-      })
-      const newPagination = pagination;
-      newPagination.pageIndex = 0;
-      setPagination(newPagination);
+      await deleteEmployee(targetEmployee);
+      setPagination(newPagination => ({ ...newPagination, pageIndex: 0 }));
       fetchData(pagination, sorting, filtering);
     } catch (err) {
       setError("Failed to fetch users. Please try again later.");
@@ -58,41 +45,31 @@ export function UserDashboardEmployees() {
 
         return (
           <div className="justify-end flex flex-row gap-1 pr-10">
-            <Link 
-              to={rowEmployee.id}
-            >
-              <Button 
-                variant="outline" 
-                className="h-8 w-8 p-0"
-              >
-                <span className="sr-only">View row</span>
-                <Eye className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link 
-              to={`${rowEmployee.id}/edit`}
-            >
-              <Button 
-                variant="default" 
-                className="h-8 w-8 p-0"
-              >
-                <span className="sr-only">Edit row</span>
-                <PencilLine className="h-4 w-4" />
-              </Button>
-            </Link>
             <Button 
-              variant="destructive" 
+              variant="outline" 
               className="h-8 w-8 p-0"
-              onClick={() => removeEmployeeFromOrganization(rowEmployee.id)}
+              onClick={() => navigate(rowEmployee.id)}
             >
-              <span className="sr-only">Delete row</span>
-              <Trash2 className="h-4 w-4" />
+              <span className="sr-only">View row</span>
+              <Eye className="h-4 w-4" />
             </Button>
+            <Button 
+              variant="default" 
+              className="h-8 w-8 p-0"
+              onClick={() => navigate(`${rowEmployee.id}/edit`)}
+            >
+              <span className="sr-only">Edit row</span>
+              <PencilLine className="h-4 w-4" />
+            </Button>
+            <RemovalAlert
+              itemName={rowEmployee.name}
+              itemType="Employee"
+              description="This action cannot be undone. This will permanently remove the employee's account and all associated data from our servers."
+              onConfirmRemoval={() => removeEmployeeFromOrganization(rowEmployee.id)}
+            />
           </div>
         );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
   ];
 
@@ -150,17 +127,7 @@ export function UserDashboardEmployees() {
         </BreadcrumbList>
       </Breadcrumb>
       <div className="container mx-auto py-10">
-        <DataTable 
-          enableSelection={false}
-          columns={columns} 
-          data={data} 
-          filtering={filtering}
-          sorting={sorting}
-          pagination={pagination}
-          fetchData={fetchData}
-          buttonLabel="Add Employee"
-          buttonAction={() => navigate("new")}
-        />
+        <DataTableDemo/>
       </div>
     </>
   );

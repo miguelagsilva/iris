@@ -9,8 +9,8 @@ import {
   Column,
   Unique,
   ManyToMany,
+  OneToMany,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,
   Length,
@@ -20,12 +20,12 @@ import {
   IsPhoneNumber,
   IsDate,
   IsNumberString,
-  IsNumber,
 } from 'class-validator';
 import { Exclude, plainToClass } from 'class-transformer';
 import { Organization } from '../organizations/organization.entity';
 import { Group } from '../groups/group.entity';
 import { SafeEmployeeDto } from './dto/safe-employee.dto';
+import { Thread } from '../ai/threads/entities/thread.entity';
 
 @Entity()
 @Unique(['phone_number'])
@@ -79,6 +79,9 @@ export class Employee {
   @ManyToMany(() => Group, (group) => group.employees, { cascade: true })
   @JoinTable()
   groups: Group[];
+
+  @OneToMany(() => Thread, (thread) => thread.employee)
+  threads: Thread[];
 
   toSafeEmployee(): SafeEmployeeDto {
     return plainToClass(SafeEmployeeDto, this, {

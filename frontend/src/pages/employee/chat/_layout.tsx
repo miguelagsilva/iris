@@ -1,71 +1,58 @@
 import { useEffect, useState } from 'react'
-import { ChatSidebar } from '@/components/ui/chat-sidebar'
-import { EmployeeChatInterface } from './[id]/index.tsx'
 import { Outlet } from 'react-router-dom'
 import { NavItem, Sidebar } from '@/components/ui/sidebar.tsx'
-import { getOrganizationGroups } from '@/lib/api.ts'
-import { useUser } from '@/hooks/user.tsx'
+import { getEmployeeGroups, getOrganizationGroups } from '@/lib/api.ts'
 import { MessageSquare } from 'lucide-react'
 import { useEmployee } from '@/hooks/employee.tsx'
-
-type ChatBot = {
-  id: string
-  name: string
-  avatar: string
-}
-
-const chatBots: ChatBot[] = [
-  { id: 'general', name: 'General Assistant', avatar: '🤖' },
-  { id: 'code', name: 'Code Helper', avatar: '👨‍💻' },
-  { id: 'math', name: 'Math Tutor', avatar: '🧮' },
-  { id: 'history', name: 'History Expert', avatar: '📜' },
-]
+import { Header } from '@/components/ui/header'
+import { useAuth } from '@/hooks/auth'
 
 export default function EmployeeLayout() {
-  const [selectedBot, setSelectedBot] = useState<ChatBot>(chatBots[0])
+  const [loading, setLoading] = useState<boolean>(false)
   const [navItems, setNavItems] = useState<NavItem[]>([])
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const { employee } = useEmployee();
-
-  const handleBotSelect = (bot: ChatBot) => {
-    setSelectedBot(bot)
-    setIsSidebarOpen(false)
-  }
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen)
-  }
+  const { handleEmployeeSignOut } = useAuth();
 
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const groups = await getOrganizationGroups(employee.organization.id);
-        groups.items.map((group) => {
+        setLoading(true);
+        const groups = await getEmployeeGroups(employee.id);
+        console.log(groups);
+        navItems.length = 0;
+        groups.map((group) => {
           const navItem = { to: group.id, icon: <MessageSquare className="h-4 w-4" />, label: group.name };
           navItems.push(navItem);
-          setNavItems(navItems);
         })
+        setNavItems(navItems);
+        console.log(navItems);
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     }
     fetchGroups();
   }, [])
 
+  if (loading) {
+    return <div>Loading organization</div>;
+  }
+
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar 
-        title={""}
+    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+      <Sidebar
+        title={employee.organization.name}
         navItems={navItems}
       />
-      <ChatSidebar
-        chatBots={chatBots}
-        selectedBot={selectedBot}
-        onSelectBot={handleBotSelect}
-        isSidebarOpen={isSidebarOpen}
-        onCloseSidebar={() => setIsSidebarOpen(false)}
-      />
-      <Outlet />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header handleSignOut={handleEmployeeSignOut} />
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-white">
+          <div className="container mx-auto px-6 py-8">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   )
 }
