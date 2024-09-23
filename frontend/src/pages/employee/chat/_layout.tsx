@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
-import { NavItem, Sidebar } from '@/components/ui/sidebar.tsx'
+import { NavItem, Sidebar } from '@/components/custom/sidebar.tsx'
 import { getEmployeeGroups, getOrganizationGroups } from '@/lib/api.ts'
 import { MessageSquare } from 'lucide-react'
 import { useEmployee } from '@/hooks/employee.tsx'
-import { Header } from '@/components/ui/header'
+import { Header } from '@/components/custom/header'
 import { useAuth } from '@/hooks/auth'
 
 export default function EmployeeLayout() {
@@ -42,7 +42,7 @@ export default function EmployeeLayout() {
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <Sidebar
-        title={employee.organization.name}
+        title="Iris"
         navItems={navItems}
       />
       <div className="flex-1 flex flex-col overflow-hidden">

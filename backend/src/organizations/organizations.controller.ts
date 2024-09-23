@@ -23,24 +23,15 @@ import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 import { Organization } from './organization.entity';
-import { User } from '../users/user.entity';
-import { UsersService } from '../users/users.service';
-import { ILike } from 'typeorm';
-import { Group } from '../groups/group.entity';
-import { GroupsService } from '../groups/groups.service';
-import { EmployeesService } from '../employees/employees.service';
+import { GroupsService } from 'src/groups/groups.service';
 
 @ApiTags('organizations')
 @Controller('organizations')
 export class OrganizationsController {
   constructor(
     private readonly organizationsService: OrganizationsService,
-    @Inject(forwardRef(() => UsersService))
-    private usersService: UsersService,
     @Inject(forwardRef(() => GroupsService))
-    private groupsService: GroupsService,
-    @Inject(forwardRef(() => EmployeesService))
-    private employeesService: EmployeesService,
+    private groupsService: GroupsService
   ) {}
 
   @Post()
@@ -192,7 +183,7 @@ export class OrganizationsController {
   @ApiResponse({
     status: 200,
     description: 'Removed user from organization successfully',
-    type: [SafeUserDto],
+    type: SafeUserDto,
   })
   removeUserFromOrganization(
     @Param('id', ParseUUIDPipe) id: string,
@@ -207,63 +198,12 @@ export class OrganizationsController {
   @ApiResponse({
     status: 200,
     description: 'Retrieved organization users successfully',
-    type: PaginationResult<SafeUserDto>,
+    type: [SafeUserDto],
   })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Page number',
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Number of items per page',
-  })
-  @ApiQuery({
-    name: 'filterBy',
-    required: false,
-    type: String,
-    description: 'Field to filter by',
-  })
-  @ApiQuery({
-    name: 'filterValue',
-    required: false,
-    type: String,
-    description: 'Value to filter by',
-  })
-  @ApiQuery({
-    name: 'sortBy',
-    required: false,
-    type: String,
-    description: 'Field to sort by',
-  })
-  @ApiQuery({
-    name: 'sortOrder',
-    required: false,
-    enum: ['ASC', 'DESC'],
-    description: 'Sort order',
-  })
-  async getPaginatedUsers(
+  async getOrganizationUsers(
     @Param('id', ParseUUIDPipe) id: string,
-    @Query() paginationDto: PaginationDto<User>,
-  ): Promise<PaginationResult<SafeUserDto>> {
-    console.log('paginationDto', paginationDto);
-    const filter: Record<string, any> = {
-      organization: { id: id },
-    };
-    if (
-      paginationDto.filterBy &&
-      paginationDto.filterBy != 'organization' &&
-      paginationDto.filterValue
-    ) {
-      filter[paginationDto.filterBy] = ILike(
-        `%${paginationDto.filterValue.toLowerCase()}%`,
-      );
-    }
-    paginationDto.filter = filter;
-    return await this.usersService.paginate(paginationDto);
+  ): Promise<SafeUserDto[]> {
+    return await this.organizationsService.getOrganizationUsers(id);
   }
 
   @Get(':id/groups')
@@ -272,63 +212,12 @@ export class OrganizationsController {
   @ApiResponse({
     status: 200,
     description: 'Retrieved organization groups successfully',
-    type: PaginationResult<SafeGroupDto>,
+    type: [SafeGroupDto],
   })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Page number',
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Number of items per page',
-  })
-  @ApiQuery({
-    name: 'filterBy',
-    required: false,
-    type: String,
-    description: 'Field to filter by',
-  })
-  @ApiQuery({
-    name: 'filterValue',
-    required: false,
-    type: String,
-    description: 'Value to filter by',
-  })
-  @ApiQuery({
-    name: 'sortBy',
-    required: false,
-    type: String,
-    description: 'Field to sort by',
-  })
-  @ApiQuery({
-    name: 'sortOrder',
-    required: false,
-    enum: ['ASC', 'DESC'],
-    description: 'Sort order',
-  })
-  async getPaginatedGroups(
+  async getOrganizationGroups(
     @Param('id', ParseUUIDPipe) id: string,
-    @Query() paginationDto: PaginationDto<Group>,
-  ): Promise<PaginationResult<SafeGroupDto>> {
-    console.log('paginationDto', paginationDto);
-    const filter: Record<string, any> = {
-      organization: { id: id },
-    };
-    if (
-      paginationDto.filterBy &&
-      paginationDto.filterBy != 'organization' &&
-      paginationDto.filterValue
-    ) {
-      filter[paginationDto.filterBy] = ILike(
-        `%${paginationDto.filterValue.toLowerCase()}%`,
-      );
-    }
-    paginationDto.filter = filter;
-    return await this.groupsService.paginate(paginationDto);
+  ): Promise<SafeGroupDto[]> {
+    return await this.groupsService.getOrganizationGroups(id);
   }
 
   @Get(':id/employees')
@@ -337,62 +226,11 @@ export class OrganizationsController {
   @ApiResponse({
     status: 200,
     description: 'Retrieved organization employees successfully',
-    type: PaginationResult<SafeEmployeeDto>,
+    type: [SafeEmployeeDto],
   })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Page number',
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Number of items per page',
-  })
-  @ApiQuery({
-    name: 'filterBy',
-    required: false,
-    type: String,
-    description: 'Field to filter by',
-  })
-  @ApiQuery({
-    name: 'filterValue',
-    required: false,
-    type: String,
-    description: 'Value to filter by',
-  })
-  @ApiQuery({
-    name: 'sortBy',
-    required: false,
-    type: String,
-    description: 'Field to sort by',
-  })
-  @ApiQuery({
-    name: 'sortOrder',
-    required: false,
-    enum: ['ASC', 'DESC'],
-    description: 'Sort order',
-  })
-  async getPaginatedEmployees(
+  async getOrganizationEmployees(
     @Param('id', ParseUUIDPipe) id: string,
-    @Query() paginationDto: PaginationDto<Group>,
-  ): Promise<PaginationResult<SafeGroupDto>> {
-    console.log('paginationDto', paginationDto);
-    const filter: Record<string, any> = {
-      organization: { id: id },
-    };
-    if (
-      paginationDto.filterBy &&
-      paginationDto.filterBy != 'organization' &&
-      paginationDto.filterValue
-    ) {
-      filter[paginationDto.filterBy] = ILike(
-        `%${paginationDto.filterValue.toLowerCase()}%`,
-      );
-    }
-    paginationDto.filter = filter;
-    return await this.employeesService.paginate(paginationDto);
+  ): Promise<SafeEmployeeDto[]> {
+    return await this.organizationsService.getOrganizationEmployees(id);
   }
 }

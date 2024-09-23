@@ -10,7 +10,7 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || "An error occurred");
+    throw new Error(error.message || "An error occurred");
   }
   return response.json();
 };
@@ -143,14 +143,14 @@ export const addUserToOrganization = (organizationId: string, userId: string) =>
 export const removeUserFromOrganization = (organizationId: string, userId: string) => 
   makeRequest<SafeUserDto[]>('DELETE', `api/v1/organizations/${organizationId}/users/${userId}`);
 
-export const getOrganizationUsers = (organizationId: string, query?: PaginationDto) => 
-  makeRequest<PaginationResult<SafeUserDto>>('GET', `api/v1/organizations/${organizationId}/users`, query);
+export const getOrganizationUsers = (id: string) => 
+  makeRequest<SafeUserDto[]>('GET', `api/v1/organizations/${id}/users`);
 
-export const getOrganizationGroups = (organizationId: string, query?: PaginationDto) => 
-  makeRequest<PaginationResult<SafeGroupDto>>('GET', `api/v1/organizations/${organizationId}/groups`, query);
+export const getOrganizationGroups = (id: string) => 
+  makeRequest<SafeGroupDto[]>('GET', `api/v1/organizations/${id}/groups`);
 
-export const getOrganizationEmployees = (organizationId: string, query?: PaginationDto) => 
-  makeRequest<PaginationResult<SafeEmployeeDto>>('GET', `api/v1/organizations/${organizationId}/employees`, query);
+export const getOrganizationEmployees = (id: string) => 
+  makeRequest<SafeEmployeeDto[]>('GET', `api/v1/organizations/${id}/employees`);
 
 // Groups
 export const createGroup = (data: CreateGroupDto) => 

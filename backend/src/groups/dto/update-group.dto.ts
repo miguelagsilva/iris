@@ -2,13 +2,12 @@ import {
   IsString,
   Length,
   Matches,
-  IsNotEmpty,
   IsOptional,
+  IsUUID,
 } from 'class-validator';
 
 export class UpdateGroupDto {
   @IsString()
-  @IsNotEmpty()
   @Length(2, 50)
   @Matches(/^[\p{L}\p{M}\p{N}\s'\-,.!&()]+$/u, {
     message:
@@ -16,4 +15,8 @@ export class UpdateGroupDto {
   })
   @IsOptional()
   name?: string;
+
+  @IsUUID(undefined, {each:true})
+  @IsOptional()
+  employeesIds?: string[];
 }

@@ -54,6 +54,18 @@ export class GroupsService {
     return group;
   }
 
+  async getOrganizationGroups(organizationId: string): Promise<SafeGroupDto[]> {
+    const groups = await this.groupsRepository.find({
+      where: { organization: { id: organizationId } },
+      relations: ['organization', 'employees'],
+    });
+    if (!groups) {
+      throw new NotFoundException(`This organization does not have any groups`);
+    }
+    console.log(groups)
+    return groups.map((g) => g.toSafeGroup());
+  }
+
   // CRUD
 
   async create(createGroupDto: CreateGroupDto): Promise<SafeGroupDto> {
@@ -64,44 +76,19 @@ export class GroupsService {
     const { organizationId, ...newGroup } = createGroupDto;
     const organization =
       await this.organizationService.getOrganization(organizationId);
+    const employees = await this.employeesService.checkEmployeesBelongToOrganization(createGroupDto.employeesIds, organizationId)
     const createdGroup = this.groupsRepository.create({
       ...newGroup,
       organization,
+      employees,
     });
     await this.groupsRepository.save(createdGroup);
     return this.findOne(createdGroup.id);
   }
 
-  async paginate(
-    paginationDto: PaginationDto<Group>,
-  ): Promise<PaginationResult<SafeGroupDto>> {
-    let { page, limit } = paginationDto;
-    const { filter, sortBy, sortOrder } = paginationDto;
-    page = page || 1;
-    limit = limit || 10;
-    const skip = (page - 1) * limit;
-    const sort = sortBy
-      ? { [sortBy]: sortOrder }
-      : ({ id: 'ASC' } as FindOptionsOrder<Group>);
-    const [items, total] = await this.groupsRepository.findAndCount({
-      where: [filter],
-      order: sort,
-      take: limit,
-      skip: skip,
-      relations: ['organization'],
-    });
-    const safeItems = items.map((i) => i.toSafeGroup());
-    return {
-      items: safeItems,
-      total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
-    };
-  }
-
   async findOne(id: string): Promise<SafeGroupDto> {
     const group = await this.getGroup(id);
+    console.log(group.toSafeGroup())
     return group.toSafeGroup();
   }
 
@@ -111,7 +98,11 @@ export class GroupsService {
   ): Promise<SafeGroupDto> {
     const group = await this.getGroup(id);
     await this.checkGroupExistence(updateGroupDto.name, group.organization.id);
-    await this.groupsRepository.update(id, updateGroupDto);
+    const employees = await this.employeesService.checkEmployeesBelongToOrganization(updateGroupDto.employeesIds, group.organization.id)
+    await this.groupsRepository.update(id, {
+      ...updateGroupDto,
+      employees,
+    });
     return this.findOne(id);
   }
 
@@ -152,8 +143,26 @@ export class GroupsService {
   ): Promise<SafeGroupDto> {
     const group = await this.getGroup(groupId);
     const employee = await this.employeesService.getEmployee(employeeId);
+    console.log(group.employees.length)
     group.removeEmployee(employee);
+    console.log(group.employees.length)
     const savedGroup = await this.groupsRepository.save(group);
     return savedGroup.toSafeGroup();
+  }
+
+  async checkGroupsBelongToOrganization(groupsIds: string[], organizationId: string): Promise<Group[]> {
+    const groups = new Array<Group>();
+    if (groupsIds) {
+      for (const groupId of groupsIds) {
+        const group = await this.getGroup(groupId);
+        if (group.organization.id !== organizationId) {
+          throw new ConflictException(
+            'Employee cannot be assigned to a group from another organization',
+          );
+        }
+        groups.push(group);
+      }
+    }
+    return groups;
   }
 }

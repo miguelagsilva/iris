@@ -69,20 +69,26 @@ export type UpdateOrganizationDto = {
   name?: string;
 }
 
-export type CreateGroupDto = {
-  name: string;
-  organizationId: string;
-}
+// Group
 
 export type SafeGroupDto = {
   id: string;
   name: string;
+  employees: SafeEmployeeDto[];
   organizationId: string;
 }
 
 export type UpdateGroupDto = {
   name?: string;
+  employeesIds?: string[];
 }
+
+export type CreateGroupDto = {
+  name: string;
+  organizationId: string;
+  employeesIds: string[];
+}
+
 
 // Employee
 
@@ -108,12 +114,14 @@ export type SignInEmployeeDto = {
 export type UpdateEmployeeDto = {
   name?: string;
   phone_number?: string;
+  groupsIds?: string[];
 }
 
 export type CreateEmployeeDto = {
   name: string;
   phone_number: string;
   organizationId: string;
+  groupsIds: string[];
 }
 
 // Pagination
@@ -174,4 +182,47 @@ export const CreateEmployeeSchema = z.object({
   phone_number: z.string()
     .regex(/^9\d{8}$/, 'Please enter a valid Portuguese phone number'),
   organizationId: z.string().uuid('Invalid organization ID'),
+  groupsIds: z.array(z.string().uuid('Invalid employee ID')),
+});
+
+export const UpdateEmployeeSchema = z.object({
+  name: z.string()
+    .min(2, 'Name must be at least 2 characters long')
+    .max(50, 'Name must not exceed 50 characters')
+    .regex(/^[\p{L}\p{M}\p{N}\s'\-,.!&()]+$/u, {
+      message: 'Name can contain letters, numbers, accents, spaces, and common punctuation (apostrophes, hyphens, periods, commas, exclamation points, ampersands, and parentheses)',
+    })
+    .optional(),
+  phone_number: z.string()
+    .regex(/^9\d{8}$/, 'Please enter a valid Portuguese phone number')
+    .optional(),
+  organizationId: z.string()
+    .uuid('Invalid organization ID')
+    .optional(),
+  groupsIds: z.array(z.string().uuid('Invalid employee ID')).optional(),
+});
+
+export const CreateGroupSchema = z.object({
+  name: z.string()
+    .min(2, 'Name must be at least 2 characters long')
+    .max(50, 'Name must not exceed 50 characters')
+    .regex(/^[\p{L}\p{M}\p{N}\s'\-,.!&()]+$/u, {
+      message: 'Name can contain letters, numbers, accents, spaces, and common punctuation (apostrophes, hyphens, periods, commas, exclamation points, ampersands, and parentheses)',
+    }),
+  organizationId: z.string().uuid('Invalid organization ID'),
+  employeesIds: z.array(z.string().uuid('Invalid employee ID')),
+});
+
+export const UpdateGroupSchema = z.object({
+  name: z.string()
+    .min(2, 'Name must be at least 2 characters long')
+    .max(50, 'Name must not exceed 50 characters')
+    .regex(/^[\p{L}\p{M}\p{N}\s'\-,.!&()]+$/u, {
+      message: 'Name can contain letters, numbers, accents, spaces, and common punctuation (apostrophes, hyphens, periods, commas, exclamation points, ampersands, and parentheses)',
+    })
+    .optional(),
+  organizationId: z.string()
+    .uuid('Invalid organization ID')
+    .optional(),
+  employeesIds: z.array(z.string().uuid('Invalid employee ID')).optional(),
 });

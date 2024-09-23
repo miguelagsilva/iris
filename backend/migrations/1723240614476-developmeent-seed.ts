@@ -40,7 +40,7 @@ export class DevelopmentSeed1723240614476 implements MigrationInterface {
         const employee_id = faker.string.uuid();
         employeeIds.push(employee_id);
         const employee_name = faker.person.fullName().replace(/'/g, '');
-        const employee_phone_number = faker.phone.number().replace(/'/g, '');
+        const employee_phone_number = faker.helpers.fromRegExp(/^9\d\d{7}$/).replace(/'/g, '');
         employees.push(`('${employee_id}', '${employee_name}', '${employee_phone_number}', '${organization_id}')`);
       }
 

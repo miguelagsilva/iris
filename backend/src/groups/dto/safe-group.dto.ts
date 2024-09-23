@@ -1,5 +1,6 @@
 import { Expose, Transform } from 'class-transformer';
 import { IsString, IsUUID, IsNotEmpty, Length, Matches } from 'class-validator';
+import { SafeEmployeeDto } from 'src/employees/dto/safe-employee.dto';
 
 export class SafeGroupDto {
   @IsUUID()
@@ -16,6 +17,9 @@ export class SafeGroupDto {
   })
   @Expose()
   name: string;
+
+  @Expose()
+  employees: SafeEmployeeDto[];
 
   @IsUUID()
   @Expose()

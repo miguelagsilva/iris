@@ -6,7 +6,6 @@ import { UserSignIn } from "./pages/user/sign-in";
 import "@/index.css";
 import NotFound from "./pages/404";
 import { UserDashboardGroups } from "./pages/user/dashboard/groups";
-import { UserDashboardUsers } from "./pages/user/dashboard/users/index";
 import { UserDashboardSettings } from "./pages/user/dashboard/settings";
 import { UserDashboardHome } from "./pages/user/dashboard/index";
 import UserDashboardLayout from "./pages/user/dashboard/_layout";
@@ -28,6 +27,9 @@ import OrganizationProtectedRoute from "./routes/organization-protected";
 import { EmployeeSignIn } from "./pages/employee/sign-in";
 import { Toaster } from "./components/ui/toaster";
 import AiChat from "./pages/employee/chat/aichat";
+import { UserDashboardGroupEdit } from "./pages/user/dashboard/groups/[id]/edit";
+import { UserDashboardGroupView } from "./pages/user/dashboard/groups/[id]";
+import { UserDashboardGroupNew } from "./pages/user/dashboard/groups/new";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -64,7 +66,14 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                       <Route path="edit" element={<UserDashboardUserEdit />} />
                     </Route>
                   </Route>
-                  <Route path="groups" element={<UserDashboardGroups />} />
+                  <Route path="groups">
+                    <Route index element={<UserDashboardGroups />} />
+                    <Route path="new" element={<UserDashboardGroupNew />} />
+                    <Route path=":groupId">
+                      <Route index element={<UserDashboardGroupView />} />
+                      <Route path="edit" element={<UserDashboardGroupEdit />} />
+                    </Route>
+                  </Route>
                   <Route path="employees">
                     <Route index element={<UserDashboardEmployees />} />
                     <Route path="new" element={<UserDashboardEmployeeNew />} />

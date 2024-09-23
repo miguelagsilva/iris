@@ -14,38 +14,37 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from '@/components/ui/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CreateEmployeeDto, CreateEmployeeSchema } from '@/types/api';
-import { createEmployee } from '@/lib/api';
+import { CreateGroupDto, CreateGroupSchema } from '@/types/api';
+import { createGroup } from '@/lib/api';
 import { useUser } from "@/hooks/user";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 
-export function UserDashboardEmployeeNew() {
+export function UserDashboardGroupNew() {
   const { user } = useUser();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const form = useForm<CreateEmployeeDto>({
-    resolver: zodResolver(CreateEmployeeSchema),
+  const form = useForm<CreateGroupDto>({
+    resolver: zodResolver(CreateGroupSchema),
     defaultValues: {
       name: "",
-      phone_number: "",
       organizationId: user?.organization.id || "",
     },
   });
 
-  async function onSubmit(values: CreateEmployeeDto) {
+  async function onSubmit(values: CreateGroupDto) {
     setError(null);
     setIsLoading(true);
     try {
-      await createEmployee(values);
+      await createGroup(values);
       toast({
         variant: "success",
         title: "Success",
-        description: "Employee has been created.",
+        description: "Group has been created.",
       })
-      navigate('/user/dashboard/employees')
+      navigate('/user/dashboard/groups')
     } catch (error: any) {
       setError(error.message || "An unexpected error occurred. Please try again.");
     } finally {
@@ -64,7 +63,7 @@ export function UserDashboardEmployeeNew() {
       </Button>
       <Card>
         <CardHeader>
-          <CardTitle>Add New Employee</CardTitle>
+          <CardTitle>Add New Group</CardTitle>
         </CardHeader>
         <CardContent>
           {error && (
@@ -88,21 +87,8 @@ export function UserDashboardEmployeeNew() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="phone_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone number</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Submitting...' : 'Create Employee'}
+                {isLoading ? 'Submitting...' : 'Create Group'}
               </Button>
             </form>
           </Form>

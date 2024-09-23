@@ -61,9 +61,11 @@ export class EmployeesService {
     const { organizationId, ...newEmployee } = createEmployeeDto;
     const organization =
       await this.organizationService.getOrganization(organizationId);
+    const groups = await this.groupsService.checkGroupsBelongToOrganization(createEmployeeDto.groupsIds, organizationId)
     const createdEmployee = this.employeesRepository.create({
       ...newEmployee,
       organization,
+      groups,
     });
     await this.employeesRepository.save(createdEmployee);
     return this.findOne(createdEmployee.id);
@@ -106,9 +108,13 @@ export class EmployeesService {
     id: string,
     updateEmployeeDto: UpdateEmployeeDto,
   ): Promise<SafeEmployeeDto> {
-    await this.getEmployee(id);
+    const employee = await this.getEmployee(id);
     await this.checkEmployeeExistence(updateEmployeeDto.phone_number);
-    await this.employeesRepository.update(id, updateEmployeeDto);
+    const groups = await this.groupsService.checkGroupsBelongToOrganization(updateEmployeeDto.groupsIds, employee.organization.id)
+    await this.employeesRepository.update(id, {
+      ...updateEmployeeDto,
+      groups
+    });
     return this.findOne(id);
   }
 
@@ -148,6 +154,20 @@ export class EmployeesService {
     employee.removeGroup(group);
     const savedEmployee = await this.employeesRepository.save(employee);
     return savedEmployee.toSafeEmployee();
+  }
+
+  async checkEmployeesBelongToOrganization(employeesIds: string[], organizationId: string): Promise<Employee[]> {
+    const employees = new Array<Employee>();
+    for (const employeeId of employeesIds) {
+      const employee = await this.getEmployee(employeeId);
+      if (employee.organization.id !== organizationId) {
+        throw new ConflictException(
+          'Employee cannot be assigned to a group from another organization',
+        );
+      }
+      employees.push(employee);
+    }
+    return employees;
   }
 
   // Auth
