@@ -165,7 +165,7 @@ export class OrganizationsService {
       relations: {
         groups: {
           employees: true,
-        } 
+        },
       },
     });
     if (!organization) {

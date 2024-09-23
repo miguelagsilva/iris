@@ -1,7 +1,7 @@
-import OpenAI from "openai";
+import OpenAI from 'openai';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { GroupsService } from '../groups/groups.service';
-import { ConfigService } from "@nestjs/config";
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AiService {
@@ -19,34 +19,40 @@ export class AiService {
     const createdMessage = await this.openai.beta.threads.messages.create(
       threadId,
       {
-        role: "user",
-        content: "I need to solve the equation `3x + 11 = 14`. Can you help me?"
-      }
+        role: 'user',
+        content:
+          'I need to solve the equation `3x + 11 = 14`. Can you help me?',
+      },
     );
   }
 
   async run(assistantId: string, threadId: string) {
-    const run = this.openai.beta.threads.runs.stream(threadId, {
-      assistant_id: assistantId
-    })
-    .on('textCreated', (text) => process.stdout.write('\nassistant > '))
-    .on('textDelta', (textDelta, snapshot) => process.stdout.write(textDelta.value))
-    .on('toolCallCreated', (toolCall) => process.stdout.write(`\nassistant > ${toolCall.type}\n\n`))
-    .on('toolCallDelta', (toolCallDelta, snapshot) => {
-      if (toolCallDelta.type === 'code_interpreter') {
-        if (toolCallDelta.code_interpreter.input) {
-          process.stdout.write(toolCallDelta.code_interpreter.input);
+    const run = this.openai.beta.threads.runs
+      .stream(threadId, {
+        assistant_id: assistantId,
+      })
+      .on('textCreated', (text) => process.stdout.write('\nassistant > '))
+      .on('textDelta', (textDelta, snapshot) =>
+        process.stdout.write(textDelta.value),
+      )
+      .on('toolCallCreated', (toolCall) =>
+        process.stdout.write(`\nassistant > ${toolCall.type}\n\n`),
+      )
+      .on('toolCallDelta', (toolCallDelta, snapshot) => {
+        if (toolCallDelta.type === 'code_interpreter') {
+          if (toolCallDelta.code_interpreter.input) {
+            process.stdout.write(toolCallDelta.code_interpreter.input);
+          }
+          if (toolCallDelta.code_interpreter.outputs) {
+            process.stdout.write('\noutput >\n');
+            toolCallDelta.code_interpreter.outputs.forEach((output) => {
+              if (output.type === 'logs') {
+                process.stdout.write(`\n${output.logs}\n`);
+              }
+            });
+          }
         }
-        if (toolCallDelta.code_interpreter.outputs) {
-          process.stdout.write("\noutput >\n");
-          toolCallDelta.code_interpreter.outputs.forEach(output => {
-            if (output.type === "logs") {
-              process.stdout.write(`\n${output.logs}\n`);
-            }
-          });
-        }
-      }
-    });
+      });
   }
 
   async streamCompletion(prompt: string) {

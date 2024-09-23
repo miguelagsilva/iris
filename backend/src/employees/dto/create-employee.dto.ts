@@ -26,7 +26,7 @@ export class CreateEmployeeDto {
   @IsPhoneNumber('PT')
   phone_number: string;
 
-  @IsUUID(undefined, {each:true})
+  @IsUUID(undefined, { each: true })
   @IsNotEmpty()
   groupsIds: string[];
 }

@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { AssistantsService } from './assistants.service';
 import { CreateAssistantDto } from './dto/create-assistant.dto';
 
@@ -17,16 +25,12 @@ export class AssistantsController {
   }
 
   @Get(':id')
-  findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.assistantsService.findOne(id);
   }
 
   @Delete(':id')
-  remove(
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.assistantsService.remove(id);
   }
 }

@@ -1,10 +1,4 @@
-import {
-  IsString,
-  Length,
-  Matches,
-  IsOptional,
-  IsUUID,
-} from 'class-validator';
+import { IsString, Length, Matches, IsOptional, IsUUID } from 'class-validator';
 
 export class UpdateGroupDto {
   @IsString()
@@ -16,7 +10,7 @@ export class UpdateGroupDto {
   @IsOptional()
   name?: string;
 
-  @IsUUID(undefined, {each:true})
+  @IsUUID(undefined, { each: true })
   @IsOptional()
   employeesIds?: string[];
 }

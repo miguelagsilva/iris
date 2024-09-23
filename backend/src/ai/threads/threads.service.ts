@@ -1,4 +1,10 @@
-import { ConflictException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateThreadDto } from './dto/create-thread.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -24,9 +30,7 @@ export class ThreadsService {
       where: { assistant: assistant },
     });
     if (existingThread) {
-      throw new ConflictException(
-        'That grou alread has an thread exists.',
-      );
+      throw new ConflictException('That grou alread has an thread exists.');
     }
   }
 
@@ -40,7 +44,6 @@ export class ThreadsService {
     }
     return thread;
   }
-
 
   async create(createThreadDto: CreateThreadDto): Promise<SafeThreadDto> {
     await this.checkThreadExistence(createThreadDto.assistantId);

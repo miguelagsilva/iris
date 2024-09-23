@@ -1,4 +1,10 @@
-import { ConflictException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateAssistantDto } from './dto/create-assistant.dto';
 import { SafeAssistantDto } from './dto/safe-assistant.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -24,9 +30,7 @@ export class AssistantsService {
       where: { group: group },
     });
     if (existingAssistant) {
-      throw new ConflictException(
-        'That grou alread has an assistant exists.',
-      );
+      throw new ConflictException('That grou alread has an assistant exists.');
     }
   }
 
@@ -41,12 +45,15 @@ export class AssistantsService {
     return assistant;
   }
 
-
-  async create(createAssistantDto: CreateAssistantDto): Promise<SafeAssistantDto> {
+  async create(
+    createAssistantDto: CreateAssistantDto,
+  ): Promise<SafeAssistantDto> {
     await this.checkAssistantExistence(createAssistantDto.groupId);
     const { groupId, ...newEmployee } = createAssistantDto;
     const group = await this.groupsService.getGroup(groupId);
-    const createdOpenAIAssitantId = await this.createOpenAIAssistant(group.name);
+    const createdOpenAIAssitantId = await this.createOpenAIAssistant(
+      group.name,
+    );
     const createdAssistant = this.assistantsRepository.create({
       ...newEmployee,
       group,
@@ -80,9 +87,10 @@ export class AssistantsService {
   private async createOpenAIAssistant(name: string): Promise<string> {
     const assistant = await this.aiService.openai.beta.assistants.create({
       name: name,
-      instructions: "És uma secretária pessoal para trabalhadores no setor da construção civil. Pesquisa os ficheiros pela informação solicitada. Caso tenhas alguma dúvida no que te é pedido deves questionar o utilizador sobre o seu pedido. Responde em português de portugal. Não respondas sobre outros temas não relacionados é construção civil e o contexto dos ficheiros que tens acesso.",
-      tools: [{ type: "file_search" }],
-      model: "gpt-4o",
+      instructions:
+        'És uma secretária pessoal para trabalhadores no setor da construção civil. Pesquisa os ficheiros pela informação solicitada. Caso tenhas alguma dúvida no que te é pedido deves questionar o utilizador sobre o seu pedido. Responde em português de portugal. Não respondas sobre outros temas não relacionados é construção civil e o contexto dos ficheiros que tens acesso.',
+      tools: [{ type: 'file_search' }],
+      model: 'gpt-4o',
       temperature: 0.5,
     });
     if (!assistant.id) {

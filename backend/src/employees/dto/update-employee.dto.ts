@@ -23,7 +23,7 @@ export class UpdateEmployeeDto {
   @IsOptional()
   phone_number?: string;
 
-  @IsUUID(undefined, {each:true})
+  @IsUUID(undefined, { each: true })
   @IsOptional()
   groupsIds?: string[];
 }

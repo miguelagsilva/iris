@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { ThreadsService } from './threads.service';
 import { CreateThreadDto } from './dto/create-thread.dto';
 
@@ -17,16 +25,12 @@ export class ThreadsController {
   }
 
   @Get(':id')
-  findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.threadsService.findOne(id);
   }
 
   @Delete(':id')
-  remove(
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.threadsService.remove(id);
   }
 }

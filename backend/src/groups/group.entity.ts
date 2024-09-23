@@ -63,10 +63,13 @@ export class Group {
       excludeExtraneousValues: true,
     });
 
-    safeGroup.employees = this.employees ? 
-      this.employees.map(e => plainToInstance(SafeEmployeeDto, e, { excludeExtraneousValues: true })) 
-      : 
-      [];
+    safeGroup.employees = this.employees
+      ? this.employees.map((e) =>
+          plainToInstance(SafeEmployeeDto, e, {
+            excludeExtraneousValues: true,
+          }),
+        )
+      : [];
 
     return safeGroup;
   }
@@ -98,11 +101,11 @@ export class Group {
       return [];
     }
     this.employees = this.employees.filter((e) => e.id !== employee.id);
-    
+
     if (employee.groups) {
-      employee.groups = employee.groups.filter(g => g.id !== this.id);
+      employee.groups = employee.groups.filter((g) => g.id !== this.id);
     }
-    
+
     return this.employees;
   }
 }

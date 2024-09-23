@@ -12,7 +12,7 @@ export class CreateGroupDto {
   })
   name: string;
 
-  @IsUUID(undefined, {each:true})
+  @IsUUID(undefined, { each: true })
   employeesIds: string[];
 
   @IsUUID()

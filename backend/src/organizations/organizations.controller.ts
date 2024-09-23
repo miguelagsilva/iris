@@ -31,7 +31,7 @@ export class OrganizationsController {
   constructor(
     private readonly organizationsService: OrganizationsService,
     @Inject(forwardRef(() => GroupsService))
-    private groupsService: GroupsService
+    private groupsService: GroupsService,
   ) {}
 
   @Post()

@@ -62,7 +62,7 @@ export class GroupsService {
     if (!groups) {
       throw new NotFoundException(`This organization does not have any groups`);
     }
-    console.log(groups)
+    console.log(groups);
     return groups.map((g) => g.toSafeGroup());
   }
 
@@ -76,7 +76,11 @@ export class GroupsService {
     const { organizationId, ...newGroup } = createGroupDto;
     const organization =
       await this.organizationService.getOrganization(organizationId);
-    const employees = await this.employeesService.checkEmployeesBelongToOrganization(createGroupDto.employeesIds, organizationId)
+    const employees =
+      await this.employeesService.checkEmployeesBelongToOrganization(
+        createGroupDto.employeesIds,
+        organizationId,
+      );
     const createdGroup = this.groupsRepository.create({
       ...newGroup,
       organization,
@@ -88,7 +92,7 @@ export class GroupsService {
 
   async findOne(id: string): Promise<SafeGroupDto> {
     const group = await this.getGroup(id);
-    console.log(group.toSafeGroup())
+    console.log(group.toSafeGroup());
     return group.toSafeGroup();
   }
 
@@ -98,7 +102,11 @@ export class GroupsService {
   ): Promise<SafeGroupDto> {
     const group = await this.getGroup(id);
     await this.checkGroupExistence(updateGroupDto.name, group.organization.id);
-    const employees = await this.employeesService.checkEmployeesBelongToOrganization(updateGroupDto.employeesIds, group.organization.id)
+    const employees =
+      await this.employeesService.checkEmployeesBelongToOrganization(
+        updateGroupDto.employeesIds,
+        group.organization.id,
+      );
     await this.groupsRepository.update(id, {
       ...updateGroupDto,
       employees,
@@ -143,14 +151,17 @@ export class GroupsService {
   ): Promise<SafeGroupDto> {
     const group = await this.getGroup(groupId);
     const employee = await this.employeesService.getEmployee(employeeId);
-    console.log(group.employees.length)
+    console.log(group.employees.length);
     group.removeEmployee(employee);
-    console.log(group.employees.length)
+    console.log(group.employees.length);
     const savedGroup = await this.groupsRepository.save(group);
     return savedGroup.toSafeGroup();
   }
 
-  async checkGroupsBelongToOrganization(groupsIds: string[], organizationId: string): Promise<Group[]> {
+  async checkGroupsBelongToOrganization(
+    groupsIds: string[],
+    organizationId: string,
+  ): Promise<Group[]> {
     const groups = new Array<Group>();
     if (groupsIds) {
       for (const groupId of groupsIds) {

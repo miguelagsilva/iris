@@ -8,10 +8,7 @@ import {
   Column,
   Unique,
 } from 'typeorm';
-import {
-  IsUUID,
-  IsNotEmpty,
-} from 'class-validator';
+import { IsUUID, IsNotEmpty } from 'class-validator';
 import { Exclude, plainToInstance } from 'class-transformer';
 import { Employee } from '../../../employees/employee.entity';
 import { Assistant } from '../../../ai/assistants/entities/assistant.entity';

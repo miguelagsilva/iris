@@ -61,7 +61,10 @@ export class EmployeesService {
     const { organizationId, ...newEmployee } = createEmployeeDto;
     const organization =
       await this.organizationService.getOrganization(organizationId);
-    const groups = await this.groupsService.checkGroupsBelongToOrganization(createEmployeeDto.groupsIds, organizationId)
+    const groups = await this.groupsService.checkGroupsBelongToOrganization(
+      createEmployeeDto.groupsIds,
+      organizationId,
+    );
     const createdEmployee = this.employeesRepository.create({
       ...newEmployee,
       organization,
@@ -110,10 +113,13 @@ export class EmployeesService {
   ): Promise<SafeEmployeeDto> {
     const employee = await this.getEmployee(id);
     await this.checkEmployeeExistence(updateEmployeeDto.phone_number);
-    const groups = await this.groupsService.checkGroupsBelongToOrganization(updateEmployeeDto.groupsIds, employee.organization.id)
+    const groups = await this.groupsService.checkGroupsBelongToOrganization(
+      updateEmployeeDto.groupsIds,
+      employee.organization.id,
+    );
     await this.employeesRepository.update(id, {
       ...updateEmployeeDto,
-      groups
+      groups,
     });
     return this.findOne(id);
   }
@@ -156,7 +162,10 @@ export class EmployeesService {
     return savedEmployee.toSafeEmployee();
   }
 
-  async checkEmployeesBelongToOrganization(employeesIds: string[], organizationId: string): Promise<Employee[]> {
+  async checkEmployeesBelongToOrganization(
+    employeesIds: string[],
+    organizationId: string,
+  ): Promise<Employee[]> {
     const employees = new Array<Employee>();
     for (const employeeId of employeesIds) {
       const employee = await this.getEmployee(employeeId);

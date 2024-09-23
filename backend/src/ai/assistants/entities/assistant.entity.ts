@@ -9,10 +9,7 @@ import {
   OneToMany,
   OneToOne,
 } from 'typeorm';
-import {
-  IsUUID,
-  IsNotEmpty,
-} from 'class-validator';
+import { IsUUID, IsNotEmpty } from 'class-validator';
 import { Exclude, plainToInstance } from 'class-transformer';
 import { Thread } from '../../../ai/threads/entities/thread.entity';
 import { Group } from '../../../groups/group.entity';
