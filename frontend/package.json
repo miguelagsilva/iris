@@ -11,24 +11,32 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
+    "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
     "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-popover": "^1.1.1",
+    "@radix-ui/react-scroll-area": "^1.1.0",
     "@radix-ui/react-select": "^2.1.1",
+    "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-toast": "^1.2.1",
     "@tanstack/react-table": "^8.20.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "i18next": "^23.14.0",
+    "input-otp": "^1.2.4",
     "lucide-react": "^0.424.0",
-    "next-themes": "^0.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.52.2",
     "react-icons": "^5.2.1",
     "react-router-dom": "^6.26.0",
-    "sonner": "^1.5.0",
     "tailwind-merge": "^2.4.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^22.1.0",
@@ -45,7 +53,8 @@
     "prettier": "^3.3.3",
     "swagger-typescript-api": "^13.0.16",
     "tailwindcss": "^3.4.7",
-    "typescript": "^5.2.2",
+    "tsx": "^4.17.0",
+    "typescript": "^5.5.4",
     "vite": "^5.3.4"
   }
 }

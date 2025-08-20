@@ -6,7 +6,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsOrder, Repository } from 'typeorm';
 import { Group } from './group.entity';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
@@ -14,6 +14,9 @@ import { SafeGroupDto } from './dto/safe-group.dto';
 import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { EmployeesService } from '../employees/employees.service';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationResult } from 'src/common/interfaces/pagination-result.interface';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class GroupsService {
@@ -51,6 +54,18 @@ export class GroupsService {
     return group;
   }
 
+  async getOrganizationGroups(organizationId: string): Promise<SafeGroupDto[]> {
+    const groups = await this.groupsRepository.find({
+      where: { organization: { id: organizationId } },
+      relations: ['organization', 'employees'],
+    });
+    if (!groups) {
+      throw new NotFoundException(`This organization does not have any groups`);
+    }
+    console.log(groups);
+    return groups.map((g) => g.toSafeGroup());
+  }
+
   // CRUD
 
   async create(createGroupDto: CreateGroupDto): Promise<SafeGroupDto> {
@@ -61,21 +76,23 @@ export class GroupsService {
     const { organizationId, ...newGroup } = createGroupDto;
     const organization =
       await this.organizationService.getOrganization(organizationId);
+    const employees =
+      await this.employeesService.checkEmployeesBelongToOrganization(
+        createGroupDto.employeesIds,
+        organizationId,
+      );
     const createdGroup = this.groupsRepository.create({
       ...newGroup,
       organization,
+      employees,
     });
     await this.groupsRepository.save(createdGroup);
     return this.findOne(createdGroup.id);
   }
 
-  async findAll(): Promise<SafeGroupDto[]> {
-    const groups = await this.groupsRepository.find();
-    return groups.map((g) => g.toSafeGroup());
-  }
-
   async findOne(id: string): Promise<SafeGroupDto> {
     const group = await this.getGroup(id);
+    console.log(group.toSafeGroup());
     return group.toSafeGroup();
   }
 
@@ -85,7 +102,15 @@ export class GroupsService {
   ): Promise<SafeGroupDto> {
     const group = await this.getGroup(id);
     await this.checkGroupExistence(updateGroupDto.name, group.organization.id);
-    await this.groupsRepository.update(id, updateGroupDto);
+    const employees =
+      await this.employeesService.checkEmployeesBelongToOrganization(
+        updateGroupDto.employeesIds,
+        group.organization.id,
+      );
+    await this.groupsRepository.update(id, {
+      ...updateGroupDto,
+      employees,
+    });
     return this.findOne(id);
   }
 
@@ -126,8 +151,29 @@ export class GroupsService {
   ): Promise<SafeGroupDto> {
     const group = await this.getGroup(groupId);
     const employee = await this.employeesService.getEmployee(employeeId);
+    console.log(group.employees.length);
     group.removeEmployee(employee);
+    console.log(group.employees.length);
     const savedGroup = await this.groupsRepository.save(group);
     return savedGroup.toSafeGroup();
+  }
+
+  async checkGroupsBelongToOrganization(
+    groupsIds: string[],
+    organizationId: string,
+  ): Promise<Group[]> {
+    const groups = new Array<Group>();
+    if (groupsIds) {
+      for (const groupId of groupsIds) {
+        const group = await this.getGroup(groupId);
+        if (group.organization.id !== organizationId) {
+          throw new ConflictException(
+            'Employee cannot be assigned to a group from another organization',
+          );
+        }
+        groups.push(group);
+      }
+    }
+    return groups;
   }
 }

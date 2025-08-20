@@ -1,8 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsString, Length, IsUUID, Matches, IsNotEmpty } from 'class-validator';
+import { SafeEmployeeDto } from 'src/employees/dto/safe-employee.dto';
 
 export class CreateGroupDto {
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
@@ -12,7 +12,9 @@ export class CreateGroupDto {
   })
   name: string;
 
-  @ApiProperty()
+  @IsUUID(undefined, { each: true })
+  employeesIds: string[];
+
   @IsUUID()
   @IsNotEmpty()
   organizationId: string;

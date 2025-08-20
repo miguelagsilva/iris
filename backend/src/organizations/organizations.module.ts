@@ -6,12 +6,14 @@ import { Organization } from './organization.entity';
 import { GroupsModule } from '../groups/groups.module';
 import { forwardRef } from '@nestjs/common';
 import { UsersModule } from '../users/users.module';
+import { EmployeesModule } from 'src/employees/employees.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Organization]),
     forwardRef(() => GroupsModule),
     forwardRef(() => UsersModule),
+    forwardRef(() => EmployeesModule),
   ],
   providers: [OrganizationsService],
   controllers: [OrganizationsController],

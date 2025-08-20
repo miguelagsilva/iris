@@ -17,6 +17,7 @@ import { SafeGroupDto } from '../groups/dto/safe-group.dto';
 import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResult } from '../common/interfaces/pagination-result.interface';
+import { GroupsService } from 'src/groups/groups.service';
 
 @Injectable()
 export class OrganizationsService {
@@ -25,6 +26,8 @@ export class OrganizationsService {
     private organizationsRepository: Repository<Organization>,
     @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
+    @Inject(forwardRef(() => GroupsService))
+    private groupsService: GroupsService,
   ) {}
 
   private async checkOrganizationExistence(code: string) {
@@ -68,7 +71,7 @@ export class OrganizationsService {
     let { page, limit } = paginationDto;
     const { filter, sortBy, sortOrder } = paginationDto;
     page = page || 1;
-    limit = limit || 20;
+    limit = limit || 10;
     const skip = (page - 1) * limit;
     const sort = sortBy
       ? { [sortBy]: sortOrder }
@@ -146,17 +149,40 @@ export class OrganizationsService {
   // Users, groups and employees
 
   async getOrganizationUsers(id: string): Promise<SafeUserDto[]> {
-    const organization = await this.getOrganization(id);
+    const organization = await this.organizationsRepository.findOne({
+      where: { id: id },
+      relations: ['users'],
+    });
+    if (!organization) {
+      throw new NotFoundException(`Organization with id "${id}" not found`);
+    }
     return organization.getUsers().map((o) => o.toSafeUser());
   }
 
-  async getOrganizationEmployees(id: string): Promise<SafeEmployeeDto[]> {
-    const organization = await this.getOrganization(id);
-    return organization.getEmployees().map((e) => e.toSafeEmployee());
+  async getOrganizationGroups(id: string): Promise<SafeGroupDto[]> {
+    const organization = await this.organizationsRepository.findOne({
+      where: { id: id },
+      relations: {
+        groups: {
+          employees: true,
+        },
+      },
+    });
+    if (!organization) {
+      throw new NotFoundException(`Organization with id "${id}" not found`);
+    }
+    console.log(organization.getGroups());
+    return organization.getGroups().map((g) => g.toSafeGroup());
   }
 
-  async getOrganizationGroups(id: string): Promise<SafeGroupDto[]> {
-    const organization = await this.getOrganization(id);
-    return organization.getGroups().map((g) => g.toSafeGroup());
+  async getOrganizationEmployees(id: string): Promise<SafeEmployeeDto[]> {
+    const organization = await this.organizationsRepository.findOne({
+      where: { id: id },
+      relations: ['employees'],
+    });
+    if (!organization) {
+      throw new NotFoundException(`Organization with id "${id}" not found`);
+    }
+    return organization.getEmployees().map((e) => e.toSafeEmployee());
   }
 }

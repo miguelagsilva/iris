@@ -9,7 +9,6 @@ import {
   DeleteDateColumn,
   ManyToOne,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsString,
@@ -18,7 +17,7 @@ import {
   Matches,
   IsNotEmpty,
 } from 'class-validator';
-import { Exclude, plainToClass } from 'class-transformer';
+import { Exclude, plainToInstance } from 'class-transformer';
 import { Organization } from '../organizations/organization.entity';
 import { SafeUserDto } from './dto/safe-user.dto';
 
@@ -29,7 +28,6 @@ export class User {
   @IsUUID()
   id: string;
 
-  @ApiProperty()
   @Column()
   @Index()
   @IsEmail()
@@ -37,19 +35,17 @@ export class User {
   @Length(5, 48)
   email: string;
 
-  @ApiProperty()
   @Column()
   @Exclude({ toPlainOnly: true })
   @IsNotEmpty()
   @Length(8, 64)
-  @Matches(/^(?=.*\d).{8,}$/, {
+  @Matches(/^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "]).*$/, {
     message:
       'Password must be at least 8 characters long and contain at least one number',
   })
   @Exclude()
   password: string;
 
-  @ApiProperty()
   @Column()
   @IsString()
   @IsNotEmpty()
@@ -59,7 +55,6 @@ export class User {
   })
   firstName: string;
 
-  @ApiProperty()
   @Column()
   @IsString()
   @IsNotEmpty()
@@ -69,17 +64,14 @@ export class User {
   })
   lastName: string;
 
-  @ApiProperty()
   @CreateDateColumn()
   @Exclude()
   createdAt: Date;
 
-  @ApiProperty()
   @UpdateDateColumn()
   @Exclude()
   updatedAt: Date;
 
-  @ApiProperty()
   @DeleteDateColumn()
   @Exclude()
   deletedAt: Date;
@@ -88,6 +80,10 @@ export class User {
   organization: Organization;
 
   toSafeUser(): SafeUserDto {
-    return plainToClass(SafeUserDto, this, { excludeExtraneousValues: true });
+    const safeUser = plainToInstance(SafeUserDto, this, {
+      excludeExtraneousValues: true,
+    });
+    safeUser.organizationId = this.organization?.id ? this.organization.id : '';
+    return safeUser;
   }
 }

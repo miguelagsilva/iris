@@ -1,4 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsString, Length, IsUUID, Matches, IsNotEmpty } from 'class-validator';
 
@@ -7,7 +6,6 @@ export class SafeOrganizationDto {
   @Expose()
   id: string;
 
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 20)
@@ -17,7 +15,6 @@ export class SafeOrganizationDto {
   @Expose()
   code: string;
 
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)

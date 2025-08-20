@@ -8,23 +8,23 @@ import {
   ManyToOne,
   ManyToMany,
   Unique,
+  OneToOne,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 import { IsString, Length, IsUUID, Matches, IsNotEmpty } from 'class-validator';
 import { Organization } from '../organizations/organization.entity';
 import { Employee } from '../employees/employee.entity';
 import { SafeGroupDto } from './dto/safe-group.dto';
 import { Exclude, plainToInstance } from 'class-transformer';
+import { Assistant } from '../ai/assistants/entities/assistant.entity';
+import { SafeEmployeeDto } from 'src/employees/dto/safe-employee.dto';
 
 @Entity()
 @Unique(['name'])
 export class Group {
-  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   @IsUUID()
   id: string;
 
-  @ApiProperty()
   @Column()
   @IsString()
   @IsNotEmpty()
@@ -35,17 +35,14 @@ export class Group {
   })
   name: string;
 
-  @ApiProperty()
   @CreateDateColumn()
   @Exclude()
   createdAt: Date;
 
-  @ApiProperty()
   @UpdateDateColumn()
   @Exclude()
   updatedAt: Date;
 
-  @ApiProperty()
   @DeleteDateColumn()
   @Exclude()
   deletedAt: Date;
@@ -58,10 +55,23 @@ export class Group {
   @ManyToMany(() => Employee, (employee) => employee.groups)
   employees: Employee[];
 
+  @OneToOne(() => Assistant, (assistant) => assistant.group)
+  assistant: Assistant;
+
   toSafeGroup(): SafeGroupDto {
-    return plainToInstance(SafeGroupDto, this, {
+    const safeGroup = plainToInstance(SafeGroupDto, this, {
       excludeExtraneousValues: true,
     });
+
+    safeGroup.employees = this.employees
+      ? this.employees.map((e) =>
+          plainToInstance(SafeEmployeeDto, e, {
+            excludeExtraneousValues: true,
+          }),
+        )
+      : [];
+
+    return safeGroup;
   }
 
   getEmployees(): Employee[] {
@@ -90,7 +100,12 @@ export class Group {
     if (!this.employees) {
       return [];
     }
-    this.employees = this.employees.filter((e) => e != employee);
+    this.employees = this.employees.filter((e) => e.id !== employee.id);
+
+    if (employee.groups) {
+      employee.groups = employee.groups.filter((g) => g.id !== this.id);
+    }
+
     return this.employees;
   }
 }

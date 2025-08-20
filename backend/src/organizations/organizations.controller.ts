@@ -9,6 +9,8 @@ import {
   Delete,
   ParseUUIDPipe,
   Query,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
@@ -21,11 +23,16 @@ import { SafeEmployeeDto } from '../employees/dto/safe-employee.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 import { Organization } from './organization.entity';
+import { GroupsService } from 'src/groups/groups.service';
 
 @ApiTags('organizations')
 @Controller('organizations')
 export class OrganizationsController {
-  constructor(private readonly organizationsService: OrganizationsService) {}
+  constructor(
+    private readonly organizationsService: OrganizationsService,
+    @Inject(forwardRef(() => GroupsService))
+    private groupsService: GroupsService,
+  ) {}
 
   @Post()
   @ApiTags('Admin')
@@ -79,7 +86,7 @@ export class OrganizationsController {
     type: 'object',
     description: 'Filter criteria',
   })
-  paginate(
+  getPaginated(
     @Query() paginationDto: PaginationDto<Organization>,
   ): Promise<PaginationResult<SafeOrganizationDto>> {
     return this.organizationsService.paginate(paginationDto);
@@ -176,7 +183,7 @@ export class OrganizationsController {
   @ApiResponse({
     status: 200,
     description: 'Removed user from organization successfully',
-    type: [SafeUserDto],
+    type: SafeUserDto,
   })
   removeUserFromOrganization(
     @Param('id', ParseUUIDPipe) id: string,
@@ -187,43 +194,43 @@ export class OrganizationsController {
 
   @Get(':id/users')
   @ApiTags('Organization')
-  @ApiOperation({ summary: 'Get all users in an organization' })
+  @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({
     status: 200,
     description: 'Retrieved organization users successfully',
     type: [SafeUserDto],
   })
-  getOrganizationUsers(
+  async getOrganizationUsers(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<SafeUserDto[]> {
-    return this.organizationsService.getOrganizationUsers(id);
+    return await this.organizationsService.getOrganizationUsers(id);
   }
 
   @Get(':id/groups')
   @ApiTags('Organization')
-  @ApiOperation({ summary: 'Get all groups of an organization' })
+  @ApiOperation({ summary: 'Get all groups' })
   @ApiResponse({
     status: 200,
     description: 'Retrieved organization groups successfully',
     type: [SafeGroupDto],
   })
-  getOrganizationGroups(
+  async getOrganizationGroups(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<SafeGroupDto[]> {
-    return this.organizationsService.getOrganizationGroups(id);
+    return await this.groupsService.getOrganizationGroups(id);
   }
 
   @Get(':id/employees')
   @ApiTags('Organization')
-  @ApiOperation({ summary: 'Get all employees of an organization' })
+  @ApiOperation({ summary: 'Get all employees' })
   @ApiResponse({
     status: 200,
     description: 'Retrieved organization employees successfully',
     type: [SafeEmployeeDto],
   })
-  getOrganizationEmployees(
+  async getOrganizationEmployees(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<SafeEmployeeDto[]> {
-    return this.organizationsService.getOrganizationEmployees(id);
+    return await this.organizationsService.getOrganizationEmployees(id);
   }
 }

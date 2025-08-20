@@ -6,7 +6,7 @@ export class Session {
   @PrimaryColumn()
   sid: string;
 
-  @Column('json')
+  @Column('jsonb')
   @IsJSON()
   sess: string;
 

@@ -16,22 +16,28 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  // Sessions
+  app.enableCors({
+    origin: configService.get<string>('FRONTEND_URL'),
+    credentials: true,
+  });
 
   const sessionRepository = app.get(getRepositoryToken(Session));
   const sessionStore = new TypeOrmSessionStore(sessionRepository);
 
-  app.use(session({  
-    store: sessionStore,
-    secret: configService.get<string>('SESSIONS_SECRET'),
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-      httpOnly: process.env.NODE_ENV == 'production',
-      secure: process.env.NODE_ENV == 'production',
-    },
-    name: 'user_sid' })
+  app.use(
+    session({
+      store: sessionStore,
+      secret: configService.get<string>('SESSIONS_SECRET'),
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        httpOnly: process.env.NODE_ENV == 'production',
+        secure: process.env.NODE_ENV == 'production',
+        sameSite: 'lax',
+      },
+      name: 'user_sid',
+    }),
   );
 
   // Swagger

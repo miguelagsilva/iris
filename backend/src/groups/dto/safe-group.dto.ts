@@ -1,15 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Transform } from 'class-transformer';
 import { IsString, IsUUID, IsNotEmpty, Length, Matches } from 'class-validator';
+import { SafeEmployeeDto } from 'src/employees/dto/safe-employee.dto';
 
 export class SafeGroupDto {
-  @ApiProperty()
   @IsUUID()
   @IsNotEmpty()
   @Expose()
   id: string;
 
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
@@ -20,7 +18,9 @@ export class SafeGroupDto {
   @Expose()
   name: string;
 
-  @ApiProperty()
+  @Expose()
+  employees: SafeEmployeeDto[];
+
   @IsUUID()
   @Expose()
   @Transform(({ obj }) => obj.organization?.id)

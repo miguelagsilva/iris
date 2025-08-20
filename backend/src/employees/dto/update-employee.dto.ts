@@ -6,12 +6,11 @@ import {
   Matches,
   IsNotEmpty,
   IsOptional,
+  IsUUID,
 } from 'class-validator';
 
 export class UpdateEmployeeDto {
-  @ApiProperty()
   @IsString()
-  @IsNotEmpty()
   @Length(2, 50)
   @Matches(/^[\p{L}\p{M}\p{N}\s'\-,.!&()]+$/u, {
     message:
@@ -20,9 +19,11 @@ export class UpdateEmployeeDto {
   @IsOptional()
   name?: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
   @IsPhoneNumber('PT')
   @IsOptional()
   phone_number?: string;
+
+  @IsUUID(undefined, { each: true })
+  @IsOptional()
+  groupsIds?: string[];
 }

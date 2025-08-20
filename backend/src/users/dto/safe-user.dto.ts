@@ -1,4 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsString,
@@ -10,19 +9,16 @@ import {
 import { Expose } from 'class-transformer';
 
 export class SafeUserDto {
-  @ApiProperty()
   @IsUUID()
   @Expose()
   id: string;
 
-  @ApiProperty()
   @IsEmail()
   @IsNotEmpty()
   @Length(5, 48)
   @Expose()
   email: string;
 
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
@@ -32,7 +28,6 @@ export class SafeUserDto {
   @Expose()
   firstName: string;
 
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
@@ -42,7 +37,7 @@ export class SafeUserDto {
   @Expose()
   lastName: string;
 
-  @ApiProperty()
+  @IsUUID()
   @Expose()
   organizationId: string;
 }

@@ -6,7 +6,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsOrder, Repository } from 'typeorm';
 import { Employee } from './employee.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -14,6 +14,8 @@ import { SafeEmployeeDto } from './dto/safe-employee.dto';
 import { SafeGroupDto } from '../groups/dto/safe-group.dto';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { GroupsService } from '../groups/groups.service';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationResult } from 'src/common/interfaces/pagination-result.interface';
 
 @Injectable()
 export class EmployeesService {
@@ -59,12 +61,45 @@ export class EmployeesService {
     const { organizationId, ...newEmployee } = createEmployeeDto;
     const organization =
       await this.organizationService.getOrganization(organizationId);
+    const groups = await this.groupsService.checkGroupsBelongToOrganization(
+      createEmployeeDto.groupsIds,
+      organizationId,
+    );
     const createdEmployee = this.employeesRepository.create({
       ...newEmployee,
       organization,
+      groups,
     });
     await this.employeesRepository.save(createdEmployee);
     return this.findOne(createdEmployee.id);
+  }
+
+  async paginate(
+    paginationDto: PaginationDto<Employee>,
+  ): Promise<PaginationResult<SafeEmployeeDto>> {
+    let { page, limit } = paginationDto;
+    const { filter, sortBy, sortOrder } = paginationDto;
+    page = page || 1;
+    limit = limit || 10;
+    const skip = (page - 1) * limit;
+    const sort = sortBy
+      ? { [sortBy]: sortOrder }
+      : ({ id: 'ASC' } as FindOptionsOrder<Employee>);
+    const [items, total] = await this.employeesRepository.findAndCount({
+      where: [filter],
+      order: sort,
+      take: limit,
+      skip: skip,
+      relations: ['organization'],
+    });
+    const safeItems = items.map((i) => i.toSafeEmployee());
+    return {
+      items: safeItems,
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<SafeEmployeeDto> {
@@ -76,9 +111,16 @@ export class EmployeesService {
     id: string,
     updateEmployeeDto: UpdateEmployeeDto,
   ): Promise<SafeEmployeeDto> {
-    await this.getEmployee(id);
+    const employee = await this.getEmployee(id);
     await this.checkEmployeeExistence(updateEmployeeDto.phone_number);
-    await this.employeesRepository.update(id, updateEmployeeDto);
+    const groups = await this.groupsService.checkGroupsBelongToOrganization(
+      updateEmployeeDto.groupsIds,
+      employee.organization.id,
+    );
+    await this.employeesRepository.update(id, {
+      ...updateEmployeeDto,
+      groups,
+    });
     return this.findOne(id);
   }
 
@@ -118,5 +160,38 @@ export class EmployeesService {
     employee.removeGroup(group);
     const savedEmployee = await this.employeesRepository.save(employee);
     return savedEmployee.toSafeEmployee();
+  }
+
+  async checkEmployeesBelongToOrganization(
+    employeesIds: string[],
+    organizationId: string,
+  ): Promise<Employee[]> {
+    const employees = new Array<Employee>();
+    for (const employeeId of employeesIds) {
+      const employee = await this.getEmployee(employeeId);
+      if (employee.organization.id !== organizationId) {
+        throw new ConflictException(
+          'Employee cannot be assigned to a group from another organization',
+        );
+      }
+      employees.push(employee);
+    }
+    return employees;
+  }
+
+  // Auth
+
+  async findOneByPhoneNumber(phoneNumber: string): Promise<Employee> {
+    if (!phoneNumber) return null;
+    return await this.employeesRepository.findOne({
+      where: [{ phone_number: phoneNumber }],
+    });
+  }
+
+  async setNewOTP(employee: Employee, otp: string): Promise<Employee> {
+    employee.otp = otp;
+    employee.otp_expires_at = new Date(Date.now() + 5 * 60 * 1000);
+    await this.employeesRepository.save(employee);
+    return await this.getEmployee(employee.id);
   }
 }
